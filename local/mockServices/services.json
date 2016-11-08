@@ -1,0 +1,275 @@
+{
+    "users": [
+        {
+          "id": 40051331,
+          "result": {
+            "success": true,
+            "status": 200,
+            "metadata": null,
+            "content": {
+              "id": "40051331",
+              "modifiedBy": null,
+              "modifiedAt": "2016-06-01T16:57:47.000Z",
+              "createdBy": null,
+              "createdAt": "2002-02-06T18:06:40.000Z",
+              "handle": "test_user",
+              "email": "user@topcoder.com",
+              "firstName": "F_user",
+              "lastName": "L_user",
+              "credential": {
+                "activationCode": "3DZ9IVH4",
+                "resetToken": null,
+                "hasPassword": true
+              },
+              "status": "A",
+              "country": null,
+              "regSource": null,
+              "utmSource": null,
+              "utmMedium": null,
+              "utmCampaign": null,
+              "active": true,
+              "profile": null,
+              "emailActive": true
+            }
+          },
+          "version": "v3"
+        },
+        {
+          "id": 50051333,
+          "result": {
+            "success": true,
+            "status": 200,
+            "metadata": null,
+            "content": {
+              "id": "50051333",
+              "modifiedBy": null,
+              "modifiedAt": "2016-06-01T16:57:47.000Z",
+              "createdBy": null,
+              "createdAt": "2002-02-06T18:06:40.000Z",
+              "handle": "test_admin",
+              "email": "admin@topcoder.com",
+              "firstName": "F_admin",
+              "lastName": "L_admin",
+              "credential": {
+                "activationCode": "3DZ9IVH4",
+                "resetToken": null,
+                "hasPassword": true
+              },
+              "status": "A",
+              "country": null,
+              "regSource": null,
+              "utmSource": null,
+              "utmMedium": null,
+              "utmCampaign": null,
+              "active": true,
+              "profile": null,
+              "emailActive": true
+            }
+          },
+          "version": "v3"
+        }
+    ],
+    "members": [
+        {
+            "id": "magrathean",
+            "result": {
+                "success": true,
+                "status": 200,
+                "metadata": null,
+                "content": {
+                    "maxRating": {
+                        "rating": 1114,
+                        "track": "DATA_SCIENCE",
+                        "subTrack": "SRM"
+                    },
+                    "createdBy": "40011578",
+                    "updatedBy": "40011578",
+                    "userId": 40011578,
+                    "firstName": "Firstname",
+                    "lastName": "Lastname",
+                    "quote": "It is a mistake to think you can solve any major problems just with potatoes.",
+                    "description": null,
+                    "otherLangName": null,
+                    "handle": "magrathean",
+                    "handleLower": "magrathean",
+                    "status": "ACTIVE",
+                    "email": "email@email.com",
+                    "addresses": [{
+                        "streetAddr1": "100 Main Street",
+                        "streetAddr2": "",
+                        "city": "Chicago",
+                        "zip": "60601",
+                        "stateCode": "IL",
+                        "type": "HOME",
+                        "updatedAt": null,
+                        "createdAt": null,
+                        "createdBy": null,
+                        "updatedBy": null
+                    }],
+                    "homeCountryCode": "USA",
+                    "competitionCountryCode": "USA",
+                    "photoURL": null,
+                    "tracks": ["DEVELOP"],
+                    "updatedAt": "2015-12-02T14:00Z",
+                    "createdAt": "2014-04-10T10:55Z"
+                }
+            },
+            "version": "v3"
+        },
+        {
+            "id": "test_user1",
+            "result": {
+                "success": true,
+                "status": 200,
+                "metadata": null,
+                "content": {
+                    "maxRating": {
+                        "rating": 1114,
+                        "track": "DATA_SCIENCE",
+                        "subTrack": "SRM"
+                    },
+                    "createdBy": "40011578",
+                    "updatedBy": "40011578",
+                    "userId": 40011578,
+                    "firstName": "Firstname",
+                    "lastName": "Lastname",
+                    "quote": "It is a mistake to think you can solve any major problems just with potatoes.",
+                    "description": null,
+                    "otherLangName": null,
+                    "handle": "test_user1",
+                    "handleLower": "test_user1",
+                    "status": "ACTIVE",
+                    "email": "email_test1@email.com",
+                    "addresses": [{
+                        "streetAddr1": "100 Main Street",
+                        "streetAddr2": "",
+                        "city": "Chicago",
+                        "zip": "60601",
+                        "stateCode": "IL",
+                        "type": "HOME",
+                        "updatedAt": null,
+                        "createdAt": null,
+                        "createdBy": null,
+                        "updatedBy": null
+                    }],
+                    "homeCountryCode": "USA",
+                    "competitionCountryCode": "USA",
+                    "photoURL": null,
+                    "tracks": ["DEVELOP"],
+                    "updatedAt": "2015-12-02T14:00Z",
+                    "createdAt": "2014-04-10T10:55Z"
+                }
+            },
+            "version": "v3"
+        }
+    ],
+    "projects": [
+      {
+        "id": 1,
+        "version": "v4",
+        "result": {
+          "success": true,
+          "status": 200,
+          "content": {
+            "id": 1,
+            "directProjectId": 10588,
+            "billingAccountId": null,
+            "name": "Test forum change 1",
+            "description": "sfjsfjslkfjsdfsdfs",
+            "external": null,
+            "bookmarks": [],
+            "estimatedPrice": null,
+            "actualPrice": null,
+            "terms": [],
+            "type": "visual_design",
+            "status": "draft",
+            "details": {
+              "devices": [
+                "phone"
+              ],
+              "utm": {
+                "code": "TC"
+              }
+            },
+            "challengeEligibility": [],
+            "createdAt": "2016-10-28T16:20:12.000Z",
+            "updatedAt": "2016-10-28T16:20:12.000Z",
+            "createdBy": 8547899,
+            "updatedBy": 8547899,
+            "members": [
+              {
+                "id": 1177,
+                "userId": 40135978,
+                "role": "manager",
+                "isPrimary": false,
+                "createdAt": "2016-11-02T15:49:15.000Z",
+                "updatedAt": "2016-11-02T15:49:15.000Z",
+                "createdBy": 40152933,
+                "updatedBy": 40152933,
+                "projectId": 1
+              },
+              {
+                "id": 1176,
+                "userId": 8547899,
+                "role": "manager",
+                "isPrimary": true,
+                "createdAt": "2016-10-28T16:20:12.000Z",
+                "updatedAt": "2016-10-28T16:20:12.000Z",
+                "createdBy": 8547899,
+                "updatedBy": 8547899,
+                "projectId": 1
+              },
+              {
+                "id": 1180,
+                "userId": 40152922,
+                "role": "customer",
+                "isPrimary": false,
+                "createdAt": "2016-11-02T19:42:29.000Z",
+                "updatedAt": "2016-11-02T19:42:29.000Z",
+                "createdBy": 40152856,
+                "updatedBy": 40152856,
+                "projectId": 1
+              },
+              {
+                "id": 1181,
+                "userId": 23229624,
+                "role": "customer",
+                "isPrimary": false,
+                "createdAt": "2016-11-03T08:42:20.000Z",
+                "updatedAt": "2016-11-03T08:42:20.000Z",
+                "createdBy": 40152856,
+                "updatedBy": 40152856,
+                "projectId": 1
+              },
+              {
+                "id": 1178,
+                "userId": 40137327,
+                "role": "customer",
+                "isPrimary": true,
+                "createdAt": "2016-11-02T15:49:33.000Z",
+                "updatedAt": "2016-11-02T15:49:33.000Z",
+                "createdBy": 40152933,
+                "updatedBy": 40152933,
+                "projectId": 1
+              },
+              {
+                "id": 1179,
+                "userId": 40152856,
+                "role": "manager",
+                "isPrimary": false,
+                "createdAt": "2016-11-02T15:50:24.000Z",
+                "updatedAt": "2016-11-02T15:50:24.000Z",
+                "createdBy": 40152856,
+                "updatedBy": 40152856,
+                "projectId": 1
+              }
+            ],
+            "attachments": []
+          },
+          "metadata": {
+            "totalCount": 1
+          }
+        }
+      }
+    ]
+}

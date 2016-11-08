@@ -1,0 +1,11 @@
+version: '2'
+services:
+  jsonserver:
+    build: 'mockServices'
+    ports:
+      - 3001:3001
+  rabbitmq:
+    image: 'rabbitmq:3-management'
+    ports:
+      - 15672:15672
+      - 5672:5672
