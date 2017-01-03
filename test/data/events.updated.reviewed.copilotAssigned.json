@@ -1,0 +1,124 @@
+{
+  "original": {
+    "id": 1,
+    "directProjectId": 10591,
+    "billingAccountId": null,
+    "name": "test",
+    "description": "test",
+    "external": null,
+    "bookmarks": [],
+    "estimatedPrice": null,
+    "actualPrice": null,
+    "terms": [],
+    "type": "visual_design",
+    "status": "in_review",
+    "details": {
+      "devices": [
+        "phone"
+      ],
+      "utm": {}
+    },
+    "challengeEligibility": [],
+    "createdAt": "2016-11-04T03:57:57.000Z",
+    "updatedAt": "2016-11-04T03:57:57.000Z",
+    "createdBy": 40152856,
+    "updatedBy": 40152856,
+    "members": [
+      {
+        "id": 1185,
+        "userId": 40152856,
+        "role": "manager",
+        "isPrimary": true,
+        "createdAt": "2016-11-04T03:57:57.000Z",
+        "updatedAt": "2016-11-04T03:57:57.000Z",
+        "createdBy": 40152856,
+        "updatedBy": 40152856,
+        "projectId": 521
+      },
+      {
+        "id": 1189,
+        "userId": 8547899,
+        "role": "customer",
+        "isPrimary": false,
+        "createdAt": "2016-11-04T17:30:42.000Z",
+        "updatedAt": "2016-11-04T17:30:42.000Z",
+        "createdBy": 8547899,
+        "updatedBy": 8547899,
+        "projectId": 521
+      }
+    ],
+    "attachments": []
+  },
+  "updated": {
+    "id": 1,
+    "directProjectId": 10591,
+    "billingAccountId": null,
+    "name": "test",
+    "description": "test",
+    "external": null,
+    "bookmarks": [],
+    "estimatedPrice": null,
+    "actualPrice": null,
+    "terms": [],
+    "type": "visual_design",
+    "status": "reviewed",
+    "details": {
+      "devices": [
+        "phone"
+      ],
+      "utm": {}
+    },
+    "challengeEligibility": [],
+    "createdAt": "2016-11-04T03:57:57.000Z",
+    "updatedAt": "2016-11-05T00:00:00.000Z",
+    "createdBy": 40152856,
+    "updatedBy": 40152856,
+    "members": [
+      {
+        "id": 1185,
+        "userId": 40152856,
+        "role": "manager",
+        "isPrimary": true,
+        "createdAt": "2016-11-04T03:57:57.000Z",
+        "updatedAt": "2016-11-04T03:57:57.000Z",
+        "createdBy": 40152856,
+        "updatedBy": 40152856,
+        "projectId": 1
+      },
+      {
+        "id": 1189,
+        "userId": 8547899,
+        "role": "customer",
+        "isPrimary": false,
+        "createdAt": "2016-11-04T17:30:42.000Z",
+        "updatedAt": "2016-11-04T17:30:42.000Z",
+        "createdBy": 8547899,
+        "updatedBy": 8547899,
+        "projectId": 1
+      },
+      {
+        "id": 1190,
+        "userId": 8547900,
+        "role": "customer",
+        "isPrimary": true,
+        "createdAt": "2016-11-04T17:30:42.000Z",
+        "updatedAt": "2016-11-04T17:30:42.000Z",
+        "createdBy": 8547899,
+        "updatedBy": 8547899,
+        "projectId": 1
+      },
+      {
+        "id": 1190,
+        "userId": 123456,
+        "role": "copilot",
+        "isPrimary": false,
+        "createdAt": "2016-11-04T17:30:42.000Z",
+        "updatedAt": "2016-11-04T17:30:42.000Z",
+        "createdBy": 8547899,
+        "updatedBy": 8547899,
+        "projectId": 1
+      }
+    ],
+    "attachments": []
+  }
+}

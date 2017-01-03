@@ -1,0 +1,35 @@
+{
+  "name": "tc-connect-notifications",
+  "version": "1.0.0",
+  "description": "TC Connect Notifications",
+  "main": "app.js",
+  "engines": {
+    "node": "6.9.2"
+  },
+  "scripts": {
+    "dev": "node app.js | ./node_modules/.bin/bunyan",
+    "start": "node app.js",
+    "lint": "./node_modules/.bin/eslint common config src test app.js",
+    "test": "./node_modules/.bin/_mocha test/**/*.test.js",
+    "cover": "./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha"
+  },
+  "author": "TCSCODER",
+  "dependencies": {
+    "bluebird": "^3.4.6",
+    "bunyan": "^1.8.4",
+    "bunyan-logentries": "^1.2.0",
+    "co": "^4.6.0",
+    "config": "^1.24.0",
+    "jackrabbit": "^4.3.0",
+    "lodash": "^4.16.6",
+    "request": "^2.78.0"
+  },
+  "devDependencies": {
+    "eslint": "^3.9.1",
+    "eslint-config-airbnb-base": "^10.0.1",
+    "eslint-plugin-import": "^2.2.0",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.1.2",
+    "sinon": "^1.17.6"
+  }
+}
