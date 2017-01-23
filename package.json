@@ -10,7 +10,7 @@
     "dev": "node app.js | ./node_modules/.bin/bunyan",
     "start": "node app.js",
     "lint": "./node_modules/.bin/eslint common config src test app.js",
-    "test": "./node_modules/.bin/_mocha test/**/*.test.js",
+    "test": "./node_modules/.bin/_mocha --timeout 30000 test/**/*.test.js",
     "cover": "./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha"
   },
   "author": "TCSCODER",

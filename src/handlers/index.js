@@ -64,7 +64,8 @@ function requestPromise(url) {
       if (err || res.statusCode > 299) {
         reject(err || new Error(`Failed to load url '${fullUrl}': statusCode = ${res.statusCode}`));
       } else {
-        resolve(body.result.content);
+        const data = JSON.parse(body);
+        resolve(data.result.content);
       }
     });
   });
@@ -119,6 +120,43 @@ function createProjectMemberNotification(userIds, project, member, notificationT
 }
 
 /**
+ * Create notification for a slack channel
+ * @param {Object} project the project
+ * @returns the notification
+ * @private
+ */
+
+function buildSlackNotification(project) {
+  return {
+    username: config.SLACK_USERNAME,
+    icon_url: config.SLACK_ICON_URL,
+    attachments: [
+      {
+        fallback: `New Project: https://connect.topcoder.com/projects/| ${project.name}`,
+        pretext: `New Project: https://connect.topcoder.com/projects/| ${project.name}`,
+        fields: [
+          {
+            title: 'Description',
+            value: _.truncate(project.description, { length: 200 }),
+            short: true,
+          },
+          {
+            title: 'Description',
+            value: project.description,
+            short: false,
+          },
+          {
+            title: 'Ref Code',
+            value: project.id,
+            short: false,
+          },
+        ],
+      },
+    ],
+  };
+}
+
+/**
  * Create notifications from project.draft-created event
  * @param {Object} data the event data
  * @return {Array} the array of notifications
@@ -136,14 +174,20 @@ function projectDraftCreatedEventToNotifications(data) {
 /**
  * Create notifications from project.updated event
  * @param {String} data the event data
- * @returns {Array} the array of notifications
+ * @returns {Object} the object of notifications
  */
 function projectUpdatedEventToNotifications(data) {
+  const notifications = {
+    discourse: [],
+    slack: {
+      manager: [],
+      copilot: [],
+    },
+  };
   if (data.updated.status === data.original.status) {
-    return [];
+    return notifications;
   }
 
-  const notifications = [];
   const project = data.updated;
 
   if (project.status === constants.projectStatuses.inReview) {
@@ -153,7 +197,7 @@ function projectUpdatedEventToNotifications(data) {
       teamMemberUserIds,
       project,
       constants.notifications.project.submittedForReview);
-    notifications.push(teamMemberNotification);
+    notifications.discourse.push(teamMemberNotification);
 
     // Notify all managers and all copilots
     const allManagerAndCopilotUserIds =
@@ -162,14 +206,16 @@ function projectUpdatedEventToNotifications(data) {
       allManagerAndCopilotUserIds,
       project,
       constants.notifications.project.availableForReview);
-    notifications.push(allManagersAndCopilotsNotification);
+    notifications.discourse.push(allManagersAndCopilotsNotification);
+    // Send manager notifications to slack
+    notifications.slack.manager.push(buildSlackNotification(project));
   } else if (project.status === constants.projectStatuses.reviewed) {
     // Notify to all project members
     const projectMemberNotification = createProjectNotification(
       _.map(project.members, member => member.userId),
       project,
       constants.notifications.project.reviewed);
-    notifications.push(projectMemberNotification);
+    notifications.discourse.push(projectMemberNotification);
 
     // Notify to all copilots if there's no copilot is assigned
     const projectCopilotIds = getProjectMemberIdsByRole(project, constants.memberRoles.copilot);
@@ -178,10 +224,32 @@ function projectUpdatedEventToNotifications(data) {
         config.ALL_COPILOT_USER_IDS,
         project,
         constants.notifications.project.availableToClaim);
-      notifications.push(notification);
+      notifications.discourse.push(notification);
+      notifications.delayed = data;
     }
+    // Send copilot notifications to slack
+    notifications.slack.copilot.push(buildSlackNotification(project));
   }
 
+  return notifications;
+}
+
+/**
+ * Send slack notificatin if project.claim.reminder event
+ * @param {String} msg the event data
+ * @returns {Object} notifications object of notifications
+ */
+function* projectUnclaimedNotifications(msg) {
+  const data = JSON.parse(msg.toString());
+  const project = yield getProjectById(data.updated.id);
+  const projectCopilotIds = getProjectMemberIdsByRole(project, constants.memberRoles.copilot);
+  const notifications = {
+    copilot: [],
+  };
+  if (projectCopilotIds.length === 0) {
+    notifications.delayed = data;
+    notifications.copilot.push(buildSlackNotification(project));
+  }
   return notifications;
 }
 
@@ -280,4 +348,5 @@ module.exports = {
   projectMemberAddedEventToNotifications,
   projectMemberRemovedEventToNotifications,
   projectMemberUpdatedEventToNotifications,
+  projectUnclaimedNotifications,
 };

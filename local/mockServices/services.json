@@ -270,6 +270,113 @@
             "totalCount": 1
           }
         }
+      },
+      {
+        "id": 2,
+        "version": "v4",
+        "result": {
+          "success": true,
+          "status": 200,
+          "content": {
+            "id": 1,
+            "directProjectId": 10588,
+            "billingAccountId": null,
+            "name": "Test forum change 1",
+            "description": "sfjsfjslkfjsdfsdfs",
+            "external": null,
+            "bookmarks": [],
+            "estimatedPrice": null,
+            "actualPrice": null,
+            "terms": [],
+            "type": "visual_design",
+            "status": "draft",
+            "details": {
+              "devices": [
+                "phone"
+              ],
+              "utm": {
+                "code": "TC"
+              }
+            },
+            "challengeEligibility": [],
+            "createdAt": "2016-10-28T16:20:12.000Z",
+            "updatedAt": "2016-10-28T16:20:12.000Z",
+            "createdBy": 8547899,
+            "updatedBy": 8547899,
+            "members": [
+              {
+                "id": 1177,
+                "userId": 40135978,
+                "role": "copilot",
+                "isPrimary": false,
+                "createdAt": "2016-11-02T15:49:15.000Z",
+                "updatedAt": "2016-11-02T15:49:15.000Z",
+                "createdBy": 40152933,
+                "updatedBy": 40152933,
+                "projectId": 1
+              },
+              {
+                "id": 1176,
+                "userId": 8547899,
+                "role": "manager",
+                "isPrimary": true,
+                "createdAt": "2016-10-28T16:20:12.000Z",
+                "updatedAt": "2016-10-28T16:20:12.000Z",
+                "createdBy": 8547899,
+                "updatedBy": 8547899,
+                "projectId": 1
+              },
+              {
+                "id": 1180,
+                "userId": 40152922,
+                "role": "customer",
+                "isPrimary": false,
+                "createdAt": "2016-11-02T19:42:29.000Z",
+                "updatedAt": "2016-11-02T19:42:29.000Z",
+                "createdBy": 40152856,
+                "updatedBy": 40152856,
+                "projectId": 1
+              },
+              {
+                "id": 1181,
+                "userId": 23229624,
+                "role": "customer",
+                "isPrimary": false,
+                "createdAt": "2016-11-03T08:42:20.000Z",
+                "updatedAt": "2016-11-03T08:42:20.000Z",
+                "createdBy": 40152856,
+                "updatedBy": 40152856,
+                "projectId": 1
+              },
+              {
+                "id": 1178,
+                "userId": 40137327,
+                "role": "customer",
+                "isPrimary": true,
+                "createdAt": "2016-11-02T15:49:33.000Z",
+                "updatedAt": "2016-11-02T15:49:33.000Z",
+                "createdBy": 40152933,
+                "updatedBy": 40152933,
+                "projectId": 1
+              },
+              {
+                "id": 1179,
+                "userId": 40152856,
+                "role": "manager",
+                "isPrimary": false,
+                "createdAt": "2016-11-02T15:50:24.000Z",
+                "updatedAt": "2016-11-02T15:50:24.000Z",
+                "createdBy": 40152856,
+                "updatedBy": 40152856,
+                "projectId": 1
+              }
+            ],
+            "attachments": []
+          },
+          "metadata": {
+            "totalCount": 1
+          }
+        }
       }
     ]
 }

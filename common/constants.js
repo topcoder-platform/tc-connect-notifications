@@ -15,6 +15,7 @@ module.exports = {
     projectMemberAdded: 'project.member.added',
     projectMemberRemoved: 'project.member.removed',
     projectMemberUpdated: 'project.member.updated',
+    projectUnclaimed: 'project.claim.reminder',
   },
   // The notification types to be produce to the target RabbitMQ
   notifications: {

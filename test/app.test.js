@@ -6,7 +6,6 @@
  * Tests for app.js
  */
 process.env.NODE_ENV = 'test';
-
 /* eslint-disable global-require, no-undef */
 
 const assert = require('assert');
@@ -42,11 +41,47 @@ const sampleUsers = {
   user1: require('./data/users.1.json'),
 };
 
+const expectedSlackNotfication = {
+  username: 'webhookbot',
+  icon_url: 'https://emoji.slack-edge.com/T03R80JP7/topcoder/7c68acd90a6b6d77.png',
+  attachments: [
+    {
+      fallback: 'New Project: https://connect.topcoder.com/projects/| test',
+      pretext: 'New Project: https://connect.topcoder.com/projects/| test',
+      fields: [
+        {
+          title: 'Description',
+          value: 'test',
+          short: true,
+        },
+        {
+          title: 'Description',
+          value: 'test',
+          short: false,
+        },
+        {
+          title: 'Ref Code',
+          value: 1,
+          short: false,
+        },
+      ],
+    },
+  ],
+};
+
+function checkAssert(assertCount, count, cb) {
+  if (assertCount === 2) {
+    cb();
+  }
+}
+
 describe('app', () => {
   let sourceExchange;
   let sourceQueue;
   let targetExchange;
   let targetQueue;
+  let copilotTargetQueue;
+  let managerTargetQueue;
   let stub;
   let correlationId = 1;
   let notificationCallback = () => { };
@@ -73,19 +108,65 @@ describe('app', () => {
     targetQueue = targetExchange.queue(
       { name: config.TARGET_RABBIT_QUEUE_NAME },
       { key: config.TARGET_RABBIT_ROUTING_KEY });
+    copilotTargetQueue = targetExchange.queue(
+      { name: config.COPILOT_TARGET_RABBIT_QUEUE_NAME },
+      { key: config.COPILOT_TARGET_RABBIT_ROUTING_KEY });
+    managerTargetQueue = targetExchange.queue(
+      { name: config.MANAGER_TARGET_RABBIT_QUEUE_NAME },
+      { key: config.MANAGER_TARGET_RABBIT_ROUTING_KEY });
+
+    let connectedQueues = 0;
+    function checkCallCallback() {
+      if (connectedQueues === 3) {
+        callback();
+      }
+    }
     targetQueue.on('ready', () => {
-      targetQueue.purge(() => { callback(); });
+      targetQueue.purge(() => {
+        connectedQueues += 1;
+        checkCallCallback();
+      });
+    });
+    copilotTargetQueue.on('ready', () => {
+      copilotTargetQueue.purge(() => {
+        connectedQueues += 1;
+        checkCallCallback();
+      });
+    });
+    managerTargetQueue.on('ready', () => {
+      managerTargetQueue.purge(() => {
+        connectedQueues += 1;
+        checkCallCallback();
+      });
     });
     targetQueue.consume((data, ack, nack, message) => {
       ack();
       assert.ok(message);
       notificationCallback(data);
     });
+    copilotTargetQueue.consume((data, ack, nack, message) => {
+      ack();
+      assert.ok(message);
+      if (copilotCallback) {
+        copilotCallback(data);
+      }
+    });
+    managerTargetQueue.consume((data, ack, nack, message) => {
+      ack();
+      assert.ok(message);
+      if (managerCallback) {
+        managerCallback(data);
+      }
+    });
   };
   const purgeQueues = (done) => {
     sourceQueue.purge(() => {
       targetQueue.purge(() => {
-        done();
+        copilotTargetQueue.purge(() => {
+          managerTargetQueue.purge(() => {
+            done();
+          });
+        });
       });
     });
   };
@@ -107,11 +188,11 @@ describe('app', () => {
     // Stub the calls to API server
     stub = sinon.stub(request, 'get');
     stub.withArgs(`${config.API_BASE_URL}/projects/1`)
-      .yields(null, { statusCode: 200 }, sampleProjects.project1);
+      .yields(null, { statusCode: 200 }, JSON.stringify(sampleProjects.project1));
     stub.withArgs(`${config.API_BASE_URL}/projects/1000`)
       .yields(null, { statusCode: 404 });
     stub.withArgs(`${config.API_BASE_URL}/users/1`)
-      .yields(null, { statusCode: 200 }, sampleUsers.user1);
+      .yields(null, { statusCode: 200 }, JSON.stringify(sampleUsers.user1));
     stub.withArgs(`${config.API_BASE_URL}/users/1000`)
       .yields(null, { statusCode: 404 });
 
@@ -123,8 +204,10 @@ describe('app', () => {
   /**
    * Send test event and verify notification
    */
-  function sendTestEvent(testEvent, testEventType, callback) {
+  function sendTestEvent(testEvent, testEventType, callback, copilotCb, managerCb) {
     notificationCallback = callback;
+    copilotCallback = copilotCb;
+    managerCallback = managerCb;
     correlationId += 1;
 
     sourceExchange.publish(testEvent, {
@@ -173,16 +256,17 @@ describe('app', () => {
   });
 
   describe('`project.updated` event', () => {
-    it('should create `Project.SubmittedForReview` and `Project.AvailableForReview` notifications', (done) => {
+    it('should create `Project.SubmittedForReview` and `Project.AvailableForReview` and manager slack notifications', (done) => {
       let notificationCount = 0;
+      let assertCount = 0;
       const expectedParams = {
         projectId: sampleEvents.updatedInReview.updated.id,
         projectName: sampleEvents.updatedInReview.updated.name,
         projectDescription: sampleEvents.updatedInReview.updated.description,
       };
-      sendTestEvent(sampleEvents.updatedInReview, 'project.updated', (notification) => {
-        notificationCount += 1;
 
+      function teamCallback(notification) {
+        notificationCount += 1;
         if (notificationCount === 1) {
           assert.deepEqual(notification, {
             recipients: [
@@ -202,24 +286,31 @@ describe('app', () => {
             notificationType: constants.notifications.project.availableForReview.notificationType,
             subject: constants.notifications.project.availableForReview.subject,
           });
-
-          done();
+          assertCount += 1;
+          checkAssert(assertCount, 2, done);
         } else {
           assert.fail();
         }
-      });
+      }
+      function mgrCallback(notifications) {
+        assertCount += 1;
+        assert.deepEqual(notifications, expectedSlackNotfication);
+        checkAssert(assertCount, 2, done);
+      }
+      sendTestEvent(sampleEvents.updatedInReview, 'project.updated', teamCallback, null, mgrCallback);
     });
 
-    it('should create `Project.Reviewed` and `Project.AvailableToClaim` notifications', (done) => {
+    it('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and repost after delay', (done) => {
       let notificationCount = 0;
+      let assertCount = 0;
       const expectedParams = {
         projectId: sampleEvents.updatedReviewed.updated.id,
         projectName: sampleEvents.updatedReviewed.updated.name,
         projectDescription: sampleEvents.updatedReviewed.updated.description,
       };
-      sendTestEvent(sampleEvents.updatedReviewed, 'project.updated', (notification) => {
+      function teamCallback(notification) {
         notificationCount += 1;
-
+        assertCount += 1;
         if (notificationCount === 1) {
           assert.deepEqual(notification, {
             recipients: [
@@ -240,21 +331,29 @@ describe('app', () => {
             notificationType: constants.notifications.project.availableToClaim.notificationType,
             subject: constants.notifications.project.availableToClaim.subject,
           });
-
-          done();
+          assertCount += 1;
+          checkAssert(assertCount, 3, done);
         } else {
           assert.fail();
         }
-      });
+      }
+      // Assert count is 3 as delay is 0 copilot will again get notified if none assgned
+      function copCallback(notifications) {
+        assertCount += 1;
+        assert.deepEqual(notifications, expectedSlackNotfication);
+        checkAssert(assertCount, 3, done);
+      }
+      sendTestEvent(sampleEvents.updatedReviewed, 'project.updated', teamCallback, copCallback);
     });
 
-    it('should create `Project.Reviewed`, but not `Project.AvailableToClaim` notifications (copilot assigned)', (done) => {
+    it('should create `Project.Reviewed`, but not `Project.AvailableToClaim` and copilot slack notifications (copilot assigned)', (done) => {
+      let assertCount = 0;
       const expectedParams = {
         projectId: sampleEvents.updatedReviewedCopilotAssigned.updated.id,
         projectName: sampleEvents.updatedReviewedCopilotAssigned.updated.name,
         projectDescription: sampleEvents.updatedReviewedCopilotAssigned.updated.description,
       };
-      sendTestEvent(sampleEvents.updatedReviewedCopilotAssigned, 'project.updated', (notification) => {
+      function teamCallback(notification) {
         assert.deepEqual(notification, {
           recipients: [
             { id: 40152856, params: expectedParams },
@@ -265,9 +364,15 @@ describe('app', () => {
           notificationType: constants.notifications.project.reviewed.notificationType,
           subject: constants.notifications.project.reviewed.subject,
         });
-
-        done();
-      });
+        assertCount += 1;
+        checkAssert(assertCount, 2, done);
+      }
+      function copCallback(notifications) {
+        assertCount += 1;
+        assert.deepEqual(notifications, expectedSlackNotfication);
+        checkAssert(assertCount, 2, done);
+      }
+      sendTestEvent(sampleEvents.updatedReviewedCopilotAssigned, 'project.updated', teamCallback, copCallback);
     });
 
     it('should not create `Project.Reviewed` and `Project.AvailableToClaim` notifications (another status)', (done) => {
