@@ -26,11 +26,12 @@ machine:
     # - docker-compose -f local/docker-compose.yml up -d
 
 deployment:
-  prod:
-    branch: master
+  development:
+    branch: dev
     commands:
+      - docker build -t $DEV_AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:$CIRCLE_SHA1 .
       - chmod +x ./deploy.sh
-      - ./deploy.sh
+      - ./deploy.sh DEV
 
 general:
   artifacts:

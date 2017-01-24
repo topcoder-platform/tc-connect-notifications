@@ -2,8 +2,11 @@
 
 # more bash-friendly output for jq
 JQ="jq --raw-output --exit-status"
+ENV=$1
 
-configure_aws_cli(){
+configure_aws_cli() {
+	export AWS_ACCESS_KEY_ID=$(eval "echo \$${ENV}_AWS_ACCESS_KEY_ID")
+	export AWS_SECRET_ACCESS_KEY=$(eval "echo \$${ENV}_AWS_SECRET_ACCESS_KEY")
 	aws --version
 	aws configure set default.region $AWS_REGION
 	aws configure set default.output json
