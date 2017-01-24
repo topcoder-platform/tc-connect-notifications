@@ -10,14 +10,17 @@ machine:
   services:
     - docker
 
+dependencies:
+  pre:
+    - pip install --upgrade pip
+    - pip install docker-compose
+    - pyenv rehash
+  # post:
+    # - docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:$CIRCLE_SHA1 .
+
 test:
   pre:
     - docker-compose -f local/docker-compose.yml up -d
-
-# TODO
-# dependencies:
-  # post:
-    # - docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:$CIRCLE_SHA1 .
 
 deployment:
   prod:
