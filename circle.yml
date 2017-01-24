@@ -1,0 +1,27 @@
+machine:
+  node:
+    version: v6.9.0
+  enviornment:
+    NODE_ENV: test
+    LOG_LEVEL: debug
+    AUTH_DOMAIN: topcoder-dev.com
+    AUTH_SECRET: secret
+
+  services:
+    - docker
+
+test:
+  pre:
+    - docker-compose -f local/docker-compose.yml up -d
+
+# TODO
+# dependencies:
+  # post:
+    # - docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:$CIRCLE_SHA1 .
+
+deployment:
+  prod:
+    branch: master
+    commands:
+      - chmod +x ./deploy.sh
+      - ./deploy.sh
