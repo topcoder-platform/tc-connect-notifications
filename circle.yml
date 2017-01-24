@@ -21,9 +21,9 @@ machine:
   # post:
     # - docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:$CIRCLE_SHA1 .
 
-test:
-  pre:
-    - docker-compose -f local/docker-compose.yml up -d
+# test:
+  # pre:
+    # - docker-compose -f local/docker-compose.yml up -d
 
 deployment:
   prod:
