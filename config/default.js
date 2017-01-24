@@ -19,7 +19,6 @@ module.exports = {
   SOURCE_RABBIT_EXCHANGE_NAME: 'projects',
   SOURCE_RABBIT_QUEUE_NAME: 'events-queue',
 
-  
   // Target RabbitMQ that receive notifications from tc-connect-notifications
   TARGET_RABBIT_URL: 'amqp://127.0.0.1:5672',
   TARGET_RABBIT_EXCHANGE_NAME: 'notifications',

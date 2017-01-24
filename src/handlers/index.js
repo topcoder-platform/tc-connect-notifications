@@ -7,13 +7,13 @@
  * @author TCSCODER
  * @version 1.0
  */
-const co = require('co')
-const _ = require('lodash')
-const config = require('config')
-const projectEvents = require('./projectEvents')
-const memberEvents = require('./memberEvents')
-const constants = require('../common/constants')
-const util = require('./util')
+const co = require('co');
+const _ = require('lodash');
+const config = require('config');
+const projectEvents = require('./projectEvents');
+const memberEvents = require('./memberEvents');
+const constants = require('../common/constants');
+const util = require('./util');
 
 /**
  * Handle events from the source RabbitMQ
@@ -23,59 +23,58 @@ const util = require('./util')
  * @param {Object} message the message
  */
 module.exports = (logger, message, channel, publish) => {
-  const eventType = message.fields.routingKey
-  const correlationId = message.properties.correlationId
+  const eventType = message.fields.routingKey;
+  const correlationId = message.properties.correlationId;
   // create a child logger so we can trace with original request id
-  const _childLogger = logger.child({
-    requestId: correlationId
-  })
-  const data = JSON.parse(message.content.toString())
-  _childLogger.info(`Receiving event with type = '${eventType}'`);
-  _childLogger.debug('Payload:', data);
+  const childLogger = logger.child({
+    requestId: correlationId,
+  });
+  const data = JSON.parse(message.content.toString());
+  childLogger.info(`Receiving event with type = '${eventType}'`);
+  childLogger.debug('Payload:', data);
 
   co(function* generateNotifications() {
-    logger.debug(eventType)
+    logger.debug(eventType);
     switch (eventType) {
       case constants.events.projectDraftCreated:
-        return yield projectEvents.projectDraftCreated(_childLogger, data);
+        return yield projectEvents.projectDraftCreated(childLogger, data);
       case constants.events.projectUpdated:
-        return yield projectEvents.projectUpdated(_childLogger, data);
+        return yield projectEvents.projectUpdated(childLogger, data);
       case constants.events.projectUnclaimed:
-        return yield projectEvents.projectUnclaimedNotifications(_childLogger, data);
+        return yield projectEvents.projectUnclaimedNotifications(childLogger, data);
       case constants.events.projectMemberAdded:
-        return yield memberEvents.memberAdded(_childLogger, data);
+        return yield memberEvents.memberAdded(childLogger, data);
       case constants.events.projectMemberRemoved:
-        return yield memberEvents.memberRemoved(_childLogger, data);
+        return yield memberEvents.memberRemoved(childLogger, data);
       case constants.events.projectMemberUpdated:
-        return yield memberEvents.memberUpdated(_childLogger, data);
+        return yield memberEvents.memberUpdated(childLogger, data);
       default:
         return [];
     }
   }).then((notifications) => {
-    let notificationsLen;
     _.each(notifications.discourse, (n) => {
-      const { projectId, title, content } = n
-      util.createProjectDiscourseNotification(_childLogger, projectId, title, content)
-    })
-    var publishPromises = []
+      const { projectId, title, content } = n;
+      util.createProjectDiscourseNotification(childLogger, projectId, title, content);
+    });
+    const publishPromises = [];
     if (notifications.slack) {
       // publish with manager slack key
       _.each(notifications.slack.manager, (n) => {
-        publishPromises.push(publish(config.get('MANAGER_TARGET_RABBIT_ROUTING_KEY'), n))
-      })
+        publishPromises.push(publish(config.get('MANAGER_TARGET_RABBIT_ROUTING_KEY'), n));
+      });
       // publish with copilot slack key
       _.each(notifications.slack.copilot, (n) => {
-        publishPromises.push(publish(config.get('COPILOT_TARGET_RABBIT_ROUTING_KEY'), n))
-      })
+        publishPromises.push(publish(config.get('COPILOT_TARGET_RABBIT_ROUTING_KEY'), n));
+      });
 
       // TODO handle delayed msg
     }
-    return Promise.all(publishPromises)
+    return Promise.all(publishPromises);
   }).then(() => {
-    _childLogger.info('Succesfully handled event, ACKing... ')
-    return channel.ack(message)
-  }).catch(err => {
-    _childLogger.error(err)
-    return channel.nack(message, false, false)
-  })
-}
+    childLogger.info('Succesfully handled event, ACKing... ');
+    return channel.ack(message);
+  }).catch((err) => {
+    childLogger.error(err);
+    return channel.nack(message, false, false);
+  });
+};

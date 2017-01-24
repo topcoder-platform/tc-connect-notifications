@@ -17,28 +17,27 @@ const util = require('./util');
  * @param {Object} project the event data
  * @return {Array} the array of notifications
  */
-function* projectDraftCreated(logger, project) {
-  console.log('here')
-  logger.debug(project)
-  const owner = _.find(project.members, { role: constants.memberRoles.customer, isPrimary: true })
+function projectDraftCreated(logger, project) {
+  logger.debug(project);
+  const owner = _.find(project.members, { role: constants.memberRoles.customer, isPrimary: true });
   if (!owner) {
-    return {}
+    return {};
   }
 
-  const topic = constants.notifications.discourse.project.created
+  const topic = constants.notifications.discourse.project.created;
   const topicData = {
     projectId: project.id,
     projectName: project.name,
-    projectUrl: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${project.id}/`
-  }
+    projectUrl: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${project.id}/`,
+  };
 
   // return notificaiton object with discourse data
   return {
     discourse: [{
       title: topic.title,
-      content: topic.content(topicData)
-    }]
-  }
+      content: topic.content(topicData),
+    }],
+  };
 }
 
 /**
@@ -47,57 +46,57 @@ function* projectDraftCreated(logger, project) {
  * @param {String} data the event data
  * @returns {Object} the object of notifications
  */
-function* projectUpdated(logger, data) {
+function projectUpdated(logger, data) {
   const notifications = {
     discourse: [],
     slack: {
       manager: [],
       copilot: [],
     },
-  }
+  };
   if (data.updated.status === data.original.status) {
     // project status has not transitioned
-    return notifications
+    return notifications;
   }
 
   const project = data.updated;
-  let topic
+  let topic;
   if (project.status === constants.projectStatuses.inReview) {
     // create post notifying team members project was submitted for review
-    topic = constants.notifications.discourse.project.submittedForReview
+    topic = constants.notifications.discourse.project.submittedForReview;
     // Send manager notifications to slack
-    notifications.slack.manager.push(util.buildSlackNotification(project))
+    notifications.slack.manager.push(util.buildSlackNotification(project));
   } else if (project.status === constants.projectStatuses.reviewed) {
     // Notify to all copilots if there's no copilot is assigned
     if (!_.some(project.members, ['role', 'copilot'])) {
       // Send copilot notifications to slack
-      notifications.slack.copilot.push(util.buildSlackNotification(project))
+      notifications.slack.copilot.push(util.buildSlackNotification(project));
 
       // also queue up a message to process later
       notifications.delayed = data;
     }
   } else if (project.status === constants.projectStatuses.active) {
-    topic = constants.notifications.discourse.project.activated
+    topic = constants.notifications.discourse.project.activated;
   } else if (project.status === constants.projectStatuses.canceled) {
-    topic = constants.notifications.discourse.project.canceled
+    topic = constants.notifications.discourse.project.canceled;
   } else if (project.status === constants.projectStatuses.completed) {
-    topic = constants.notifications.discourse.project.completed
+    topic = constants.notifications.discourse.project.completed;
   }
 
   // post to discourse if topic is set
   if (topic) {
     const topicData = {
       projectName: project.name,
-      projectUrl: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${project.id}/`
-    }
+      projectUrl: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${project.id}/`,
+    };
     notifications.discourse.push({
       projectId: project.id,
       title: topic.title,
-      content: topic.content(topicData)
-    })
+      content: topic.content(topicData),
+    });
   }
 
-  return notifications
+  return notifications;
 }
 
 /**
@@ -122,5 +121,5 @@ function* projectUnclaimedNotifications(logger, data) {
 module.exports = {
   projectDraftCreated,
   projectUpdated,
-  projectUnclaimedNotifications
+  projectUnclaimedNotifications,
 };

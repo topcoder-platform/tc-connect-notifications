@@ -8,9 +8,6 @@
  * @version 1.0
  */
 const config = require('config');
-const _ = require('lodash');
-// const request = request('request');
-const Promise = require('bluebird');
 const constants = require('../common/constants');
 const util = require('./util');
 
@@ -20,7 +17,6 @@ const util = require('./util');
  * @returns {Array} the array of notifications
  */
 function* memberAdded(logger, data) {
-  logger.debug('EVT', data)
   const [project, addedMember] = yield [
     util.getProjectById(data.projectId),
     util.getUserById(data.userId),
@@ -28,28 +24,28 @@ function* memberAdded(logger, data) {
 
   let topic;
   if (data.role === constants.memberRoles.customer) {
-    topic = constants.notifications.discourse.teamMembers.added
+    topic = constants.notifications.discourse.teamMembers.added;
   } else if (data.role === constants.memberRoles.manager) {
-    topic = constants.notifications.discourse.teamMembers.managerJoined
+    topic = constants.notifications.discourse.teamMembers.managerJoined;
   } else if (data.role === constants.memberRoles.copilot) {
-    topic = constants.notifications.discourse.teamMembers.copilotJoined
+    topic = constants.notifications.discourse.teamMembers.copilotJoined;
   }
 
   const topicData = {
     projectName: project.name,
     projectUrl: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${project.id}/`,
     firstName: addedMember.firstName,
-    lastName: addedMember.lastName
-  }
+    lastName: addedMember.lastName,
+  };
 
   const notifications = {
     discourse: [{
       projectId: project.id,
       title: topic.title,
-      content: topic.content(topicData)
-    }]
-  }
-  return notifications
+      content: topic.content(topicData),
+    }],
+  };
+  return notifications;
 }
 
 /**
@@ -75,17 +71,17 @@ function* memberRemoved(logger, data) {
     projectName: project.name,
     projectUrl: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${project.id}/`,
     firstName: removedMember.firstName,
-    lastName: removedMember.lastName
-  }
+    lastName: removedMember.lastName,
+  };
 
   const notifications = {
     discourse: [{
       projectId: project.id,
       title: topic.title,
-      content: topic.content(topicData)
-    }]
-  }
-  return notifications
+      content: topic.content(topicData),
+    }],
+  };
+  return notifications;
 }
 
 /**
@@ -103,27 +99,27 @@ function* memberUpdated(logger, data) {
     util.getUserById(data.updated.userId),
   ];
 
-  const topic = constants.notifications.discourse.teamMembers.ownerChanged
+  const topic = constants.notifications.discourse.teamMembers.ownerChanged;
   const topicData = {
     projectName: project.name,
     projectUrl: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${project.id}/`,
     firstName: updatedMember.firstName,
-    lastName: updatedMember.lastName
-  }
+    lastName: updatedMember.lastName,
+  };
 
-  const notification = {
+  const notifications = {
     discourse: [{
       projectId: project.id,
       title: topic.title,
-      content: topic.content(topicData)
-    }]
-  }
-  return notifications
+      content: topic.content(topicData),
+    }],
+  };
+  return notifications;
 }
 
 
 module.exports = {
   memberAdded,
   memberRemoved,
-  memberUpdated
+  memberUpdated,
 };

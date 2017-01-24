@@ -17,7 +17,7 @@ const request = require('request');
  * @returns {Promise} the promise that resolves to the response body content
  * @private
  */
-function _requestPromise(url) {
+function requestPromise(url) {
   return new Promise((resolve, reject) => {
     const fullUrl = `${config.API_BASE_URLf}/${url}`;
 
@@ -40,8 +40,8 @@ function _requestPromise(url) {
  */
 function createProjectDiscourseNotification(logger, projectId, title, body) {
   // TODO
-  logger.debug('sending discourse notification', { title, body })
-  return Promise.resolve(true)
+  logger.debug('sending discourse notification', { title, body });
+  return Promise.resolve(true);
 }
 
 /**
@@ -62,7 +62,7 @@ function createProjectNotification(userIds, project, notificationTypeSubject) {
     recipients: _.map(userIds, (id) => {
       const recipient = {
         id,
-        params
+        params,
       };
       return recipient;
     }),
@@ -81,7 +81,7 @@ function createProjectNotification(userIds, project, notificationTypeSubject) {
  */
 function getProjectMemberIdsByRole(project, role) {
   const members = _.filter(project.members, {
-    role
+    role,
   });
   return _.map(members, member => member.userId);
 }
@@ -93,7 +93,7 @@ function getProjectMemberIdsByRole(project, role) {
  * @private
  */
 function* getProjectById(id) {
-  return yield _requestPromise(`projects/${id}`);
+  return yield requestPromise(`projects/${id}`);
 }
 
 /**
@@ -103,7 +103,7 @@ function* getProjectById(id) {
  * @private
  */
 function* getUserById(id) {
-  return yield _requestPromise(`users/${id}`);
+  return yield requestPromise(`users/${id}`);
 }
 
 
@@ -128,7 +128,7 @@ function createProjectMemberNotification(userIds, project, member, notificationT
     recipients: _.map(userIds, (id) => {
       const recipient = {
         id,
-        params
+        params,
       };
       return recipient;
     }),
@@ -156,7 +156,7 @@ function buildSlackNotification(project) {
         {
           title: 'Description',
           value: _.truncate(project.description, {
-            length: 200
+            length: 200,
           }),
           short: true,
         },
@@ -166,7 +166,7 @@ function buildSlackNotification(project) {
           short: false,
         },
       ],
-    }, ],
+    }],
   };
 }
 
@@ -177,5 +177,5 @@ module.exports = {
   getProjectMemberIdsByRole,
   getUserById,
   getProjectById,
-  buildSlackNotification
-}
+  buildSlackNotification,
+};

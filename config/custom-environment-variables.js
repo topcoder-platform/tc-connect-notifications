@@ -38,5 +38,5 @@ module.exports = {
   // Disable delay exchange and use direct instead ( delete existing delay exchnge after changing)
   DISABLE_DELAY_EXCHANGE: 'DISABLE_DELAY_EXCHANGE',
   SLACK_ICON_URL: 'SLACK_ICON_URL',
-  SLACK_USERNAME: 'SLACK_USERNAME'
+  SLACK_USERNAME: 'SLACK_USERNAME',
 };

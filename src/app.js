@@ -8,8 +8,6 @@
  * @version 1.0
  */
 const config = require('config');
-const _ = require('lodash');
-const co = require('co');
 const jackrabbit = require('jackrabbit');
 const logger = require('./common/logger');
 const constants = require('./common/constants');
@@ -91,24 +89,16 @@ function delayPublish(routingKey, content, delay) {
 }
 
 // Connect to the source RabbitMQ to receive (consume) events
-const service = require('./rabbitmq')(logger)
+const service = require('./rabbitmq')(logger);
+
 service.initPublisher(
   config.get('RABBITMQ_URL'),
-  config.get('TARGET_RABBIT_EXCHANGE_NAME')
-)
+  config.get('TARGET_RABBIT_EXCHANGE_NAME'))
 .then(() => {
   service.subscribe(
     config.get('RABBITMQ_URL'),
     config.get('SOURCE_RABBIT_EXCHANGE_NAME'),
-    config.get('SOURCE_RABBIT_QUEUE_NAME')
-  )
+    config.get('SOURCE_RABBIT_QUEUE_NAME'));
 }).then(() => {
   logger.info('tc-connect-notifications started...');
-})
-
-
-
-// jackrabbit(config.SOURCE_RABBIT_URL)
-//   .topic(config.SOURCE_RABBIT_EXCHANGE_NAME)
-//   .queue({ name: config.SOURCE_RABBIT_QUEUE_NAME, keys: _.values(constants.events) })
-//   .consume(handleEvent);
+});
