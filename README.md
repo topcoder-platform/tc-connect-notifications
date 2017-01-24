@@ -9,30 +9,42 @@ Connect Notifications biz layer
 
 ## Configuration
 
-Update environment variables or create `./config/local.js`:
+To override default settings please add them to a file `./config/local.js`:
 
 - `LOG_LEVEL`: the log level (e.g. debug, info)
 - `RABBITMQ_URL`: the event RabbitMQ's URL
 - `SOURCE_RABBIT_EXCHANGE_NAME`: the event RabbitMQ's topic exchange name
 - `SOURCE_RABBIT_QUEUE_NAME`: the event RabbitMQ's queue name
 - `COPILOT_TARGET_RABBIT_QUEUE_NAME`: copilot slack queue
-- `COPILOT_TARGET_RABBIT_ROUTING_KEY`: copilot slack queue routing key
 - `MANAGER_TARGET_RABBIT_QUEUE_NAME`:  manager slack queue routing key
-- `MANAGER_TARGET_RABBIT_ROUTING_KEY`: manager slack queue routing key
 - `DELAY_RABBIT_EXCHANGE_NAME`: Exchange name used for delayed messages
 - `UNCLAIMED_PROJECT_REPOST_DELAY`: Amount of delay before reposting unclaimed project
 - `TARGET_RABBIT_EXCHANGE_NAME`: the notification RabbitMQ's topic exchange name
-- `TARGET_RABBIT_ROUTING_KEY`: the notification RabbitMQ's routing key
 - `TARGET_RABBIT_QUEUE_NAME`: the notification RabbitMQ's queue name
 - `LOGENTRIES_TOKEN`: the Logentries token generated from https://logentries.com/
 - `API_BASE_URL`: the base url to the API server to get project/user info
-- `ALL_MANAGER_USER_IDS`: the array of all managers' userIds
-- `ALL_COPILOT_USER_IDS`: the array of all copilots' userIds
 - `DISABLE_DELAY_EXCHANGE`: Disable exchage type delay and use 'direct' instead(Note: after changing this delete existing delay exchange )
 - `SLACK_ICON_URL`: slack webhook icon url
 - `SLACK_USERNAME`: slack webhook username
 
-## Local Deployment
+## Local Development using Docker (recommended)
+
+- Install dependencies:
+
+  ```bash
+  cd tc-connect-notifications
+  npm i
+  ```
+
+- Setup Docker Compose: https://docs.docker.com/compose/install/
+
+- Start Docker Compose:
+
+  ```bash
+  docker-compose -f local/docker-compose.yml up -d
+  ```
+
+## Local Development
 
 - Install dependencies:
 
@@ -54,24 +66,6 @@ Update environment variables or create `./config/local.js`:
   ```bash
   cd tc-connect-notifications
   node app
-  ```
-
-## Local Deployment (Docker)
-
-- Install dependencies:
-
-  ```bash
-  cd tc-connect-notifications
-  npm i
-  ```
-
-- Setup Docker Compose: https://docs.docker.com/compose/install/
-
-- Start Docker Compose:
-
-  ```bash
-  cd local
-  docker-compose up
   ```
 
 ## Verification
