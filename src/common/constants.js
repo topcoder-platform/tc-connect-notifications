@@ -45,27 +45,27 @@ module.exports = {
       teamMembers: {
         added: {
           title: 'A new team member has joined your project',
-          content: (data) => `${data.newMember.firstName} ${data.newMember.lastName} has joined project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Welcome ${data.newMember.firstName}! Looking forward to working with you.`
-        },
-        left: {
-          title: 'A team member has left your project',
-          content: (data) => `${data.newMember.firstName} ${data.newMember.lastName} has left project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Thanks for all your work ${data.newMember.firstName}.`
-        },
-        removed: {
-          title: 'A team member has left your project',
-          content: (data) => `${data.newMember.firstName} ${data.newMember.lastName} has left project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Thanks for all your work ${data.newMember.firstName}.`
+          content: (data) => `${data.firstName} ${data.lastName} has joined project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Welcome ${data.firstName}! Looking forward to working with you.`
         },
         managerJoined: {
           title: 'A Topcoder project manager has joined your project',
-          content: (data) => `${data.newMember.firstName} ${data.newMember.lastName} has joined your project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a> as a project manager.`
+          content: (data) => `${data.firstName} ${data.lastName} has joined your project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a> as a project manager.`
         },
         copilotJoined: {
           title: 'A Topcoder copilot has joined your project',
-          content: (data) => `${data.newMember.firstName} ${data.newMember.lastName} has joined your project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a> as a copilot.`
+          content: (data) => `${data.firstName} ${data.lastName} has joined your project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a> as a copilot.`
+        },
+        left: {
+          title: 'A team member has left your project',
+          content: (data) => `${data.firstName} ${data.lastName} has left project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Thanks for all your work ${data.firstName}.`
+        },
+        removed: {
+          title: 'A team member has left your project',
+          content: (data) => `${data.firstName} ${data.lastName} has left project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Thanks for all your work ${data.firstName}.`
         },
         ownerChanged: {
           title: 'Your project has a new owner',
-          content: (data) => `${data.newMember.firstName} ${data.newMember.lastName} is now responsible for project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Good luck ${data.newMember.firstName}.`
+          content: (data) => `${data.firstName} ${data.lastName} is now responsible for project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Good luck ${data.firstName}.`
         }
       }
     },
@@ -86,8 +86,12 @@ module.exports = {
     },
   },
   projectStatuses: {
+    draft: 'draft',
     inReview: 'in_review',
     reviewed: 'reviewed',
+    active: 'active',
+    canceled: 'cancelled',
+    completed: 'completed'
   },
   memberRoles: {
     manager: 'manager',

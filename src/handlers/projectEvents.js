@@ -47,7 +47,7 @@ function* projectDraftCreated(logger, project) {
  * @param {String} data the event data
  * @returns {Object} the object of notifications
  */
-function* projectUpdatedEventToNotifications(logger, data) {
+function* projectUpdated(logger, data) {
   const notifications = {
     discourse: [],
     slack: {
@@ -61,23 +61,12 @@ function* projectUpdatedEventToNotifications(logger, data) {
   }
 
   const project = data.updated;
+  let topic
   if (project.status === constants.projectStatuses.inReview) {
-
     // create post notifying team members project was submitted for review
-    const topic = constants.notifications.discourse.project.submittedForReview
-    const topicData = {
-      projectName: project.name,
-      projectUrl: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${project.id}/`
-    }
-    notifications.discourse.push({
-      projectId: project.id,
-      title: topic.title,
-      content: topic.content(topicData)
-    })
-
+    topic = constants.notifications.discourse.project.submittedForReview
     // Send manager notifications to slack
     notifications.slack.manager.push(util.buildSlackNotification(project))
-
   } else if (project.status === constants.projectStatuses.reviewed) {
     // Notify to all copilots if there's no copilot is assigned
     if (!_.some(project.members, ['role', 'copilot'])) {
@@ -87,7 +76,27 @@ function* projectUpdatedEventToNotifications(logger, data) {
       // also queue up a message to process later
       notifications.delayed = data;
     }
+  } else if (project.status === constants.projectStatuses.active) {
+    topic = constants.notifications.discourse.project.activated
+  } else if (project.status === constants.projectStatuses.canceled) {
+    topic = constants.notifications.discourse.project.canceled
+  } else if (project.status === constants.projectStatuses.completed) {
+    topic = constants.notifications.discourse.project.completed
   }
+
+  // post to discourse if topic is set
+  if (topic) {
+    const topicData = {
+      projectName: project.name,
+      projectUrl: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${project.id}/`
+    }
+    notifications.discourse.push({
+      projectId: project.id,
+      title: topic.title,
+      content: topic.content(topicData)
+    })
+  }
+
   return notifications
 }
 
@@ -112,6 +121,6 @@ function* projectUnclaimedNotifications(logger, data) {
 
 module.exports = {
   projectDraftCreated,
-  projectUpdatedEventToNotifications,
+  projectUpdated,
   projectUnclaimedNotifications
 };
