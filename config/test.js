@@ -10,14 +10,23 @@
 
 
 module.exports = {
-  SOURCE_RABBIT_URL: 'amqp://',
-  SOURCE_RABBIT_EXCHANGE_NAME: 'projects',
-  SOURCE_RABBIT_QUEUE_NAME: 'events-queue',
-  TARGET_RABBIT_URL: 'amqp://',
-  TARGET_RABBIT_EXCHANGE_NAME: 'notifications',
-  TARGET_RABBIT_ROUTING_KEY: 'email',
-  TARGET_RABBIT_QUEUE_NAME: 'notifications-queue',
+  LOG_LEVEL: 'debug',
+
+  RABBITMQ_URL: 'amqp://localhost:5672',
+
+  SOURCE_RABBIT_EXCHANGE_NAME: 'test.projects',
+  SOURCE_RABBIT_QUEUE_NAME: 'test.connect-notifications',
+
+  TARGET_RABBIT_EXCHANGE_NAME: 'test.notifications',
+  TARGET_RABBIT_QUEUE_NAME: 'test.notifications',
+
+  COPILOT_TARGET_RABBIT_QUEUE_NAME: 'test.notifications-slack-copilot',
+  MANAGER_TARGET_RABBIT_QUEUE_NAME: 'test.notifications-slack-manager',
+
+  DELAY_RABBIT_EXCHANGE_NAME: 'test.delay-notifications',
+
+  UNCLAIMED_PROJECT_REPOST_DELAY: 0,
   API_BASE_URL: 'http://localhost:3001',
-  ALL_MANAGER_USER_IDS: [11111111, 22222222],
-  ALL_COPILOT_USER_IDS: [11111111, 33333333],
+
+  DISABLE_DELAY_EXCHANGE: false,
 };

@@ -1,0 +1,14 @@
+{
+
+  "AUTH_DOMAIN": "topcoder.com",
+  "SOURCE_RABBIT_EXCHANGE_NAME": "projects",
+  "SOURCE_RABBIT_QUEUE_NAME": "connect-notifications",
+  "TARGET_RABBIT_EXCHANGE_NAME": "notifications",
+  "TARGET_RABBIT_QUEUE_NAME": "notifications",
+
+  "COPILOT_TARGET_RABBIT_QUEUE_NAME": "notifications-slack-copilot",
+
+  "MANAGER_TARGET_RABBIT_QUEUE_NAME": "notifications-slack-manager",
+
+  "API_BASE_URL": "https://api.topcoder-dev.com",
+}
