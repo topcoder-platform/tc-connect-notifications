@@ -25,3 +25,7 @@ deployment:
     commands:
       - chmod +x ./deploy.sh
       - ./deploy.sh
+
+general:
+  artifacts:
+    - "coverage"

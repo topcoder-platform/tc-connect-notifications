@@ -225,8 +225,8 @@ describe('app', () => {
     });
   });
 
-  describe('`project.draft-created` event', () => {
-    it.only('should create `Project.Created` notification', (done) => {
+  describe.skip('`project.draft-created` event', () => {
+    it('should create `Project.Created` notification', (done) => {
       sendTestEvent(sampleEvents.draftCreated, 'project.draft-created', (m) => {
         console.log(m)
         // assert.deepEqual(notification, {
