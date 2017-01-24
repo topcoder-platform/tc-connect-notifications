@@ -9,6 +9,7 @@
  */
 const _ = require('lodash');
 const config = require('config');
+const Promise = require('bluebird');
 const request = require('request');
 
 /**
@@ -17,16 +18,20 @@ const request = require('request');
  * @returns {Promise} the promise that resolves to the response body content
  * @private
  */
-function requestPromise(url) {
+function requestPromise(url, cb = null) {
   return new Promise((resolve, reject) => {
-    const fullUrl = `${config.API_BASE_URLf}/${url}`;
+    const fullUrl = `${config.API_BASE_URL}/${url}`;
 
     request.get(fullUrl, (err, res, body) => {
       if (err || res.statusCode > 299) {
         reject(err || new Error(`Failed to load url '${fullUrl}': statusCode = ${res.statusCode}`));
       } else {
         const data = JSON.parse(body);
-        resolve(data.result.content);
+        if (cb) {
+          cb(data)
+        } else {
+          resolve(data.result.content);
+        }
       }
     });
   });
@@ -38,10 +43,40 @@ function requestPromise(url) {
  * @param  {String} notificationType notification type
  * @return {Promise}
  */
-function createProjectDiscourseNotification(logger, projectId, title, body) {
-  // TODO
-  logger.debug('sending discourse notification', { title, body });
-  return Promise.resolve(true);
+function createProjectDiscourseNotification(logger, projectId, title, body, tag = 'PRIMARY') {
+  try {
+    return getSystemUserToken(logger)
+      .then((token) => {
+        const options = {
+          uri: `${config.API_BASE_URL}/v4/topics/`,
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          json: {
+            reference: 'project',
+            referenceId: projectId,
+            tag,
+            title,
+            body,
+          },
+        };
+        return new Promise((resolve, reject) => {
+          request(options, (err, res, body) => {
+            if (err) {
+              logger.error(err)
+              return reject(err)
+            }
+            logger.info('Created discourse notification')
+            logger.debug(body)
+            return resolve(true)
+          });
+        });
+    })
+  } catch (err) {
+    logger.error(err)
+    return Promise.reject(err)
+  }
 }
 
 /**
@@ -93,7 +128,7 @@ function getProjectMemberIdsByRole(project, role) {
  * @private
  */
 function* getProjectById(id) {
-  return yield requestPromise(`projects/${id}`);
+  return yield requestPromise(`v4/projects/${id}`);
 }
 
 /**
@@ -103,7 +138,17 @@ function* getProjectById(id) {
  * @private
  */
 function* getUserById(id) {
-  return yield requestPromise(`users/${id}`);
+  const cb = (data) => {
+    const user = _.get(data, 'result.content.0', null);
+    if (user) {
+      return resolve(user);
+    }
+    return reject(new Error('user not found'));
+  };
+  return requestPromise(`${config.get('API_BASE_URL')}/v3/members/_search/?query=userId:${id}`, cb);
+  return yield new Promise((resolve, reject) => {
+    request.get('')
+  })
 }
 
 
@@ -147,13 +192,12 @@ function createProjectMemberNotification(userIds, project, member, notificationT
 
 function buildSlackNotification(project) {
   return {
-    username: config.SLACK_USERNAME,
-    icon_url: config.SLACK_ICON_URL,
+    username: config.get('SLACK_USERNAME'),
+    icon_url: config.get('SLACK_ICON_URL'),
     attachments: [{
-      fallback: `New Project: https://connect.topcoder.com/projects/| ${project.name}`,
-      pretext: `New Project: https://connect.topcoder.com/projects/| ${project.name}`,
-      fields: [
-        {
+      fallback: `New Project: https://connect.${config.get('AUTH_DOMAIN')}/projects/| ${project.name}`,
+      pretext: `New Project: https://connect.${config.get('AUTH_DOMAIN')}/projects/| ${project.name}`,
+      fields: [{
           title: 'Description',
           value: _.truncate(project.description, {
             length: 200,
@@ -168,6 +212,27 @@ function buildSlackNotification(project) {
       ],
     }],
   };
+}
+
+function getSystemUserToken(logger, id = 'system') {
+  return new Promise((resolve, reject) => {
+    const url = `${config.API_BASE_URL}/v3/authorizations/`;
+    const formData = {
+      clientId: config.get('SYSTEM_USER_CLIENT_ID'),
+      secret: config.get('SYSTEM_USER_CLIENT_SECRET'),
+    };
+    request.post({
+      url,
+      formData
+    }, (err, res, body) => {
+      if (err) {
+        logger.error(err);
+        return reject(err);
+      }
+      body = JSON.parse(body)
+      return resolve(body.result.content.token)
+    });
+  });
 }
 
 module.exports = {

@@ -9,10 +9,10 @@ Connect Notifications biz layer
 
 ## Configuration
 
-Update environment variables or `./config/default.js`:
+Update environment variables or create `./config/local.js`:
 
 - `LOG_LEVEL`: the log level (e.g. debug, info)
-- `SOURCE_RABBIT_URL`: the event RabbitMQ's URL
+- `RABBITMQ_URL`: the event RabbitMQ's URL
 - `SOURCE_RABBIT_EXCHANGE_NAME`: the event RabbitMQ's topic exchange name
 - `SOURCE_RABBIT_QUEUE_NAME`: the event RabbitMQ's queue name
 - `COPILOT_TARGET_RABBIT_QUEUE_NAME`: copilot slack queue
@@ -21,7 +21,6 @@ Update environment variables or `./config/default.js`:
 - `MANAGER_TARGET_RABBIT_ROUTING_KEY`: manager slack queue routing key
 - `DELAY_RABBIT_EXCHANGE_NAME`: Exchange name used for delayed messages
 - `UNCLAIMED_PROJECT_REPOST_DELAY`: Amount of delay before reposting unclaimed project
-- `TARGET_RABBIT_URL`: the notification RabbitMQ's URL
 - `TARGET_RABBIT_EXCHANGE_NAME`: the notification RabbitMQ's topic exchange name
 - `TARGET_RABBIT_ROUTING_KEY`: the notification RabbitMQ's routing key
 - `TARGET_RABBIT_QUEUE_NAME`: the notification RabbitMQ's queue name

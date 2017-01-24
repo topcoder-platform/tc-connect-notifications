@@ -18,7 +18,7 @@ const util = require('./util');
  * @return {Array} the array of notifications
  */
 function projectDraftCreated(logger, project) {
-  logger.debug(project);
+  logger.debug('EVNT');
   const owner = _.find(project.members, { role: constants.memberRoles.customer, isPrimary: true });
   if (!owner) {
     return {};

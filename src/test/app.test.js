@@ -93,7 +93,7 @@ describe('app', () => {
   };
 
   const connectToSource = (callback) => {
-    sourceExchange = jackrabbit(config.SOURCE_RABBIT_URL)
+    sourceExchange = jackrabbit(config.RABBITMQ_URL)
       .topic(config.SOURCE_RABBIT_EXCHANGE_NAME);
     sourceQueue = sourceExchange.queue(
       { name: config.SOURCE_RABBIT_QUEUE_NAME },
@@ -103,7 +103,7 @@ describe('app', () => {
     });
   };
   const connectToTarget = (callback) => {
-    targetExchange = jackrabbit(config.TARGET_RABBIT_URL)
+    targetExchange = jackrabbit(config.RABBITMQ_URL)
       .topic(config.TARGET_RABBIT_EXCHANGE_NAME);
     targetQueue = targetExchange.queue(
       { name: config.TARGET_RABBIT_QUEUE_NAME },

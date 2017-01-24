@@ -52,6 +52,7 @@ module.exports = (logger, message, channel, publish) => {
         return [];
     }
   }).then((notifications) => {
+    logger.debug('Notifications: ', notifications)
     _.each(notifications.discourse, (n) => {
       const { projectId, title, content } = n;
       util.createProjectDiscourseNotification(childLogger, projectId, title, content);

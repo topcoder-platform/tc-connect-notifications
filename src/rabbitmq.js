@@ -53,7 +53,7 @@ module.exports = (logger) => {
       });
       logger.info(`Exchange ${exchangeName} created... `);
       const qok = yield channel.assertQueue(queueName);
-      const subscriberQ = qok.queuel;
+      const subscriberQ = qok.queue;
       const bindings = _.values(constants.events);
       logger.info(`Queue ${queueName} created... `);
       logger.info('Adding bindings', bindings);
