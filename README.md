@@ -74,20 +74,6 @@ Update environment variables or `./config/default.js`:
   cd local
   docker-compose up
   ```
-- download rabbitmq_delayed_message_exchange plugin from http://www.rabbitmq.com/community-plugins.html in current folder
-
-- Copy plugin to docker instance
-  ```
-  docker cp ./rabbitmq_delayed_message_exchange-0.0.1.ez local_rabbitmq_1:/plugins/
-  ```
-- Login into docker rabbitmq
-  ```
-  docker exec -it local_rabbitmq_1 bash
-  ```
-- enable plugin
-  ```
-  rabbitmq-plugins enable rabbitmq_delayed_message_exchange
-  ```
 
 ## Verification
 

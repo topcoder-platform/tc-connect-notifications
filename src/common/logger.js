@@ -11,14 +11,13 @@ const bunyan = require('bunyan');
 const bunyanLogentries = require('bunyan-logentries');
 const config = require('config');
 
-const streams = [];
-if (process.env.NODE_ENV !== 'test') {
+const streams = [{
+  stream: process.stdout,
+}];
+if (config.get('CAPTURE_LOGS')) {
   streams.push({
     stream: bunyanLogentries.createStream({ token: config.LOGENTRIES_TOKEN }),
     type: 'raw',
-  });
-  streams.push({
-    stream: process.stdout,
   });
 }
 const logger = bunyan.createLogger({
