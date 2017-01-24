@@ -1,7 +1,7 @@
 machine:
   node:
     version: v6.9.0
-  enviornment:
+  environment:
     NODE_ENV: test
     LOG_LEVEL: debug
     AUTH_DOMAIN: topcoder-dev.com
