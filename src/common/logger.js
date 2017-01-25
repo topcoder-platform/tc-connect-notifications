@@ -10,6 +10,7 @@
 const bunyan = require('bunyan');
 const bunyanLogentries = require('bunyan-logentries');
 const config = require('config');
+const _ = require('lodash');
 
 const streams = [{
   stream: process.stdout,
