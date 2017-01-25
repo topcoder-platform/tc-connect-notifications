@@ -14,7 +14,7 @@ const config = require('config');
 const streams = [{
   stream: process.stdout,
 }];
-if (config.get('CAPTURE_LOGS')) {
+if (_.get(config, 'CAPTURE_LOGS', 'false').toLowerCase() === 'true') {
   streams.push({
     stream: bunyanLogentries.createStream({ token: config.LOGENTRIES_TOKEN }),
     type: 'raw',
