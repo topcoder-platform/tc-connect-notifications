@@ -12,7 +12,7 @@
 module.exports = {
   AUTH_DOMAIN: 'topcoder-dev.com',
   LOG_LEVEL: 'info',
-  CAPTURE_LOGS: false,
+  CAPTURE_LOGS: 'false',
   // Token is generated from https://logentries.com/
   LOGENTRIES_TOKEN: '',
 
