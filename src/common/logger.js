@@ -16,13 +16,13 @@ const streams = [{
 }];
 if (_.get(config, 'CAPTURE_LOGS', 'false').toLowerCase() === 'true') {
   streams.push({
-    stream: bunyanLogentries.createStream({ token: config.LOGENTRIES_TOKEN }),
+    stream: bunyanLogentries.createStream({ token: config.get('LOGENTRIES_TOKEN') }),
     type: 'raw',
   });
 }
 const logger = bunyan.createLogger({
   name: 'tc-connect-notifications',
-  level: config.LOG_LEVEL,
+  level: config.get('LOG_LEVEL'),
   serializers: { err: bunyan.stdSerializers.err },
   streams,
 });
