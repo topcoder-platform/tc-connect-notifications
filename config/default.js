@@ -37,11 +37,6 @@ module.exports = {
   SYSTEM_USER_CLIENT_ID: '',
   SYSTEM_USER_CLIENT_SECRET: '',
 
-  // The manager group
-  ALL_MANAGER_USER_IDS: [11111111, 22222222],
-  // The copilot group
-  ALL_COPILOT_USER_IDS: [11111111, 33333333],
-
   // Disable delay exchange and use direct instead ( delete existing delay exchnge after changing)
   DISABLE_DELAY_EXCHANGE: false,
   SLACK_ICON_URL: 'https://emoji.slack-edge.com/T03R80JP7/topcoder/7c68acd90a6b6d77.png',

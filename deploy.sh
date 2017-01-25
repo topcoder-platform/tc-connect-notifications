@@ -37,11 +37,37 @@ make_task_def(){
 			"image": "%s.dkr.ecr.%s.amazonaws.com/%s:%s",
 			"essential": true,
 			"memory": 200,
-			"cpu": 10
+			"cpu": 10,
+			"environment": [
+				{
+					"name": "LOG_LEVEL",
+					"value": "%s"
+				},
+				{
+					"name": "CAPTURE_LOGS",
+					"value": "%s"
+				},
+				{
+					"name": "LOGENTRIES_TOKEN",
+					"value": "%s"
+				},
+				{
+					"name": "RABBITMQ_URL",
+					"value": "%s"
+				},
+				{
+					"name": "SYSTEM_USER_CLIENT_ID",
+					"value": "%s"
+				},
+				{
+					"name": "SYSTEM_USER_CLIENT_SECRET",
+					"value": "%s"
+				}
+			]
 		}
 	]'
 
-	task_def=$(printf "$task_template" $ACCOUNT_ID $AWS_REGION $AWS_REPOSITORY $CIRCLE_SHA1)
+	task_def=$(printf "$task_template" $ACCOUNT_ID $AWS_REGION $AWS_REPOSITORY $CIRCLE_SHA1 $LOG_LEVEL $CAPTURE_LOGS $LOGENTRIES_TOKEN $RABBITMQ_URL $SYSTEM_USER_CLIENT_ID $SYSTEM_USER_CLIENT_SECRET)
 }
 
 push_ecr_image(){
