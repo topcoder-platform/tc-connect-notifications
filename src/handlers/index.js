@@ -51,7 +51,7 @@ module.exports = (logger, message, channel, publish) => {
       default:
         return [];
     }
-  }).then(co(function* (notifications) => {
+  }).then((notifications) => {
     logger.debug('Notifications: ', notifications)
     _.each(notifications.discourse, (n) => {
       const { projectId, title, content } = n;
@@ -71,7 +71,7 @@ module.exports = (logger, message, channel, publish) => {
       // TODO handle delayed msg
     }
     return Promise.all(publishPromises);
-  })).then(() => {
+  }).then(() => {
     childLogger.info('Succesfully handled event, ACKing... ');
     return channel.ack(message);
   }).catch((err) => {

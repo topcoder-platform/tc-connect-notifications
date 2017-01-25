@@ -10,9 +10,8 @@
     "dev": "NODE_ENV=local ./node_modules/.bin/nodemon -w src -w config src/app.js | ./node_modules/.bin/bunyan",
     "start": "./node_modules/.bin/node src/app.js",
     "lint": "./node_modules/.bin/eslint config src",
-    "dev-test": "NODE_ENV=test ./node_modules/.bin/mocha -w --timeout 30000 src/**/*.test.js",
-    "test": "NODE_ENV=test ./node_modules/.bin/mocha --timeout 3000 src/**/*.test.js",
-    "cover": "NODE_ENV=test ./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha"
+    "dev-test": "NODE_ENV=test ./node_modules/.bin/mocha -w --timeout 30000 src/**/*.test.js | ./node_modules/.bin/bunyan",
+    "test": "NODE_ENV=test ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --timeout 3000 src/**/*.test.js",
   },
   "author": "TCSCODER",
   "dependencies": {

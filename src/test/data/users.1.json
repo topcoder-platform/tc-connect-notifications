@@ -4,7 +4,7 @@
     "success": true,
     "status": 200,
     "metadata": null,
-    "content": {
+    "content": [{
       "id": "1",
       "modifiedBy": null,
       "modifiedAt": "2016-06-01T16:57:47.000Z",
@@ -28,7 +28,7 @@
       "active": true,
       "profile": null,
       "emailActive": true
-    }
+    }]
   },
   "version": "v3"
 }

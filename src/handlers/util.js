@@ -22,14 +22,14 @@ function requestPromise(options, cb = null) {
   // setting default options
   _.defaults(options, { method: 'GET', json: true })
   return new Promise((resolve, reject) => {
-    const fullUrl = `${config.API_BASE_URL}/${url}`;
-    request(options, (err, res, body) => {
+    request(options, (err, res, data) => {
       if (err || res.statusCode > 299) {
-        reject(err || new Error(`Failed to load url '${fullUrl}': statusCode = ${res.statusCode}`));
+        reject(err || new Error(`Failed to ${options.method}, url '${options.url}': statusCode = ${res.statusCode}`));
       } else {
-        const data = JSON.parse(body);
+        // console.log('Request: ', _.keys(res))
+        // console.log(data)
         if (cb) {
-          cb(data)
+          cb(data, resolve, reject);
         } else {
           resolve(data.result.content);
         }
@@ -44,41 +44,31 @@ function requestPromise(options, cb = null) {
  * @param  {String} notificationType notification type
  * @return {Promise}
  */
-const createProjectDiscourseNotification = Promise.coroutine( function* (logger, projectId, title, body, tag = 'PRIMARY') {
-  try {
-    const token = yield getSystemUserToken(logger);
-    logger.debug(token)
-    const options = {
-      url: '/v4/topics/',
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      json: {
-        reference: 'project',
-        referenceId: projectId,
-        tag,
-        title,
-        body,
-      },
-    };
-    return requestPromise(options);
-    // return new Promise((resolve, reject) => {
-    //   request(options, (err, res, body) => {
-    //     if (err) {
-    //       logger.error(err)
-    //       return reject(err)
-    //     }
-    //     logger.info('Created discourse notification')
-    //     logger.debug(body)
-    //     return resolve(true)
-    //   });
-    // });
-  } catch (err) {
-    logger.error(err)
-    return Promise.reject(err)
+const createProjectDiscourseNotification = Promise.coroutine(
+  function* (logger, projectId, title, body, tag = 'PRIMARY') {
+    try {
+      const token = yield getSystemUserToken(logger);
+      const options = {
+        url: `${config.get('API_BASE_URL')}/v4/topics/`,
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        json: {
+          reference: 'project',
+          referenceId: projectId,
+          tag,
+          title,
+          body,
+        },
+      };
+      return requestPromise(options, (data, resolve) => resolve(data));
+    } catch (err) {
+      logger.error(err)
+      return Promise.reject(err)
+    }
   }
-});
+);
 
 /**
  * Create notification for a project event
@@ -129,7 +119,7 @@ function getProjectMemberIdsByRole(project, role) {
  * @private
  */
 function* getProjectById(id) {
-  return yield requestPromise({url: `v4/projects/${id}`});
+  return yield requestPromise({url: `${config.get('API_BASE_URL')}/v4/projects/${id}`});
 }
 
 /**
@@ -139,7 +129,7 @@ function* getProjectById(id) {
  * @private
  */
 function* getUserById(id) {
-  const cb = (data) => {
+  const cb = (data, resolve, reject) => {
     const user = _.get(data, 'result.content.0', null);
     if (user) {
       return resolve(user);
@@ -213,7 +203,6 @@ function buildSlackNotification(project) {
 }
 
 const getSystemUserToken = Promise.coroutine(function* (logger, id = 'system') {
-  logger.debug('erer')
   const formData = {
     clientId: config.get('SYSTEM_USER_CLIENT_ID'),
     secret: config.get('SYSTEM_USER_CLIENT_SECRET'),
@@ -221,10 +210,10 @@ const getSystemUserToken = Promise.coroutine(function* (logger, id = 'system') {
   return yield requestPromise(
     {
       method: 'POST',
-      url: '/v3/authorizations/',
+      url: `${config.get('API_BASE_URL')}/v3/authorizations/`,
       form: formData,
     },
-    (data) => {
+    (data, resolve, reject) => {
       return resolve(data.result.content.token);
     }
   )
