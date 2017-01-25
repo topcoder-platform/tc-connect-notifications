@@ -18,26 +18,23 @@ const util = require('./util');
  * @return {Array} the array of notifications
  */
 function projectDraftCreated(logger, project) {
-  logger.debug('EVNT');
-  const owner = _.find(project.members, { role: constants.memberRoles.customer, isPrimary: true });
-  if (!owner) {
-    return {};
-  }
 
   const topic = constants.notifications.discourse.project.created;
   const topicData = {
-    projectId: project.id,
     projectName: project.name,
     projectUrl: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${project.id}/`,
   };
 
+  logger.debug('testing ')
   // return notificaiton object with discourse data
-  return {
+  const notifications = {
     discourse: [{
+      projectId: project.id,
       title: topic.title,
       content: topic.content(topicData),
     }],
   };
+  return notifications;
 }
 
 /**

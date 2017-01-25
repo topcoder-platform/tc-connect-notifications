@@ -4,10 +4,10 @@ services:
     build: 'mockServices'
     ports:
       - 3001:3001
-  rabbitmq-x-delay-mgmt:
-    build:
-      context: ./
-      dockerfile: Dockerfile.rabbitmq
-    ports:
-      - 15672:15672
-      - 5672:5672
+  # rabbitmq-x-delay-mgmt:
+  #   build:
+  #     context: ./
+  #     dockerfile: Dockerfile.rabbitmq
+  #   ports:
+  #     - 15672:15672
+  #     - 5672:5672

@@ -34,7 +34,7 @@ module.exports = (logger, message, channel, publish) => {
   childLogger.debug('Payload:', data);
 
   co(function* generateNotifications() {
-    logger.debug(eventType);
+    logger.debug(eventType, constants.events.projectDraftCreated);
     switch (eventType) {
       case constants.events.projectDraftCreated:
         return yield projectEvents.projectDraftCreated(childLogger, data);
@@ -51,7 +51,7 @@ module.exports = (logger, message, channel, publish) => {
       default:
         return [];
     }
-  }).then((notifications) => {
+  }).then(co(function* (notifications) => {
     logger.debug('Notifications: ', notifications)
     _.each(notifications.discourse, (n) => {
       const { projectId, title, content } = n;
@@ -71,7 +71,7 @@ module.exports = (logger, message, channel, publish) => {
       // TODO handle delayed msg
     }
     return Promise.all(publishPromises);
-  }).then(() => {
+  })).then(() => {
     childLogger.info('Succesfully handled event, ACKing... ');
     return channel.ack(message);
   }).catch((err) => {

@@ -18,11 +18,12 @@ const request = require('request');
  * @returns {Promise} the promise that resolves to the response body content
  * @private
  */
-function requestPromise(url, cb = null) {
+function requestPromise(options, cb = null) {
+  // setting default options
+  _.defaults(options, { method: 'GET', json: true })
   return new Promise((resolve, reject) => {
     const fullUrl = `${config.API_BASE_URL}/${url}`;
-
-    request.get(fullUrl, (err, res, body) => {
+    request(options, (err, res, body) => {
       if (err || res.statusCode > 299) {
         reject(err || new Error(`Failed to load url '${fullUrl}': statusCode = ${res.statusCode}`));
       } else {
@@ -43,41 +44,41 @@ function requestPromise(url, cb = null) {
  * @param  {String} notificationType notification type
  * @return {Promise}
  */
-function createProjectDiscourseNotification(logger, projectId, title, body, tag = 'PRIMARY') {
+const createProjectDiscourseNotification = Promise.coroutine( function* (logger, projectId, title, body, tag = 'PRIMARY') {
   try {
-    return getSystemUserToken(logger)
-      .then((token) => {
-        const options = {
-          uri: `${config.API_BASE_URL}/v4/topics/`,
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          json: {
-            reference: 'project',
-            referenceId: projectId,
-            tag,
-            title,
-            body,
-          },
-        };
-        return new Promise((resolve, reject) => {
-          request(options, (err, res, body) => {
-            if (err) {
-              logger.error(err)
-              return reject(err)
-            }
-            logger.info('Created discourse notification')
-            logger.debug(body)
-            return resolve(true)
-          });
-        });
-    })
+    const token = yield getSystemUserToken(logger);
+    logger.debug(token)
+    const options = {
+      url: '/v4/topics/',
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      json: {
+        reference: 'project',
+        referenceId: projectId,
+        tag,
+        title,
+        body,
+      },
+    };
+    return requestPromise(options);
+    // return new Promise((resolve, reject) => {
+    //   request(options, (err, res, body) => {
+    //     if (err) {
+    //       logger.error(err)
+    //       return reject(err)
+    //     }
+    //     logger.info('Created discourse notification')
+    //     logger.debug(body)
+    //     return resolve(true)
+    //   });
+    // });
   } catch (err) {
     logger.error(err)
     return Promise.reject(err)
   }
-}
+});
 
 /**
  * Create notification for a project event
@@ -128,7 +129,7 @@ function getProjectMemberIdsByRole(project, role) {
  * @private
  */
 function* getProjectById(id) {
-  return yield requestPromise(`v4/projects/${id}`);
+  return yield requestPromise({url: `v4/projects/${id}`});
 }
 
 /**
@@ -145,10 +146,7 @@ function* getUserById(id) {
     }
     return reject(new Error('user not found'));
   };
-  return requestPromise(`${config.get('API_BASE_URL')}/v3/members/_search/?query=userId:${id}`, cb);
-  return yield new Promise((resolve, reject) => {
-    request.get('')
-  })
+  return requestPromise({url: `${config.get('API_BASE_URL')}/v3/members/_search/?query=userId:${id}`}, cb);
 }
 
 
@@ -214,26 +212,23 @@ function buildSlackNotification(project) {
   };
 }
 
-function getSystemUserToken(logger, id = 'system') {
-  return new Promise((resolve, reject) => {
-    const url = `${config.API_BASE_URL}/v3/authorizations/`;
-    const formData = {
-      clientId: config.get('SYSTEM_USER_CLIENT_ID'),
-      secret: config.get('SYSTEM_USER_CLIENT_SECRET'),
-    };
-    request.post({
-      url,
-      formData
-    }, (err, res, body) => {
-      if (err) {
-        logger.error(err);
-        return reject(err);
-      }
-      body = JSON.parse(body)
-      return resolve(body.result.content.token)
-    });
-  });
-}
+const getSystemUserToken = Promise.coroutine(function* (logger, id = 'system') {
+  logger.debug('erer')
+  const formData = {
+    clientId: config.get('SYSTEM_USER_CLIENT_ID'),
+    secret: config.get('SYSTEM_USER_CLIENT_SECRET'),
+  };
+  return yield requestPromise(
+    {
+      method: 'POST',
+      url: '/v3/authorizations/',
+      form: formData,
+    },
+    (data) => {
+      return resolve(data.result.content.token);
+    }
+  )
+})
 
 module.exports = {
   createProjectMemberNotification,
