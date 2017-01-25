@@ -2,7 +2,9 @@
 
 # more bash-friendly output for jq
 JQ="jq --raw-output --exit-status"
+
 ENV=$1
+ACCOUNT_ID=$(eval "echo \$${ENV}_AWS_ACCOUNT_ID")
 
 configure_aws_cli() {
 	export AWS_ACCESS_KEY_ID=$(eval "echo \$${ENV}_AWS_ACCESS_KEY_ID")
@@ -39,12 +41,12 @@ make_task_def(){
 		}
 	]'
 
-	task_def=$(printf "$task_template" $AWS_ACCOUNT_ID $AWS_REGION $AWS_REPOSITORY $CIRCLE_SHA1)
+	task_def=$(printf "$task_template" $ACCOUNT_ID $AWS_REGION $AWS_REPOSITORY $CIRCLE_SHA1)
 }
 
 push_ecr_image(){
 	eval $(aws ecr get-login --region $AWS_REGION)
-	docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:$CIRCLE_SHA1
+	docker push $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:$CIRCLE_SHA1
 }
 
 register_definition() {

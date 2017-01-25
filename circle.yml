@@ -32,6 +32,12 @@ deployment:
       - docker build -t $DEV_AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:$CIRCLE_SHA1 .
       - ./deploy.sh DEV
 
+  production:
+    branch: master
+    commands:
+      - docker build -t $PROD_AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:$CIRCLE_SHA1 .
+      - ./deploy.sh PROD
+
 
 general:
   artifacts:
