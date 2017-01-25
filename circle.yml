@@ -19,7 +19,7 @@ machine:
 
 test:
   pre:
-    - docker-compose -f local/docker-compose.yml up connect-mocks -d
+    - docker-compose -f local/docker-compose.yml up -d connect-mocks
 
 deployment:
   development:
