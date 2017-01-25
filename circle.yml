@@ -1,9 +1,9 @@
 machine:
   # pre:
-    # - curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0
-    # - curl -L https://github.com/docker/compose/releases/download/1.10.0/docker-compose-`uname -s`-`uname -m` > /home/ubuntu/bin/docker-compose
-    # - chmod +x /home/ubuntu/bin/docker-compose
-    # - docker-compose version
+    - curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0
+    - curl -L https://github.com/docker/compose/releases/download/1.10.0/docker-compose-`uname -s`-`uname -m` > /home/ubuntu/bin/docker-compose
+    - chmod +x /home/ubuntu/bin/docker-compose
+    - docker-compose version
 
   node:
     version: v6.9.0
@@ -21,9 +21,9 @@ machine:
   # post:
     # - docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:$CIRCLE_SHA1 .
 
-# test:
-  # pre:
-    # - docker-compose -f local/docker-compose.yml up -d
+test:
+  pre:
+    - docker-compose -f local/docker-compose.yml up -d
 
 deployment:
   development:
