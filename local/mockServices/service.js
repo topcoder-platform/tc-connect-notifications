@@ -39,9 +39,7 @@ server.use(function(req, res, next) {
         return res.status(404).json()
       }
       var userDb = router.db.get('members').value()
-      console.log(userDb)
       var data = _.find(userDb, (u) => {
-        console.log(u.result.content.userId)
         return parseInt(u.result.content.userId) === userId
       })
 

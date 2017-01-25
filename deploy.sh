@@ -38,14 +38,6 @@ make_task_def(){
 			"essential": true,
 			"memory": 200,
 			"cpu": 10,
-			"logConfiguration": {
-				"logDriver": "awslogs",
-				"options": {
-					"awslogs-group": "awslogs-connect-notify",
-          "awslogs-region": "us-east-1",
-          "awslogs-stream-prefix": "connect-notify"
-        }
-      },
 			"environment": [
 				{
 					"name": "LOG_LEVEL",
