@@ -62,10 +62,10 @@ function* memberRemoved(logger, data) {
   let topic;
   if (data.updatedBy === data.userId) {
     // Left
-    topic = constants.notifications.discourse.teamMember.left;
+    topic = constants.notifications.discourse.teamMembers.left;
   } else {
     // Removed
-    topic = constants.notifications.discourse.teamMember.removed;
+    topic = constants.notifications.discourse.teamMembers.removed;
   }
   const topicData = {
     projectName: project.name,
