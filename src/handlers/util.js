@@ -194,7 +194,7 @@ function buildSlackNotification(project) {
         },
         {
           title: 'Ref Code',
-          value: project.id,
+          value: project.details.utm.code,
           short: false,
         },
       ],
