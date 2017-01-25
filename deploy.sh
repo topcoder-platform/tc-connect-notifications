@@ -40,6 +40,10 @@ make_task_def(){
 			"cpu": 10,
 			"environment": [
 				{
+					"name": "NODE_ENV",
+					"value": "%s"
+				},
+				{
 					"name": "LOG_LEVEL",
 					"value": "%s"
 				},
@@ -70,7 +74,13 @@ make_task_def(){
 	CAPTURE_LOGS=$(eval "echo \$${ENV}_CAPTURE_LOGS")
 	LOGENTRIES_TOKEN=$(eval "echo \$${ENV}_LOGENTRIES_TOKEN")
 	LOG_LEVEL=$(eval "echo \$${ENV}_LOG_LEVEL")
-	task_def=$(printf "$task_template" $ACCOUNT_ID $AWS_REGION $AWS_REPOSITORY $CIRCLE_SHA1 $LOG_LEVEL $CAPTURE_LOGS $LOGENTRIES_TOKEN $RABBITMQ_URL $SYSTEM_USER_CLIENT_ID $SYSTEM_USER_CLIENT_SECRET)
+	if [ "$ENV" = "PROD" ]; then
+		NODE_ENV=production
+	elif [ "$ENV" = "DEV" ]; then
+		NODE_ENV=development
+	fi
+
+	task_def=$(printf "$task_template" $ACCOUNT_ID $AWS_REGION $AWS_REPOSITORY $CIRCLE_SHA1 $NODE_ENV $LOG_LEVEL $CAPTURE_LOGS $LOGENTRIES_TOKEN $RABBITMQ_URL $SYSTEM_USER_CLIENT_ID $SYSTEM_USER_CLIENT_SECRET)
 }
 
 push_ecr_image(){
