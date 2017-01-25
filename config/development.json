@@ -10,5 +10,5 @@
 
   "MANAGER_TARGET_RABBIT_QUEUE_NAME": "dev.notifications-slack-manager",
 
-  "API_BASE_URL": "https://api.topcoder.com"
+  "API_BASE_URL": "https://api.topcoder-dev.com"
 }
