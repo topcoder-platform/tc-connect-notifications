@@ -358,97 +358,61 @@ describe('app', () => {
     });
   });
 
-  describe.skip('`project.member.removed` event', () => {
-    it.skip('should create `Project.Member.Left` notification', (done) => {
-      const expectedParams = {
-        projectId: 1,
-        projectName: 'Project name 1',
-        memberId: 1,
-        memberName: 'F_user L_user',
-        memberHandle: 'test_user',
-      };
-      sendTestEvent(sampleEvents.memberRemovedLeft, 'project.member.removed', (notification) => {
-        assert.deepEqual(notification, {
-          recipients: [
-            { id: 1, params: expectedParams },
-            { id: 2, params: expectedParams },
-            { id: 3, params: expectedParams },
-            { id: 4, params: expectedParams },
-          ],
-          notificationType: constants.notifications.teamMember.left.notificationType,
-          subject: constants.notifications.teamMember.left.subject,
-        });
-
+  describe('`project.member.removed` event', () => {
+    it('should create `Project.Member.Left` notification', (done) => {
+      sendTestEvent(sampleEvents.memberRemovedLeft, 'project.member.removed');
+      setTimeout(() => {
+        const expectedTitle = 'A team member has left your project';
+        const expectedBody = 'F_user L_user has left project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">Project name 1</a>. Thanks for all your work F_user.';
+        const params = spy.lastCall.args;
+        assert.equal(params[2], expectedTitle);
+        assert.equal(params[3], expectedBody);
         done();
-      });
+      }, testTimeout);
     });
 
     it('should create `Project.Member.Removed` notification', (done) => {
-      const expectedParams = {
-        projectId: 1,
-        projectName: 'Project name 1',
-        memberId: 1,
-        memberName: 'F_user L_user',
-        memberHandle: 'test_user',
-      };
-      sendTestEvent(sampleEvents.memberRemovedRemoved, 'project.member.removed', (notification) => {
-        assert.deepEqual(notification, {
-          recipients: [
-            { id: 1, params: expectedParams },
-            { id: 2, params: expectedParams },
-            { id: 3, params: expectedParams },
-            { id: 4, params: expectedParams },
-          ],
-          notificationType: constants.notifications.teamMember.removed.notificationType,
-          subject: constants.notifications.teamMember.removed.subject,
-        });
-
+      sendTestEvent(sampleEvents.memberRemovedRemoved, 'project.member.removed');
+      setTimeout(() => {
+        const expectedTitle = 'A team member has left your project';
+        const expectedBody = 'F_user L_user has left project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">Project name 1</a>. Thanks for all your work F_user.';
+        const params = spy.lastCall.args;
+        assert.equal(params[2], expectedTitle);
+        assert.equal(params[3], expectedBody);
         done();
-      });
+      }, testTimeout);
     });
   });
 
-  describe.skip('`project.member.updated` event', () => {
+  describe('`project.member.updated` event', () => {
     it('should create `Project.OwnerChanged` notification', (done) => {
-      const expectedParams = {
-        projectId: 1,
-        projectName: 'Project name 1',
-        newOwnerUserId: 1,
-        newOwnerName: 'F_user L_user',
-        newOwnerHandle: 'test_user',
-      };
-      sendTestEvent(sampleEvents.memberUpdated, 'project.member.updated', (notification) => {
-        assert.deepEqual(notification, {
-          recipients: [
-            { id: 1, params: expectedParams },
-            { id: 2, params: expectedParams },
-            { id: 3, params: expectedParams },
-            { id: 4, params: expectedParams },
-          ],
-          notificationType: constants.notifications.teamMember.ownerChanged.notificationType,
-          subject: constants.notifications.teamMember.ownerChanged.subject,
-        });
-
+      sendTestEvent(sampleEvents.memberUpdated, 'project.member.updated');
+      setTimeout(() => {
+        const expectedTitle = 'Your project has a new owner';
+        const expectedBody = 'F_user L_user is now responsible for project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">Project name 1</a>. Good luck F_user.';
+        const params = spy.lastCall.args;
+        assert.equal(params[2], expectedTitle);
+        assert.equal(params[3], expectedBody);
         done();
-      });
+      }, testTimeout);
     });
 
     it('should not create `Project.OwnerChanged` notification (owner not changed)', (done) => {
-      sendTestEvent(sampleEvents.memberUpdatedOwnerNotChanged, 'project.member.updated', () => {
-        assert.fail();
-      });
-
-      setTimeout(done, 1000);
+      sendTestEvent(sampleEvents.memberUpdatedOwnerNotChanged, 'project.member.updated');
+      setTimeout(() => {
+        sinon.assert.notCalled(spy);
+        done();
+      }, testTimeout);
     });
   });
 
-  describe.skip('Others', () => {
+  describe('Others', () => {
     it('Should not create notification when API server return error', (done) => {
-      sendTestEvent(sampleEvents.memberUpdated404, 'project.member.updated', () => {
-        assert.fail();
-      });
-
-      setTimeout(done, 1000);
+      sendTestEvent(sampleEvents.memberUpdated404, 'project.member.updated');
+      setTimeout(() => {
+        sinon.assert.notCalled(spy);
+        done();
+      }, testTimeout);
     });
   });
 });
