@@ -191,13 +191,13 @@ describe('app', () => {
 
     // Stub the calls to API server
     stub = sinon.stub(request, 'get');
-    stub.withArgs(`${config.API_BASE_URL}/projects/1`)
+    stub.withArgs(`${config.API_BASE_URL}/v4/projects/1`)
       .yields(null, { statusCode: 200 }, JSON.stringify(sampleProjects.project1));
-    stub.withArgs(`${config.API_BASE_URL}/projects/1000`)
+    stub.withArgs(`${config.API_BASE_URL}/v4/projects/1000`)
       .yields(null, { statusCode: 404 });
-    stub.withArgs(`${config.API_BASE_URL}/users/1`)
+    stub.withArgs(`${config.API_BASE_URL}/v3/members/_search/?query=userId:1`)
       .yields(null, { statusCode: 200 }, JSON.stringify(sampleUsers.user1));
-    stub.withArgs(`${config.API_BASE_URL}/users/1000`)
+    stub.withArgs(`${config.API_BASE_URL}/v3/users/1000`)
       .yields(null, { statusCode: 404 });
 
     // spy the discourse notification call
@@ -320,82 +320,46 @@ describe('app', () => {
     });
   });
 
-  describe.skip('`project.member.added` event', () => {
-    it.skip('should create `Project.Member.TeamMemberAdded` notification', (done) => {
-      const expectedParams = {
-        projectId: 1,
-        projectName: 'Project name 1',
-        memberId: 1,
-        memberName: 'F_user L_user',
-        memberHandle: 'test_user',
-      };
-      sendTestEvent(sampleEvents.memberAddedTeamMember, 'project.member.added', (notification) => {
-        assert.deepEqual(notification, {
-          recipients: [
-            { id: 1, params: expectedParams },
-            { id: 2, params: expectedParams },
-            { id: 3, params: expectedParams },
-            { id: 4, params: expectedParams },
-          ],
-          notificationType: constants.notifications.teamMember.added.notificationType,
-          subject: constants.notifications.teamMember.added.subject,
-        });
-
+  describe('`project.member.added` event', () => {
+    it('should create `Project.Member.TeamMemberAdded` notification', (done) => {
+      sendTestEvent(sampleEvents.memberAddedTeamMember, 'project.member.added');
+      setTimeout(() => {
+        const expectedTitle = 'A new team member has joined your project';
+        const expectedBody = 'F_user L_user has joined project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">Project name 1</a>. Welcome F_user! Looking forward to working with you.';
+        const params = spy.lastCall.args;
+        assert.equal(params[2], expectedTitle);
+        assert.equal(params[3], expectedBody);
         done();
-      });
+      }, testTimeout);
     });
 
     it('should create `Project.Member.ManagerJoined` notification', (done) => {
-      const expectedParams = {
-        projectId: 1,
-        projectName: 'Project name 1',
-        memberId: 1,
-        memberName: 'F_user L_user',
-        memberHandle: 'test_user',
-      };
-      sendTestEvent(sampleEvents.memberAddedManager, 'project.member.added', (notification) => {
-        assert.deepEqual(notification, {
-          recipients: [
-            { id: 1, params: expectedParams },
-            { id: 2, params: expectedParams },
-            { id: 3, params: expectedParams },
-            { id: 4, params: expectedParams },
-          ],
-          notificationType: constants.notifications.teamMember.managerJoined.notificationType,
-          subject: constants.notifications.teamMember.managerJoined.subject,
-        });
-
+      sendTestEvent(sampleEvents.memberAddedManager, 'project.member.added');
+      setTimeout(() => {
+        const expectedTitle = 'A Topcoder project manager has joined your project';
+        const expectedBody = 'F_user L_user has joined your project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">Project name 1</a> as a project manager.';
+        const params = spy.lastCall.args;
+        assert.equal(params[2], expectedTitle);
+        assert.equal(params[3], expectedBody);
         done();
-      });
+      }, testTimeout);
     });
 
     it('should create `Project.Member.CopilotJoined` notification', (done) => {
-      const expectedParams = {
-        projectId: 1,
-        projectName: 'Project name 1',
-        memberId: 1,
-        memberName: 'F_user L_user',
-        memberHandle: 'test_user',
-      };
-      sendTestEvent(sampleEvents.memberAddedCopilot, 'project.member.added', (notification) => {
-        assert.deepEqual(notification, {
-          recipients: [
-            { id: 1, params: expectedParams },
-            { id: 2, params: expectedParams },
-            { id: 3, params: expectedParams },
-            { id: 4, params: expectedParams },
-          ],
-          notificationType: constants.notifications.teamMember.copilotJoined.notificationType,
-          subject: constants.notifications.teamMember.copilotJoined.subject,
-        });
-
+      sendTestEvent(sampleEvents.memberAddedCopilot, 'project.member.added');
+      setTimeout(() => {
+        const expectedTitle = 'A Topcoder copilot has joined your project';
+        const expectedBody = 'F_user L_user has joined your project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">Project name 1</a> as a copilot.';
+        const params = spy.lastCall.args;
+        assert.equal(params[2], expectedTitle);
+        assert.equal(params[3], expectedBody);
         done();
-      });
+      }, testTimeout);
     });
   });
 
   describe.skip('`project.member.removed` event', () => {
-    it('should create `Project.Member.Left` notification', (done) => {
+    it.skip('should create `Project.Member.Left` notification', (done) => {
       const expectedParams = {
         projectId: 1,
         projectName: 'Project name 1',
