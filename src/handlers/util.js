@@ -24,10 +24,9 @@ function requestPromise(options, cb = null) {
   return new Promise((resolve, reject) => {
     request(options, (err, res, data) => {
       if (err || res.statusCode > 299) {
-        reject(err || new Error(`Failed to ${options.method}, url '${options.url}': statusCode = ${res.statusCode}`));
+        const errStr = data ? JSON.stringify(data) : ''
+        reject(err || new Error(`Failed to ${options.method}, url '${options.url}': statusCode = ${res.statusCode}, err: ${errStr}`));
       } else {
-        // console.log('Request: ', _.keys(res))
-        // console.log(data)
         if (cb) {
           cb(data, resolve, reject);
         } else {
@@ -56,13 +55,16 @@ const createProjectDiscourseNotification = Promise.coroutine(
         },
         json: {
           reference: 'project',
-          referenceId: projectId,
+          referenceId: projectId.toString(),
           tag,
           title,
           body,
         },
       };
-      return requestPromise(options, (data, resolve) => resolve(data));
+      return requestPromise(options, (data, resolve, reject) => resolve(data))
+        .catch((err) => {
+          logger.error(err)
+        });
     } catch (err) {
       logger.error(err)
       return Promise.reject(err)
@@ -194,7 +196,7 @@ function buildSlackNotification(project) {
         },
         {
           title: 'Ref Code',
-          value: project.details.utm.code,
+          value: _.get(project, 'details.utm.code', ''),
           short: false,
         },
       ],

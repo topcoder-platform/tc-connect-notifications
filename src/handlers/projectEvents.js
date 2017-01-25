@@ -24,8 +24,6 @@ function projectDraftCreated(logger, project) {
     projectName: project.name,
     projectUrl: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${project.id}/`,
   };
-
-  logger.debug('testing ')
   // return notificaiton object with discourse data
   const notifications = {
     discourse: [{
