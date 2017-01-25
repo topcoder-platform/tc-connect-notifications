@@ -28,7 +28,7 @@ function requestPromise(url, cb = null) {
       } else {
         const data = JSON.parse(body);
         if (cb) {
-          cb(data)
+          cb(data, resolve, reject);
         } else {
           resolve(data.result.content);
         }
@@ -138,14 +138,14 @@ function* getProjectById(id) {
  * @private
  */
 function* getUserById(id) {
-  const cb = (data) => {
+  const cb = (data, resolve, reject) => {
     const user = _.get(data, 'result.content.0', null);
     if (user) {
       return resolve(user);
     }
     return reject(new Error('user not found'));
   };
-  return requestPromise(`${config.get('API_BASE_URL')}/v3/members/_search/?query=userId:${id}`, cb);
+  return requestPromise(`v3/members/_search/?query=userId:${id}`, cb);
   return yield new Promise((resolve, reject) => {
     request.get('')
   })
