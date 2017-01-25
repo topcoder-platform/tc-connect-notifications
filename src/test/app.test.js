@@ -80,7 +80,6 @@ describe('app', () => {
   let sourceExchange;
   let sourceQueue;
   let targetExchange;
-  let targetQueue;
   let copilotTargetQueue;
   let managerTargetQueue;
   let stub;
@@ -109,9 +108,6 @@ describe('app', () => {
   const connectToTarget = (callback) => {
     targetExchange = jackrabbit(config.RABBITMQ_URL)
       .topic(config.TARGET_RABBIT_EXCHANGE_NAME);
-    targetQueue = targetExchange.queue(
-      { name: config.TARGET_RABBIT_QUEUE_NAME },
-      { key: config.TARGET_RABBIT_ROUTING_KEY });
     copilotTargetQueue = targetExchange.queue(
       { name: config.COPILOT_TARGET_RABBIT_QUEUE_NAME },
       { key: config.COPILOT_TARGET_RABBIT_ROUTING_KEY });
@@ -121,16 +117,10 @@ describe('app', () => {
 
     let connectedQueues = 0;
     function checkCallCallback() {
-      if (connectedQueues === 3) {
+      if (connectedQueues === 2) {
         callback();
       }
     }
-    targetQueue.on('ready', () => {
-      targetQueue.purge(() => {
-        connectedQueues += 1;
-        checkCallCallback();
-      });
-    });
     copilotTargetQueue.on('ready', () => {
       copilotTargetQueue.purge(() => {
         connectedQueues += 1;
@@ -142,11 +132,6 @@ describe('app', () => {
         connectedQueues += 1;
         checkCallCallback();
       });
-    });
-    targetQueue.consume((data, ack, nack, message) => {
-      ack();
-      assert.ok(message);
-      notificationCallback(data);
     });
     copilotTargetQueue.consume((data, ack, nack, message) => {
       ack();
@@ -165,11 +150,9 @@ describe('app', () => {
   };
   const purgeQueues = (done) => {
     sourceQueue.purge(() => {
-      targetQueue.purge(() => {
-        copilotTargetQueue.purge(() => {
-          managerTargetQueue.purge(() => {
-            done();
-          });
+      copilotTargetQueue.purge(() => {
+        managerTargetQueue.purge(() => {
+          done();
         });
       });
     });
