@@ -11,7 +11,7 @@
     "start": "./node_modules/.bin/node src/app.js",
     "lint": "./node_modules/.bin/eslint config src",
     "dev-test": "NODE_ENV=test ./node_modules/.bin/mocha -w --timeout 30000 src/**/*.test.js | ./node_modules/.bin/bunyan",
-    "test": "NODE_ENV=test ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --timeout 3000 src/**/*.test.js",
+    "test": "NODE_ENV=test ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --timeout 3000 src/**/*.test.js"
   },
   "author": "TCSCODER",
   "dependencies": {
