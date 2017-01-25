@@ -14,9 +14,10 @@ const jackrabbit = require('jackrabbit');
 const sinon = require('sinon');
 const request = require('request');
 const _ = require('lodash');
-
+const util = require('../handlers/util');
 const constants = require('../common/constants');
 
+const testTimeout = 2000;
 const sampleEvents = {
   draftCreated: require('./data/events.draftCreated.json'),
   draftCreatedNoOwner: require('./data/events.draftCreated.noOwner.json'),
@@ -70,7 +71,7 @@ const expectedSlackNotfication = {
 };
 
 function checkAssert(assertCount, count, cb) {
-  if (assertCount === 2) {
+  if (assertCount === count) {
     cb();
   }
 }
@@ -79,16 +80,18 @@ describe('app', () => {
   let sourceExchange;
   let sourceQueue;
   let targetExchange;
-  let targetQueue;
   let copilotTargetQueue;
   let managerTargetQueue;
   let stub;
+  let spy;
   let correlationId = 1;
-  let notificationCallback = () => { };
 
-  const restoreStub = () => {
+  const restoreStubAndSpy = () => {
     if (request.get.restore) {
       request.get.restore();
+    }
+    if (spy && spy.restore) {
+      spy.restore();
     }
   };
 
@@ -105,9 +108,6 @@ describe('app', () => {
   const connectToTarget = (callback) => {
     targetExchange = jackrabbit(config.RABBITMQ_URL)
       .topic(config.TARGET_RABBIT_EXCHANGE_NAME);
-    targetQueue = targetExchange.queue(
-      { name: config.TARGET_RABBIT_QUEUE_NAME },
-      { key: config.TARGET_RABBIT_ROUTING_KEY });
     copilotTargetQueue = targetExchange.queue(
       { name: config.COPILOT_TARGET_RABBIT_QUEUE_NAME },
       { key: config.COPILOT_TARGET_RABBIT_ROUTING_KEY });
@@ -117,16 +117,10 @@ describe('app', () => {
 
     let connectedQueues = 0;
     function checkCallCallback() {
-      if (connectedQueues === 3) {
+      if (connectedQueues === 2) {
         callback();
       }
     }
-    targetQueue.on('ready', () => {
-      targetQueue.purge(() => {
-        connectedQueues += 1;
-        checkCallCallback();
-      });
-    });
     copilotTargetQueue.on('ready', () => {
       copilotTargetQueue.purge(() => {
         connectedQueues += 1;
@@ -138,11 +132,6 @@ describe('app', () => {
         connectedQueues += 1;
         checkCallCallback();
       });
-    });
-    targetQueue.consume((data, ack, nack, message) => {
-      ack();
-      assert.ok(message);
-      notificationCallback(data);
     });
     copilotTargetQueue.consume((data, ack, nack, message) => {
       ack();
@@ -161,11 +150,9 @@ describe('app', () => {
   };
   const purgeQueues = (done) => {
     sourceQueue.purge(() => {
-      targetQueue.purge(() => {
-        copilotTargetQueue.purge(() => {
-          managerTargetQueue.purge(() => {
-            done();
-          });
+      copilotTargetQueue.purge(() => {
+        managerTargetQueue.purge(() => {
+          done();
         });
       });
     });
@@ -183,19 +170,21 @@ describe('app', () => {
   });
 
   beforeEach((done) => {
-    restoreStub();
+    restoreStubAndSpy();
 
     // Stub the calls to API server
     stub = sinon.stub(request, 'get');
-    stub.withArgs(`${config.API_BASE_URL}/projects/1`)
+    stub.withArgs(`${config.API_BASE_URL}/v4/projects/1`)
       .yields(null, { statusCode: 200 }, JSON.stringify(sampleProjects.project1));
-    stub.withArgs(`${config.API_BASE_URL}/projects/1000`)
+    stub.withArgs(`${config.API_BASE_URL}/v4/projects/1000`)
       .yields(null, { statusCode: 404 });
-    stub.withArgs(`${config.API_BASE_URL}/users/1`)
+    stub.withArgs(`${config.API_BASE_URL}/v3/members/_search/?query=userId:1`)
       .yields(null, { statusCode: 200 }, JSON.stringify(sampleUsers.user1));
-    stub.withArgs(`${config.API_BASE_URL}/users/1000`)
+    stub.withArgs(`${config.API_BASE_URL}/v3/users/1000`)
       .yields(null, { statusCode: 404 });
 
+    // spy the discourse notification call
+    spy = sinon.spy(util, 'createProjectDiscourseNotification');
     purgeQueues(done);
   });
 
@@ -204,8 +193,7 @@ describe('app', () => {
   /**
    * Send test event and verify notification
    */
-  function sendTestEvent(testEvent, testEventType, callback, copilotCb, managerCb) {
-    notificationCallback = callback;
+  function sendTestEvent(testEvent, testEventType, copilotCb, managerCb) {
     copilotCallback = copilotCb;
     managerCallback = managerCb;
     correlationId += 1;
@@ -216,354 +204,198 @@ describe('app', () => {
     });
   }
 
-  describe.skip('Unknown event', () => {
+  describe('Unknown event', () => {
     it('should not create notification', (done) => {
-      sendTestEvent(sampleEvents.draftCreated, '', () => {
-        assert.fail();
-      });
-      setTimeout(done, 1000);
+      sendTestEvent(sampleEvents.draftCreated, '');
+      setTimeout(() => {
+        sinon.assert.notCalled(spy);
+        done();
+      }, testTimeout);
     });
   });
 
-  describe.skip('`project.draft-created` event', () => {
+  describe('`project.draft-created` event', () => {
     it('should create `Project.Created` notification', (done) => {
-      sendTestEvent(sampleEvents.draftCreated, 'project.draft-created', (m) => {
-        console.log(m)
-        // assert.deepEqual(notification, {
-        //   recipients: [
-        //     {
-        //       id: 8547899,
-        //       params: {
-        //         projectId: sampleEvents.draftCreated.id,
-        //         projectName: sampleEvents.draftCreated.name,
-        //         projectDescription: sampleEvents.draftCreated.description,
-        //       },
-        //     },
-        //   ],
-        //   notificationType: constants.notifications.project.created.notificationType,
-        //   subject: constants.notifications.project.created.subject,
-        // });
-
+      sendTestEvent(sampleEvents.draftCreated, 'project.draft-created');
+      setTimeout(() => {
+        const expectedTitle = 'Your project has been created, and we\'re ready for your specification';
+        const expectedBody = 'Hello, Coder here! Your project \'test\' has been created successfully. For your next step, please head over to the <a href="https://connect.topcoder-dev.com/projects/1/specification/" rel="nofollow">Specification</a> section and answer all of the required questions. If you already have a document with your requirements, just verify it against our checklist and then upload it. Once you\'re done, hit the "Submit for Review" button on the Specification. Get stuck or need help? Email us at <a href="mailto:support@topcoder.com?subject=Question%20Regarding%20My%20New%20Topcoder%20Connect%20Project" rel="nofollow">support@topcoder.com</a>.';
+        const params = spy.lastCall.args;
+        assert.equal(params[2], expectedTitle);
+        assert.equal(params[3], expectedBody);
         done();
-      });
+      }, testTimeout);
     });
 
     it('should not create `Project.Created` notification (no owner)', (done) => {
-      sendTestEvent(sampleEvents.draftCreatedNoOwner, 'project.draft-created', (m) => {
-        console.log('what', m)
-        assert.fail();
-      });
-      setTimeout(done, 1000);
+      sendTestEvent(sampleEvents.draftCreatedNoOwner, 'project.draft-created');
+      setTimeout(() => {
+        sinon.assert.notCalled(spy);
+        done();
+      }, testTimeout);
     });
   });
 
-  describe.skip('`project.updated` event', () => {
+  describe('`project.updated` event', () => {
     it('should create `Project.SubmittedForReview` and `Project.AvailableForReview` and manager slack notifications', (done) => {
-      let notificationCount = 0;
       let assertCount = 0;
-      const expectedParams = {
-        projectId: sampleEvents.updatedInReview.updated.id,
-        projectName: sampleEvents.updatedInReview.updated.name,
-        projectDescription: sampleEvents.updatedInReview.updated.description,
-      };
-
-      function teamCallback(notification) {
-        console.log('HERE', notification)
-        return done()
-
-        notificationCount += 1;
-        if (notificationCount === 1) {
-          assert.deepEqual(notification, {
-            recipients: [
-              { id: 8547899, params: expectedParams },
-              { id: 8547900, params: expectedParams },
-            ],
-            notificationType: constants.notifications.project.submittedForReview.notificationType,
-            subject: constants.notifications.project.submittedForReview.subject,
-          });
-        } else if (notificationCount === 2) {
-          assert.deepEqual(notification, {
-            recipients: [
-              { id: 11111111, params: expectedParams },
-              { id: 22222222, params: expectedParams },
-              { id: 33333333, params: expectedParams },
-            ],
-            notificationType: constants.notifications.project.availableForReview.notificationType,
-            subject: constants.notifications.project.availableForReview.subject,
-          });
-          assertCount += 1;
-          checkAssert(assertCount, 2, done);
-        } else {
-          assert.fail();
-        }
-      }
+      const callbackCount = 1;
       function mgrCallback(notifications) {
         assertCount += 1;
         assert.deepEqual(notifications, expectedSlackNotfication);
-        checkAssert(assertCount, 2, done);
+        checkAssert(assertCount, callbackCount, done);
       }
-
-      // teamCallback, null, mgrCallback);
-      sendTestEvent(sampleEvents.updatedInReview, 'project.updated', (notification) => {
-        console.log('here ', notification)
-      })
-    });
-
-    it('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and repost after delay', (done) => {
-      let notificationCount = 0;
-      let assertCount = 0;
-      const expectedParams = {
-        projectId: sampleEvents.updatedReviewed.updated.id,
-        projectName: sampleEvents.updatedReviewed.updated.name,
-        projectDescription: sampleEvents.updatedReviewed.updated.description,
-      };
-      function teamCallback(notification) {
-        notificationCount += 1;
+      sendTestEvent(sampleEvents.updatedInReview, 'project.updated', null, mgrCallback);
+      setTimeout(() => {
         assertCount += 1;
-        if (notificationCount === 1) {
-          assert.deepEqual(notification, {
-            recipients: [
-              { id: 40152856, params: expectedParams },
-              { id: 8547899, params: expectedParams },
-              { id: 8547900, params: expectedParams },
-              { id: 123456, params: expectedParams },
-            ],
-            notificationType: constants.notifications.project.reviewed.notificationType,
-            subject: constants.notifications.project.reviewed.subject,
-          });
-        } else if (notificationCount === 2) {
-          assert.deepEqual(notification, {
-            recipients: [
-              { id: 11111111, params: expectedParams },
-              { id: 33333333, params: expectedParams },
-            ],
-            notificationType: constants.notifications.project.availableToClaim.notificationType,
-            subject: constants.notifications.project.availableToClaim.subject,
-          });
-          assertCount += 1;
-          checkAssert(assertCount, 3, done);
-        } else {
-          assert.fail();
-        }
-      }
+        const expectedTitle = 'Your project has been submitted for review';
+        const expectedBody = 'Hello, it\'s Coder again. Thanks for submitting your project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">test</a>! I\'ve used my super computational powers to route it to one of our trusty humans. They\'ll get back to you in 1-2 business days.';
+        const params = spy.lastCall.args;
+        assert.equal(params[2], expectedTitle);
+        assert.equal(params[3], expectedBody);
+        checkAssert(assertCount, callbackCount, done);
+      }, testTimeout);
+    });
+    // there is no discourse notiifcation for Project.Reviewed
+    it('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and repost after delay', (done) => {
+      let assertCount = 0;
       // Assert count is 3 as delay is 0 copilot will again get notified if none assgned
       function copCallback(notifications) {
         assertCount += 1;
         assert.deepEqual(notifications, expectedSlackNotfication);
         checkAssert(assertCount, 3, done);
       }
-      sendTestEvent(sampleEvents.updatedReviewed, 'project.updated', teamCallback, copCallback);
+      sendTestEvent(sampleEvents.updatedReviewed, 'project.updated', copCallback);
+      setTimeout(() => {
+        sinon.assert.notCalled(spy);
+        done();
+      }, testTimeout);
     });
-
+    // there is no discourse notiifcation for Project.Reviewed
     it('should create `Project.Reviewed`, but not `Project.AvailableToClaim` and copilot slack notifications (copilot assigned)', (done) => {
       let assertCount = 0;
-      const expectedParams = {
-        projectId: sampleEvents.updatedReviewedCopilotAssigned.updated.id,
-        projectName: sampleEvents.updatedReviewedCopilotAssigned.updated.name,
-        projectDescription: sampleEvents.updatedReviewedCopilotAssigned.updated.description,
-      };
-      function teamCallback(notification) {
-        assert.deepEqual(notification, {
-          recipients: [
-            { id: 40152856, params: expectedParams },
-            { id: 8547899, params: expectedParams },
-            { id: 8547900, params: expectedParams },
-            { id: 123456, params: expectedParams },
-          ],
-          notificationType: constants.notifications.project.reviewed.notificationType,
-          subject: constants.notifications.project.reviewed.subject,
-        });
-        assertCount += 1;
-        checkAssert(assertCount, 2, done);
-      }
       function copCallback(notifications) {
         assertCount += 1;
         assert.deepEqual(notifications, expectedSlackNotfication);
         checkAssert(assertCount, 2, done);
       }
-      sendTestEvent(sampleEvents.updatedReviewedCopilotAssigned, 'project.updated', teamCallback, copCallback);
+      sendTestEvent(sampleEvents.updatedReviewedCopilotAssigned, 'project.updated', copCallback);
+      setTimeout(() => {
+        sinon.assert.notCalled(spy);
+        done();
+      }, testTimeout);
     });
 
     it('should not create `Project.Reviewed` and `Project.AvailableToClaim` notifications (another status)', (done) => {
-      sendTestEvent(sampleEvents.updatedReviewedAnotherStatus, 'project.updated', () => {
-        assert.fail();
-      });
-      setTimeout(done, 1000);
+      sendTestEvent(sampleEvents.updatedReviewedAnotherStatus, 'project.updated');
+      setTimeout(() => {
+        sinon.assert.notCalled(spy);
+        done();
+      }, testTimeout);
     });
 
     it('should not create `Project.Reviewed` and `Project.AvailableToClaim` notifications (same status)', (done) => {
-      sendTestEvent(sampleEvents.updatedReviewedSameStatus, 'project.updated', () => {
-        assert.fail();
-      });
-      setTimeout(done, 1000);
+      sendTestEvent(sampleEvents.updatedReviewedSameStatus, 'project.updated');
+      setTimeout(() => {
+        sinon.assert.notCalled(spy);
+        done();
+      }, testTimeout);
     });
   });
 
-  describe.skip('`project.member.added` event', () => {
+  describe('`project.member.added` event', () => {
     it('should create `Project.Member.TeamMemberAdded` notification', (done) => {
-      const expectedParams = {
-        projectId: 1,
-        projectName: 'Project name 1',
-        memberId: 1,
-        memberName: 'F_user L_user',
-        memberHandle: 'test_user',
-      };
-      sendTestEvent(sampleEvents.memberAddedTeamMember, 'project.member.added', (notification) => {
-        assert.deepEqual(notification, {
-          recipients: [
-            { id: 1, params: expectedParams },
-            { id: 2, params: expectedParams },
-            { id: 3, params: expectedParams },
-            { id: 4, params: expectedParams },
-          ],
-          notificationType: constants.notifications.teamMember.added.notificationType,
-          subject: constants.notifications.teamMember.added.subject,
-        });
-
+      sendTestEvent(sampleEvents.memberAddedTeamMember, 'project.member.added');
+      setTimeout(() => {
+        const expectedTitle = 'A new team member has joined your project';
+        const expectedBody = 'F_user L_user has joined project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">Project name 1</a>. Welcome F_user! Looking forward to working with you.';
+        const params = spy.lastCall.args;
+        assert.equal(params[2], expectedTitle);
+        assert.equal(params[3], expectedBody);
         done();
-      });
+      }, testTimeout);
     });
 
     it('should create `Project.Member.ManagerJoined` notification', (done) => {
-      const expectedParams = {
-        projectId: 1,
-        projectName: 'Project name 1',
-        memberId: 1,
-        memberName: 'F_user L_user',
-        memberHandle: 'test_user',
-      };
-      sendTestEvent(sampleEvents.memberAddedManager, 'project.member.added', (notification) => {
-        assert.deepEqual(notification, {
-          recipients: [
-            { id: 1, params: expectedParams },
-            { id: 2, params: expectedParams },
-            { id: 3, params: expectedParams },
-            { id: 4, params: expectedParams },
-          ],
-          notificationType: constants.notifications.teamMember.managerJoined.notificationType,
-          subject: constants.notifications.teamMember.managerJoined.subject,
-        });
-
+      sendTestEvent(sampleEvents.memberAddedManager, 'project.member.added');
+      setTimeout(() => {
+        const expectedTitle = 'A Topcoder project manager has joined your project';
+        const expectedBody = 'F_user L_user has joined your project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">Project name 1</a> as a project manager.';
+        const params = spy.lastCall.args;
+        assert.equal(params[2], expectedTitle);
+        assert.equal(params[3], expectedBody);
         done();
-      });
+      }, testTimeout);
     });
 
     it('should create `Project.Member.CopilotJoined` notification', (done) => {
-      const expectedParams = {
-        projectId: 1,
-        projectName: 'Project name 1',
-        memberId: 1,
-        memberName: 'F_user L_user',
-        memberHandle: 'test_user',
-      };
-      sendTestEvent(sampleEvents.memberAddedCopilot, 'project.member.added', (notification) => {
-        assert.deepEqual(notification, {
-          recipients: [
-            { id: 1, params: expectedParams },
-            { id: 2, params: expectedParams },
-            { id: 3, params: expectedParams },
-            { id: 4, params: expectedParams },
-          ],
-          notificationType: constants.notifications.teamMember.copilotJoined.notificationType,
-          subject: constants.notifications.teamMember.copilotJoined.subject,
-        });
-
+      sendTestEvent(sampleEvents.memberAddedCopilot, 'project.member.added');
+      setTimeout(() => {
+        const expectedTitle = 'A Topcoder copilot has joined your project';
+        const expectedBody = 'F_user L_user has joined your project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">Project name 1</a> as a copilot.';
+        const params = spy.lastCall.args;
+        assert.equal(params[2], expectedTitle);
+        assert.equal(params[3], expectedBody);
         done();
-      });
+      }, testTimeout);
     });
   });
 
-  describe.skip('`project.member.removed` event', () => {
+  describe('`project.member.removed` event', () => {
     it('should create `Project.Member.Left` notification', (done) => {
-      const expectedParams = {
-        projectId: 1,
-        projectName: 'Project name 1',
-        memberId: 1,
-        memberName: 'F_user L_user',
-        memberHandle: 'test_user',
-      };
-      sendTestEvent(sampleEvents.memberRemovedLeft, 'project.member.removed', (notification) => {
-        assert.deepEqual(notification, {
-          recipients: [
-            { id: 1, params: expectedParams },
-            { id: 2, params: expectedParams },
-            { id: 3, params: expectedParams },
-            { id: 4, params: expectedParams },
-          ],
-          notificationType: constants.notifications.teamMember.left.notificationType,
-          subject: constants.notifications.teamMember.left.subject,
-        });
-
+      sendTestEvent(sampleEvents.memberRemovedLeft, 'project.member.removed');
+      setTimeout(() => {
+        const expectedTitle = 'A team member has left your project';
+        const expectedBody = 'F_user L_user has left project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">Project name 1</a>. Thanks for all your work F_user.';
+        const params = spy.lastCall.args;
+        assert.equal(params[2], expectedTitle);
+        assert.equal(params[3], expectedBody);
         done();
-      });
+      }, testTimeout);
     });
 
     it('should create `Project.Member.Removed` notification', (done) => {
-      const expectedParams = {
-        projectId: 1,
-        projectName: 'Project name 1',
-        memberId: 1,
-        memberName: 'F_user L_user',
-        memberHandle: 'test_user',
-      };
-      sendTestEvent(sampleEvents.memberRemovedRemoved, 'project.member.removed', (notification) => {
-        assert.deepEqual(notification, {
-          recipients: [
-            { id: 1, params: expectedParams },
-            { id: 2, params: expectedParams },
-            { id: 3, params: expectedParams },
-            { id: 4, params: expectedParams },
-          ],
-          notificationType: constants.notifications.teamMember.removed.notificationType,
-          subject: constants.notifications.teamMember.removed.subject,
-        });
-
+      sendTestEvent(sampleEvents.memberRemovedRemoved, 'project.member.removed');
+      setTimeout(() => {
+        const expectedTitle = 'A team member has left your project';
+        const expectedBody = 'F_user L_user has left project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">Project name 1</a>. Thanks for all your work F_user.';
+        const params = spy.lastCall.args;
+        assert.equal(params[2], expectedTitle);
+        assert.equal(params[3], expectedBody);
         done();
-      });
+      }, testTimeout);
     });
   });
 
-  describe.skip('`project.member.updated` event', () => {
+  describe('`project.member.updated` event', () => {
     it('should create `Project.OwnerChanged` notification', (done) => {
-      const expectedParams = {
-        projectId: 1,
-        projectName: 'Project name 1',
-        newOwnerUserId: 1,
-        newOwnerName: 'F_user L_user',
-        newOwnerHandle: 'test_user',
-      };
-      sendTestEvent(sampleEvents.memberUpdated, 'project.member.updated', (notification) => {
-        assert.deepEqual(notification, {
-          recipients: [
-            { id: 1, params: expectedParams },
-            { id: 2, params: expectedParams },
-            { id: 3, params: expectedParams },
-            { id: 4, params: expectedParams },
-          ],
-          notificationType: constants.notifications.teamMember.ownerChanged.notificationType,
-          subject: constants.notifications.teamMember.ownerChanged.subject,
-        });
-
+      sendTestEvent(sampleEvents.memberUpdated, 'project.member.updated');
+      setTimeout(() => {
+        const expectedTitle = 'Your project has a new owner';
+        const expectedBody = 'F_user L_user is now responsible for project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">Project name 1</a>. Good luck F_user.';
+        const params = spy.lastCall.args;
+        assert.equal(params[2], expectedTitle);
+        assert.equal(params[3], expectedBody);
         done();
-      });
+      }, testTimeout);
     });
 
     it('should not create `Project.OwnerChanged` notification (owner not changed)', (done) => {
-      sendTestEvent(sampleEvents.memberUpdatedOwnerNotChanged, 'project.member.updated', () => {
-        assert.fail();
-      });
-
-      setTimeout(done, 1000);
+      sendTestEvent(sampleEvents.memberUpdatedOwnerNotChanged, 'project.member.updated');
+      setTimeout(() => {
+        sinon.assert.notCalled(spy);
+        done();
+      }, testTimeout);
     });
   });
 
-  describe.skip('Others', () => {
+  describe('Others', () => {
     it('Should not create notification when API server return error', (done) => {
-      sendTestEvent(sampleEvents.memberUpdated404, 'project.member.updated', () => {
-        assert.fail();
-      });
-
-      setTimeout(done, 1000);
+      sendTestEvent(sampleEvents.memberUpdated404, 'project.member.updated');
+      setTimeout(() => {
+        sinon.assert.notCalled(spy);
+        done();
+      }, testTimeout);
     });
   });
 });
