@@ -37,6 +37,7 @@ const sampleEvents = {
 };
 const sampleProjects = {
   project1: require('./data/projects.1.json'),
+  projectTest: require('./data/projects.test.json'),
 };
 const sampleUsers = {
   user1: require('./data/users.1.json'),
@@ -175,8 +176,6 @@ describe('app', () => {
     stub = sinon.stub(request, 'get');
     const stubArgs = {
       url: `${config.API_BASE_URL}/v4/projects/1`,
-      method: sinon.match.any,
-      json: sinon.match.any,
     };
     stub.withArgs(sinon.match.has('url', stubArgs.url))
       .yields(null, { statusCode: 200 }, JSON.stringify(sampleProjects.project1));
@@ -271,9 +270,31 @@ describe('app', () => {
       }, testTimeout);
     });
     // there is no discourse notiifcation for Project.Reviewed
-    it('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and repost after delay', (done) => {
+    it('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and do not repost after delay', (done) => {
       let assertCount = 0;
       const callbackCount = 2;
+
+      function copCallback(notifications) {
+        assertCount += 1;
+        const data = JSON.parse(notifications.toString());
+        assert.deepEqual(data, expectedSlackNotfication);
+        checkAssert(assertCount, callbackCount, done);
+      }
+      sendTestEvent(sampleEvents.updatedReviewed, 'project.updated', copCallback);
+      setTimeout(() => {
+        assertCount += 1;
+        sinon.assert.notCalled(spy);
+        checkAssert(assertCount, callbackCount, done);
+      }, testTimeout);
+    });
+    it('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and repost after delay', (done) => {
+      request.get.restore();
+      stub = sinon.stub(request, 'get');
+      stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v4/projects/1`))
+        .yields(null, { statusCode: 200 }, JSON.stringify(sampleProjects.projectTest));
+
+      let assertCount = 0;
+      const callbackCount = 3;
       // Assert count is 3 as delay is 0 copilot will again get notified if none assgned
       function copCallback(notifications) {
         assertCount += 1;
