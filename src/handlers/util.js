@@ -22,6 +22,7 @@ function requestPromise(options, cb = null) {
   // setting default options
   _.defaults(options, { method: 'GET', json: true })
   return new Promise((resolve, reject) => {
+    // Stubbing requests this way is easier DO NOT REFACTOR
     request[options.method.toLowerCase()](options, (err, res, body) => {
       const data = JSON.parse(body);
       if (err || res.statusCode > 299) {

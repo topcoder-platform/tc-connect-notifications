@@ -22,11 +22,8 @@ module.exports = {
 
   COPILOT_TARGET_RABBIT_QUEUE_NAME: 'test.notifications-slack-copilot',
   MANAGER_TARGET_RABBIT_QUEUE_NAME: 'test.notifications-slack-manager',
-  COPILOT_TARGET_RABBIT_ROUTING_KEY: 'slack.copilot',
-  MANAGER_TARGET_RABBIT_ROUTING_KEY: 'slack.manager',
 
   TARGET_RABBIT_DELAY_EXCHANGE_NAME: 'test.connect-notifications-reminders',
-  TARGET_RABBIT_DELAY_ROUTING_KEY: 'project.copilot-unclaimed',
 
   UNCLAIMED_PROJECT_REPOST_DELAY: 0,
   API_BASE_URL: 'http://localhost:3001',
