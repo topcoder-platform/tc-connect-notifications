@@ -31,7 +31,7 @@ function requestPromise(options, cb = null) {
         if (cb) {
           cb(data, resolve, reject);
         } else {
-          resolve(data.result.content);
+          return resolve(data.result.content);
         }
       }
     });

@@ -67,8 +67,10 @@ module.exports = (logger, message, channel, publish) => {
       _.each(notifications.slack.copilot, (n) => {
         publishPromises.push(publish(config.get('COPILOT_TARGET_RABBIT_ROUTING_KEY'), n));
       });
+    }
 
-      // TODO handle delayed msg
+    if (notifications.delayed) {
+      publishPromises.push(publish(config.get('TARGET_RABBIT_DELAY_ROUTING_KEY'), notifications.delayed));
     }
     return Promise.all(publishPromises);
   }).then(() => {

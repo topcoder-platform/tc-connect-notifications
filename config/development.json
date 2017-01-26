@@ -5,6 +5,7 @@
   "SOURCE_RABBIT_QUEUE_NAME": "dev.connect-notifications",
   "TARGET_RABBIT_EXCHANGE_NAME": "dev.notifications",
   "TARGET_RABBIT_DELAY_EXCHANGE_NAME": "dev.connect-notifications-reminders",
+  "TARGET_RABBIT_DELAY_ROUTING_KEY": "project.copilot-unclaimed",
   "TARGET_RABBIT_QUEUE_NAME": "dev.notifications",
 
   "COPILOT_TARGET_RABBIT_QUEUE_NAME": "dev.notifications-slack-copilot",
