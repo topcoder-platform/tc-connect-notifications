@@ -19,7 +19,9 @@ machine:
 
 test:
   pre:
-    - docker-compose -f local/docker-compose.yml up -d connect-mocks
+    - sudo cp local/rabbitmq_delayed_message_exchange-0.0.1.ez /usr/lib/rabbitmq/lib/rabbitmq_server-*/plugins
+    - sudo rabbitmq-plugins enable rabbitmq_delayed_message_exchange
+    - sudo service rabbitmq-server restart
 
 deployment:
   development:
