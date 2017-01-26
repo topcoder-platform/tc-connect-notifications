@@ -90,9 +90,21 @@ const constants = require('./common/constants');
 // Connect to the source RabbitMQ to receive (consume) events
 const service = require('./rabbitmq')(logger);
 
-service.initPublisher(
-  config.get('RABBITMQ_URL'),
-  config.get('TARGET_RABBIT_EXCHANGE_NAME'))
+const queueOptions = {
+  url: config.get('RABBITMQ_URL'),
+  exchangeName: config.get('TARGET_RABBIT_EXCHANGE_NAME'),
+  queues: [],
+};
+queueOptions.queues.push({
+  name: config.get('COPILOT_TARGET_RABBIT_QUEUE_NAME'),
+  key: config.get('COPILOT_TARGET_RABBIT_ROUTING_KEY'),
+});
+queueOptions.queues.push({
+  name: config.get('MANAGER_TARGET_RABBIT_QUEUE_NAME'),
+  key: config.get('MANAGER_TARGET_RABBIT_ROUTING_KEY'),
+});
+
+service.initPublisher(queueOptions)
 .then(() => {
   service.subscribe(
     config.get('RABBITMQ_URL'),

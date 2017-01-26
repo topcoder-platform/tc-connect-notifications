@@ -22,6 +22,8 @@ module.exports = {
 
   COPILOT_TARGET_RABBIT_QUEUE_NAME: 'test.notifications-slack-copilot',
   MANAGER_TARGET_RABBIT_QUEUE_NAME: 'test.notifications-slack-manager',
+  COPILOT_TARGET_RABBIT_ROUTING_KEY: 'slack.copilot',
+  MANAGER_TARGET_RABBIT_ROUTING_KEY: 'slack.manager',
 
   DELAY_RABBIT_EXCHANGE_NAME: 'test.delay-notifications',
 

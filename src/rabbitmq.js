@@ -18,7 +18,13 @@ const handler = require('./handlers');
 module.exports = (logger) => {
   let subConn;
   let pubConn;
-
+  let exchangeName;
+  let queues;
+  let exchangeType;
+  let exchangeOptions = {
+    durable: true,
+  };
+  let pubChannel;
   /**
    * publishes a message to the target exchange
    * @type {Promise}
@@ -26,14 +32,7 @@ module.exports = (logger) => {
   const publish = Promise.coroutine(function* (key, payload, props = {}) {
     try {
       props.content_type = 'application/json';
-      const channel = yield pubConn.createChannel();
-      const exchangeName = config.get('TARGET_RABBIT_EXCHANGE_NAME');
-      // make sure exchange is created
-      yield channel.assertExchange(exchangeName, 'topic', {
-        durable: true,
-      });
-      channel.publish(exchangeName, key, new Buffer(JSON.stringify(payload)), props);
-      channel.close();
+      pubChannel.publish(exchangeName, key, new Buffer(JSON.stringify(payload)), props);
     } catch (err) {
       logger.error(err);
     }
@@ -75,10 +74,21 @@ module.exports = (logger) => {
    * Initializes a publisher connection
    * @type Promise
    */
-  const initPublisher = Promise.coroutine(function* (url) {
+  const initPublisher = Promise.coroutine(function* (options) {
     try {
       logger.info('Initializing publisher(s) ...');
-      pubConn = yield amqplib.connect(url);
+      pubConn = yield amqplib.connect(options.url);
+      exchangeName = options.exchangeName;
+      exchangeType = options.exchangeType || 'topic';
+      exchangeOptions = options.exchangeOptions || exchangeOptions;
+      queues = options.queues;
+      pubChannel = yield pubConn.createChannel();
+      // make sure exchange is created
+      yield pubChannel.assertExchange(exchangeName, exchangeType, exchangeOptions);
+      _.each(queues, Promise.coroutine(function* (queue) {
+        yield pubChannel.assertQueue(queue.name);
+        yield pubChannel.bindQueue(queue.name, exchangeName, queue.key);
+      }));
     } catch (err) {
       logger.error(err);
       return Promise.reject(err);
