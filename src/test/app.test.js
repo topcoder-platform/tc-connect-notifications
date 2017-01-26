@@ -41,14 +41,15 @@ const sampleProjects = {
 const sampleUsers = {
   user1: require('./data/users.1.json'),
 };
+const sampleAuth = require('./data/authorization.json');
 
 const expectedSlackNotfication = {
   username: 'webhookbot',
   icon_url: 'https://emoji.slack-edge.com/T03R80JP7/topcoder/7c68acd90a6b6d77.png',
   attachments: [
     {
-      fallback: 'New Project: https://connect.topcoder.com/projects/| test',
-      pretext: 'New Project: https://connect.topcoder.com/projects/| test',
+      fallback: 'New Project: https://connect.topcoder-dev.com/projects/|test',
+      pretext: 'New Project: https://connect.topcoder-dev.com/projects/|test',
       fields: [
         {
           title: 'Description',
@@ -56,13 +57,8 @@ const expectedSlackNotfication = {
           short: true,
         },
         {
-          title: 'Description',
-          value: 'test',
-          short: false,
-        },
-        {
           title: 'Ref Code',
-          value: 1,
+          value: '',
           short: false,
         },
       ],
@@ -72,7 +68,7 @@ const expectedSlackNotfication = {
 
 function checkAssert(assertCount, count, cb) {
   if (assertCount === count) {
-    cb();
+    return cb();
   }
 }
 
@@ -89,6 +85,9 @@ describe('app', () => {
   const restoreStubAndSpy = () => {
     if (request.get.restore) {
       request.get.restore();
+    }
+    if (request.post.restore) {
+      request.post.restore();
     }
     if (spy && spy.restore) {
       spy.restore();
@@ -174,14 +173,36 @@ describe('app', () => {
 
     // Stub the calls to API server
     stub = sinon.stub(request, 'get');
-    stub.withArgs(`${config.API_BASE_URL}/v4/projects/1`)
+    const stubArgs = {
+      url: `${config.API_BASE_URL}/v4/projects/1`,
+      method: sinon.match.any,
+      json: sinon.match.any,
+    };
+    stub.withArgs(sinon.match.has('url', stubArgs.url))
       .yields(null, { statusCode: 200 }, JSON.stringify(sampleProjects.project1));
-    stub.withArgs(`${config.API_BASE_URL}/v4/projects/1000`)
+
+    stubArgs.url = `${config.API_BASE_URL}/v4/projects/1000`;
+    stub.withArgs(sinon.match.has('url', stubArgs.url))
       .yields(null, { statusCode: 404 });
-    stub.withArgs(`${config.API_BASE_URL}/v3/members/_search/?query=userId:1`)
+
+    stubArgs.url = `${config.API_BASE_URL}/v3/members/_search/?query=userId:1`;
+    stub.withArgs(sinon.match.has('url', stubArgs.url))
       .yields(null, { statusCode: 200 }, JSON.stringify(sampleUsers.user1));
-    stub.withArgs(`${config.API_BASE_URL}/v3/users/1000`)
+
+    stubArgs.url = `${config.API_BASE_URL}/v3/users/1000`;
+    stub.withArgs(sinon.match.has('url', stubArgs.url))
       .yields(null, { statusCode: 404 });
+
+    stubArgs.url = `${config.API_BASE_URL}/v3/members/_search/?query=userId:40051331`;
+    stub.withArgs(sinon.match.has('url', stubArgs.url))
+      .yields(null, { statusCode: 200 }, JSON.stringify(sampleUsers.user1));
+
+    stubArgs.url = `${config.API_BASE_URL}/v3/members/_search/?query=userId:50051333`;
+    stub.withArgs(sinon.match.has('url', stubArgs.url))
+      .yields(null, { statusCode: 200 }, JSON.stringify(sampleUsers.user1));
+
+    postStub = sinon.stub(request, 'post');
+    postStub.yields(null, { statusCode: 200 }, JSON.stringify(sampleAuth));
 
     // spy the discourse notification call
     spy = sinon.spy(util, 'createProjectDiscourseNotification');
@@ -231,10 +252,11 @@ describe('app', () => {
   describe('`project.updated` event', () => {
     it('should create `Project.SubmittedForReview` and `Project.AvailableForReview` and manager slack notifications', (done) => {
       let assertCount = 0;
-      const callbackCount = 1;
+      const callbackCount = 2;
       function mgrCallback(notifications) {
         assertCount += 1;
-        assert.deepEqual(notifications, expectedSlackNotfication);
+        const data = JSON.parse(notifications.toString());
+        assert.deepEqual(data, expectedSlackNotfication);
         checkAssert(assertCount, callbackCount, done);
       }
       sendTestEvent(sampleEvents.updatedInReview, 'project.updated', null, mgrCallback);
@@ -251,30 +273,33 @@ describe('app', () => {
     // there is no discourse notiifcation for Project.Reviewed
     it('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and repost after delay', (done) => {
       let assertCount = 0;
+      const callbackCount = 2;
       // Assert count is 3 as delay is 0 copilot will again get notified if none assgned
       function copCallback(notifications) {
         assertCount += 1;
-        assert.deepEqual(notifications, expectedSlackNotfication);
-        checkAssert(assertCount, 3, done);
+        const data = JSON.parse(notifications.toString());
+        assert.deepEqual(data, expectedSlackNotfication);
+        checkAssert(assertCount, callbackCount, done);
       }
       sendTestEvent(sampleEvents.updatedReviewed, 'project.updated', copCallback);
       setTimeout(() => {
+        assertCount += 1;
         sinon.assert.notCalled(spy);
-        done();
+        checkAssert(assertCount, callbackCount, done);
       }, testTimeout);
     });
     // there is no discourse notiifcation for Project.Reviewed
     it('should create `Project.Reviewed`, but not `Project.AvailableToClaim` and copilot slack notifications (copilot assigned)', (done) => {
       let assertCount = 0;
-      function copCallback(notifications) {
-        assertCount += 1;
-        assert.deepEqual(notifications, expectedSlackNotfication);
-        checkAssert(assertCount, 2, done);
+      const callbackCount = 1;
+      function copCallback() {
+        assert.fail();
       }
       sendTestEvent(sampleEvents.updatedReviewedCopilotAssigned, 'project.updated', copCallback);
       setTimeout(() => {
+        assertCount += 1;
         sinon.assert.notCalled(spy);
-        done();
+        checkAssert(assertCount, callbackCount, done);
       }, testTimeout);
     });
 
@@ -364,7 +389,7 @@ describe('app', () => {
       sendTestEvent(sampleEvents.memberUpdated, 'project.member.updated');
       setTimeout(() => {
         const expectedTitle = 'Your project has a new owner';
-        const expectedBody = 'F_admin L_admin is now responsible for project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">Project name 1</a>. Good luck F_admin.';
+        const expectedBody = 'F_user L_user is now responsible for project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">Project name 1</a>. Good luck F_user.';
         const params = spy.lastCall.args;
         assert.equal(params[2], expectedTitle);
         assert.equal(params[3], expectedBody);
