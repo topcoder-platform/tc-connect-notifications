@@ -26,8 +26,8 @@ module.exports = {
   COPILOT_TARGET_RABBIT_ROUTING_KEY: 'slack.copilot',
   MANAGER_TARGET_RABBIT_ROUTING_KEY: 'slack.manager',
 
-  DELAY_RABBIT_EXCHANGE_NAME: 'delay-notifications',
-
+  TARGET_RABBIT_DELAY_EXCHANGE_NAME: 'dev.connect-notifications-reminders',
+  TARGET_RABBIT_DELAY_ROUTING_KEY: 'project.copilot-unclaimed',
   // currently 50 secs for testing
   UNCLAIMED_PROJECT_REPOST_DELAY: 50000,
 

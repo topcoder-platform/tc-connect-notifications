@@ -103,11 +103,13 @@ function* projectUnclaimedNotifications(logger, data) {
   const project = yield util.getProjectById(data.updated.id);
   const projectCopilotIds = util.getProjectMemberIdsByRole(project, constants.memberRoles.copilot);
   const notifications = {
-    copilot: [],
+    slack: {
+      copilot: [],
+    },
   };
   if (projectCopilotIds.length === 0) {
     notifications.delayed = data;
-    notifications.copilot.push(util.buildSlackNotification(project));
+    notifications.slack.copilot.push(util.buildSlackNotification(project));
   }
   return notifications;
 }

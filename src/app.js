@@ -89,10 +89,43 @@ const constants = require('./common/constants');
 
 // Connect to the source RabbitMQ to receive (consume) events
 const service = require('./rabbitmq')(logger);
+const delayService = require('./rabbitmq')(logger);
 
-service.initPublisher(
-  config.get('RABBITMQ_URL'),
-  config.get('TARGET_RABBIT_EXCHANGE_NAME'))
+const queueOptions = {
+  url: config.get('RABBITMQ_URL'),
+  exchangeName: config.get('TARGET_RABBIT_EXCHANGE_NAME'),
+  queues: [],
+};
+queueOptions.queues.push({
+  name: config.get('COPILOT_TARGET_RABBIT_QUEUE_NAME'),
+  key: config.get('COPILOT_TARGET_RABBIT_ROUTING_KEY'),
+});
+queueOptions.queues.push({
+  name: config.get('MANAGER_TARGET_RABBIT_QUEUE_NAME'),
+  key: config.get('MANAGER_TARGET_RABBIT_ROUTING_KEY'),
+});
+
+const delayQueueOptions = {
+  url: config.get('RABBITMQ_URL'),
+  exchangeName: config.get('TARGET_RABBIT_DELAY_EXCHANGE_NAME'),
+  exchangeType: 'x-delayed-message',
+  exchangeOptions: {
+    autoDelete: false,
+    durable: true,
+    passive: true,
+    arguments: { 'x-delayed-type': 'direct' } },
+  queues: [],
+};
+
+queueOptions.queues.push({
+  name: config.get('SOURCE_RABBIT_QUEUE_NAME'),
+  key: config.get('TARGET_RABBIT_DELAY_ROUTING_KEY'),
+});
+
+delayService.initPublisher(delayQueueOptions)
+.then(() => {
+  service.initPublisher(queueOptions);
+})
 .then(() => {
   service.subscribe(
     config.get('RABBITMQ_URL'),

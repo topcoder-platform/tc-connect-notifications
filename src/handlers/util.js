@@ -22,7 +22,9 @@ function requestPromise(options, cb = null) {
   // setting default options
   _.defaults(options, { method: 'GET', json: true })
   return new Promise((resolve, reject) => {
-    request(options, (err, res, data) => {
+    // Stubbing requests this way is easier DO NOT REFACTOR
+    request[options.method.toLowerCase()](options, (err, res, body) => {
+      const data = JSON.parse(body);
       if (err || res.statusCode > 299) {
         const errStr = data ? JSON.stringify(data) : ''
         reject(err || new Error(`Failed to ${options.method}, url '${options.url}': statusCode = ${res.statusCode}, err: ${errStr}`));
@@ -30,7 +32,7 @@ function requestPromise(options, cb = null) {
         if (cb) {
           cb(data, resolve, reject);
         } else {
-          resolve(data.result.content);
+          return resolve(data.result.content);
         }
       }
     });
@@ -199,8 +201,8 @@ function buildSlackNotification(project) {
     username: config.get('SLACK_USERNAME'),
     icon_url: config.get('SLACK_ICON_URL'),
     attachments: [{
-      fallback: `New Project: https://connect.${config.get('AUTH_DOMAIN')}/projects/| ${project.name}`,
-      pretext: `New Project: https://connect.${config.get('AUTH_DOMAIN')}/projects/| ${project.name}`,
+      fallback: `New Project: https://connect.${config.get('AUTH_DOMAIN')}/projects/|${project.name}`,
+      pretext: `New Project: https://connect.${config.get('AUTH_DOMAIN')}/projects/|${project.name}`,
       fields: [{
           title: 'Description',
           value: _.truncate(project.description, {

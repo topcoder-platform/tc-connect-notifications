@@ -23,7 +23,7 @@ module.exports = {
   COPILOT_TARGET_RABBIT_QUEUE_NAME: 'test.notifications-slack-copilot',
   MANAGER_TARGET_RABBIT_QUEUE_NAME: 'test.notifications-slack-manager',
 
-  DELAY_RABBIT_EXCHANGE_NAME: 'test.delay-notifications',
+  TARGET_RABBIT_DELAY_EXCHANGE_NAME: 'test.connect-notifications-reminders',
 
   UNCLAIMED_PROJECT_REPOST_DELAY: 0,
   API_BASE_URL: 'http://localhost:3001',
