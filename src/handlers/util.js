@@ -46,7 +46,11 @@ function requestPromise(options, cb = null) {
 const createProjectDiscourseNotification = Promise.coroutine(
   function* (logger, projectId, title, body, tag = 'PRIMARY') {
     try {
-      const token = yield getSystemUserToken(logger);
+      const token = yield getSystemUserToken();
+      if (!token) {
+        logger.error('Error retrieving system token')
+        return Promise.reject(new Error('Error retrieving system token'))
+      }
       const options = {
         url: `${config.get('API_BASE_URL')}/v4/topics/`,
         method: 'POST',
@@ -121,7 +125,17 @@ function getProjectMemberIdsByRole(project, role) {
  * @private
  */
 function* getProjectById(id) {
-  return yield requestPromise({url: `${config.get('API_BASE_URL')}/v4/projects/${id}`});
+  const token = yield getSystemUserToken();
+  if (!token) {
+    logger.error('Error retrieving system token')
+    return Promise.reject(new Error('Error retrieving system token'))
+  }
+  return yield requestPromise({
+    url: `${config.get('API_BASE_URL')}/v4/projects/${id}`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 }
 
 /**
@@ -204,7 +218,7 @@ function buildSlackNotification(project) {
   };
 }
 
-const getSystemUserToken = Promise.coroutine(function* (logger, id = 'system') {
+const getSystemUserToken = Promise.coroutine(function* () {
   const formData = {
     clientId: config.get('SYSTEM_USER_CLIENT_ID'),
     secret: config.get('SYSTEM_USER_CLIENT_SECRET'),
