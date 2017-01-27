@@ -29,10 +29,14 @@ module.exports = (logger) => {
    * publishes a message to the target exchange
    * @type {Promise}
    */
-  const publish = Promise.coroutine(function* (key, payload, props = {}) {
+  const publish = Promise.coroutine(function* (_exchangeName, key, payload, props = {}) {
     try {
-      props.content_type = 'application/json';
-      pubChannel.publish(exchangeName, key, new Buffer(JSON.stringify(payload)), props);
+      logger.debug('PUBLISHING', exchangeName)
+      logger.debug('key: ', key)
+      props.contentType = 'application/json';
+      logger.debug('props', props)
+      // return Promise.resolve(true)
+      pubChannel.publish(_exchangeName, key, new Buffer(JSON.stringify(payload)), props);
     } catch (err) {
       logger.error(err);
     }

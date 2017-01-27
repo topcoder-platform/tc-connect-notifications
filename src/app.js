@@ -12,7 +12,7 @@ const logger = require('./common/logger');
 const constants = require('./common/constants');
 
 // Setup delay exchange
-// const rabbit = jackrabbit(config.RABBITMQ_URL);
+// const rabbit = jackrabbit(config.RABBITMQ.URL);
 // let pubChannel;
 // let delayChannelReady = false;
 
@@ -47,7 +47,7 @@ const constants = require('./common/constants');
 //       exchangeType = 'x-delayed-message';
 //     }
 //     pubChannel.assertExchange(config.DELAY_RABBIT_EXCHANGE_NAME, exchangeType, exchangeOptions);
-//     pubChannel.bindQueue(config.SOURCE_RABBIT_QUEUE_NAME,
+//     pubChannel.bindQueue(config.RABBITMQ.CONNECT_NOTIFICATIONS_QUEUE_NAME,
 //       config.DELAY_RABBIT_EXCHANGE_NAME, constants.events.projectUnclaimed);
 //     rabbit.emit('ready');
 //     delayChannelReady = true;
@@ -91,46 +91,55 @@ const constants = require('./common/constants');
 const service = require('./rabbitmq')(logger);
 const delayService = require('./rabbitmq')(logger);
 
-const queueOptions = {
-  url: config.get('RABBITMQ_URL'),
-  exchangeName: config.get('TARGET_RABBIT_EXCHANGE_NAME'),
-  queues: [],
+const connectNotificationsqueueOptions = {
+  url: config.get('RABBITMQ.URL'),
+  exchangeName: config.get('RABBITMQ.NOTIFICATIONS_EXCHANGE_NAME'),
+  queues: [{
+    name: config.get('RABBITMQ.SLACK_NOTIFICATIONS_COPILOT_QUEUE_NAME'),
+    key: config.get('RABBITMQ.SLACK_COPILOT_ROUTING_KEY'),
+  },{
+    name: config.get('RABBITMQ.SLACK_NOTIFICATIONS_MANAGER_QUEUE_NAME'),
+    key: config.get('RABBITMQ.SLACK_MANAGER_ROUTING_KEY'),
+  }],
 };
-queueOptions.queues.push({
-  name: config.get('COPILOT_TARGET_RABBIT_QUEUE_NAME'),
-  key: config.get('COPILOT_TARGET_RABBIT_ROUTING_KEY'),
-});
-queueOptions.queues.push({
-  name: config.get('MANAGER_TARGET_RABBIT_QUEUE_NAME'),
-  key: config.get('MANAGER_TARGET_RABBIT_ROUTING_KEY'),
-});
+// connectNotificationsqueueOptions.queues.push({
+//   name: config.get('RABBITMQ.SLACK_NOTIFICATIONS_COPILOT_QUEUE_NAME'),
+//   key: config.get('RABBITMQ.SLACK_COPILOT_ROUTING_KEY'),
+// });
+// connectNotificationsqueueOptions.queues.push({
+//   name: config.get('RABBITMQ.SLACK_NOTIFICATIONS_MANAGER_QUEUE_NAME'),
+//   key: config.get('RABBITMQ.SLACK_MANAGER_ROUTING_KEY'),
+// });
 
 const delayQueueOptions = {
-  url: config.get('RABBITMQ_URL'),
-  exchangeName: config.get('TARGET_RABBIT_DELAY_EXCHANGE_NAME'),
+  url: config.get('RABBITMQ.URL'),
+  exchangeName: config.get('RABBITMQ.DELAYED_NOTIFICATIONS_EXCHANGE_NAME'),
   exchangeType: 'x-delayed-message',
   exchangeOptions: {
     autoDelete: false,
     durable: true,
     passive: true,
     arguments: { 'x-delayed-type': 'direct' } },
-  queues: [],
+  queues: [{
+    name: config.get('RABBITMQ.CONNECT_NOTIFICATIONS_QUEUE_NAME'),
+    key: constants.events.projectUnclaimed,
+  }],
 };
 
-queueOptions.queues.push({
-  name: config.get('SOURCE_RABBIT_QUEUE_NAME'),
-  key: config.get('TARGET_RABBIT_DELAY_ROUTING_KEY'),
-});
+// connectNotificationsqueueOptions.queues.push({
+//   name: config.get('RABBITMQ.CONNECT_NOTIFICATIONS_QUEUE_NAME'),
+//   key: config.get('TARGET_RABBIT_DELAY_ROUTING_KEY'),
+// });
 
 delayService.initPublisher(delayQueueOptions)
 .then(() => {
-  service.initPublisher(queueOptions);
+  service.initPublisher(connectNotificationsqueueOptions);
 })
 .then(() => {
   service.subscribe(
-    config.get('RABBITMQ_URL'),
-    config.get('SOURCE_RABBIT_EXCHANGE_NAME'),
-    config.get('SOURCE_RABBIT_QUEUE_NAME'));
+    config.get('RABBITMQ.URL'),
+    config.get('RABBITMQ.PROJECTS_EXCHANGE_NAME'),
+    config.get('RABBITMQ.CONNECT_NOTIFICATIONS_QUEUE_NAME'));
 }).then(() => {
   logger.info('tc-connect-notifications started...');
 });

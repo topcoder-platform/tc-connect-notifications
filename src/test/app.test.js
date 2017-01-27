@@ -106,24 +106,24 @@ describe('app', () => {
   };
 
   const connectToSource = (callback) => {
-    sourceExchange = jackrabbit(config.RABBITMQ_URL)
-      .topic(config.SOURCE_RABBIT_EXCHANGE_NAME);
+    sourceExchange = jackrabbit(config.RABBITMQ.URL)
+      .topic(config.RABBITMQ.PROJECTS_EXCHANGE_NAME);
     sourceQueue = sourceExchange.queue(
-      { name: config.SOURCE_RABBIT_QUEUE_NAME },
+      { name: config.RABBITMQ.CONNECT_NOTIFICATIONS_QUEUE_NAME },
       { keys: _.values(constants.events) });
     sourceQueue.on('ready', () => {
       sourceQueue.purge(() => { callback(); });
     });
   };
   const connectToTarget = (callback) => {
-    targetExchange = jackrabbit(config.RABBITMQ_URL)
-      .topic(config.TARGET_RABBIT_EXCHANGE_NAME);
+    targetExchange = jackrabbit(config.RABBITMQ.URL)
+      .topic(config.RABBITMQ.NOTIFICATIONS_EXCHANGE_NAME);
     copilotTargetQueue = targetExchange.queue(
-      { name: config.COPILOT_TARGET_RABBIT_QUEUE_NAME },
-      { key: config.COPILOT_TARGET_RABBIT_ROUTING_KEY });
+      { name: config.RABBITMQ.SLACK_NOTIFICATIONS_COPILOT_QUEUE_NAME },
+      { key: config.RABBITMQ.SLACK_COPILOT_ROUTING_KEY });
     managerTargetQueue = targetExchange.queue(
-      { name: config.MANAGER_TARGET_RABBIT_QUEUE_NAME },
-      { key: config.MANAGER_TARGET_RABBIT_ROUTING_KEY });
+      { name: config.RABBITMQ.SLACK_NOTIFICATIONS_MANAGER_QUEUE_NAME },
+      { key: config.RABBITMQ.SLACK_MANAGER_ROUTING_KEY });
 
     let connectedQueues = 0;
     function checkCallCallback() {
@@ -244,7 +244,7 @@ describe('app', () => {
     });
   });
 
-  describe('`project.draft-created` event', () => {
+  describe.only('`project.draft-created` event', () => {
     it('should create `Project.Created` notification', (done) => {
       sendTestEvent(sampleEvents.draftCreated, 'project.draft-created');
       setTimeout(() => {
@@ -302,7 +302,7 @@ describe('app', () => {
         checkAssert(assertCount, callbackCount, done);
       }, testTimeout);
     });
-    it('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and repost after delay', (done) => {
+    it.only('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and repost after delay', (done) => {
       request.get.restore();
       stub = sinon.stub(request, 'get');
       stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v4/projects/1`))

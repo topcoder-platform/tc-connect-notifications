@@ -12,15 +12,14 @@ Connect Notifications biz layer
 To override default settings please add them to a file `./config/local.js`:
 
 - `LOG_LEVEL`: the log level (e.g. debug, info)
-- `RABBITMQ_URL`: the event RabbitMQ's URL
-- `SOURCE_RABBIT_EXCHANGE_NAME`: the event RabbitMQ's topic exchange name
-- `SOURCE_RABBIT_QUEUE_NAME`: the event RabbitMQ's queue name
-- `COPILOT_TARGET_RABBIT_QUEUE_NAME`: copilot slack queue
-- `MANAGER_TARGET_RABBIT_QUEUE_NAME`:  manager slack queue routing key
+- `RABBITMQ.URL`: the event RabbitMQ's URL
+- `RABBITMQ.PROJECTS_EXCHANGE_NAME`: the event RabbitMQ's topic exchange name
+- `RABBITMQ.CONNECT_NOTIFICATIONS_QUEUE_NAME`: the event RabbitMQ's queue name
+- `RABBITMQ.SLACK_NOTIFICATIONS_COPILOT_QUEUE_NAME`: copilot slack queue
+- `RABBITMQ.SLACK_NOTIFICATIONS_MANAGER_QUEUE_NAME`:  manager slack queue routing key
 - `DELAY_RABBIT_EXCHANGE_NAME`: Exchange name used for delayed messages
-- `UNCLAIMED_PROJECT_REPOST_DELAY`: Amount of delay before reposting unclaimed project
-- `TARGET_RABBIT_EXCHANGE_NAME`: the notification RabbitMQ's topic exchange name
-- `TARGET_RABBIT_QUEUE_NAME`: the notification RabbitMQ's queue name
+- `RABBITMQ.DELAY_DURATION`: Amount of delay before reposting unclaimed project
+- `RABBITMQ.NOTIFICATIONS_EXCHANGE_NAME`: the notification RabbitMQ's topic exchange name
 - `LOGENTRIES_TOKEN`: the Logentries token generated from https://logentries.com/
 - `API_BASE_URL`: the base url to the API server to get project/user info
 - `DISABLE_DELAY_EXCHANGE`: Disable exchage type delay and use 'direct' instead(Note: after changing this delete existing delay exchange )
@@ -93,7 +92,7 @@ To override default settings please add them to a file `./config/local.js`:
 
 - Publish the following message to the source RabbitMQ via command line or GUI:
 
-    - Exchange name: as configured `SOURCE_RABBIT_EXCHANGE_NAME` variable (e.g. projects)
+    - Exchange name: as configured `RABBITMQ.PROJECTS_EXCHANGE_NAME` variable (e.g. projects)
 
     - Routing key: `project.draft-created`
 
@@ -154,7 +153,7 @@ To override default settings please add them to a file `./config/local.js`:
     }
     ```
 
-- Verify that a notification message is sent to the target RabbitMQ `TARGET_RABBIT_QUEUE_NAME`
+- Verify that a notification message is sent to the target RabbitMQ `RABBITMQ.CONNECT_NOTIFICATIONS_QUEUE_NAME`
 
   ```json
   {
@@ -177,7 +176,7 @@ To override default settings please add them to a file `./config/local.js`:
 
 - Publish the following message to the source RabbitMQ via command line or GUI:
 
-    - Exchange name: as configured `SOURCE_RABBIT_EXCHANGE_NAME` variable (e.g. projects)
+    - Exchange name: as configured `RABBITMQ.PROJECTS_EXCHANGE_NAME` variable (e.g. projects)
 
     - Routing key: `project.updated`
 
@@ -313,7 +312,7 @@ To override default settings please add them to a file `./config/local.js`:
     ```
 
 
-- Verify that a slack notification in `COPILOT_TARGET_RABBIT_QUEUE_NAME` and one another after `UNCLAIMED_PROJECT_REPOST_DELAY` notifications continues coming until copilot is assigned.
+- Verify that a slack notification in `RABBITMQ.SLACK_NOTIFICATIONS_COPILOT_QUEUE_NAME` and one another after `RABBITMQ.DELAY_DURATION` notifications continues coming until copilot is assigned.
 
 ```json
 {

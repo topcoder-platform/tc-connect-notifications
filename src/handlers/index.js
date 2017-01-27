@@ -23,6 +23,7 @@ const util = require('./util');
  * @param {Object} message the message
  */
 module.exports = (logger, message, channel, publish) => {
+  console.log(message)
   const eventType = message.fields.routingKey;
   const correlationId = message.properties.correlationId;
   // create a child logger so we can trace with original request id
@@ -61,16 +62,29 @@ module.exports = (logger, message, channel, publish) => {
     if (notifications.slack) {
       // publish with manager slack key
       _.each(notifications.slack.manager, (n) => {
-        publishPromises.push(publish(config.get('MANAGER_TARGET_RABBIT_ROUTING_KEY'), n));
+        publishPromises.push(publish(
+          config.get('RABBITMQ.NOTIFICATIONS_EXCHANGE_NAME'),
+          config.get('RABBITMQ.SLACK_MANAGER_ROUTING_KEY'),
+          n
+        ));
       });
       // publish with copilot slack key
       _.each(notifications.slack.copilot, (n) => {
-        publishPromises.push(publish(config.get('COPILOT_TARGET_RABBIT_ROUTING_KEY'), n));
+        publishPromises.push(publish(
+          config.get('RABBITMQ.NOTIFICATIONS_EXCHANGE_NAME'),
+          config.get('RABBITMQ.SLACK_COPILOT_ROUTING_KEY'),
+          n
+        ));
       });
     }
 
     if (notifications.delayed) {
-      publishPromises.push(publish(config.get('TARGET_RABBIT_DELAY_ROUTING_KEY'), notifications.delayed));
+      publishPromises.push(publish(
+        config.get('RABBITMQ.DELAYED_NOTIFICATIONS_EXCHANGE_NAME'),
+        constants.events.projectUnclaimed,
+        notifications.delayed,
+        { headers: { 'x-delay': config.get('RABBITMQ.DELAY_DURATION'), }, }
+      ));
     }
     return Promise.all(publishPromises);
   }).then(() => {
