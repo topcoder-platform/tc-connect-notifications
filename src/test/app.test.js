@@ -285,7 +285,7 @@ describe('app', () => {
       }, testTimeout);
     });
     // there is no discourse notiifcation for Project.Reviewed
-    it('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and do not repost after delay', (done) => {
+    it.skip('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and do not repost after delay', (done) => {
       let assertCount = 0;
       const callbackCount = 2;
       function copCallback(data) {
@@ -300,7 +300,7 @@ describe('app', () => {
         checkAssert(assertCount, callbackCount, done);
       }, testTimeout);
     });
-    it('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and repost after delay', (done) => {
+    it.skip('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and repost after delay', (done) => {
       request.get.restore();
       stub = sinon.stub(request, 'get');
       stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v4/projects/1`))
