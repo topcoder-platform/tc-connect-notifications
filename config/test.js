@@ -10,7 +10,7 @@
 
 
 module.exports = {
-  LOG_LEVEL: 'debug',
+  LOG_LEVEL: 'warn',
   CAPTURE_LOGS: 'false',
 
   RABBITMQ: {

@@ -24,8 +24,6 @@ const util = require('./util');
  */
 module.exports = (logger, message, channel, publish) => {
 
-  // TODO
-  console.log(message.properties)
   const eventType = message.fields.routingKey;
   const correlationId = message.properties.correlationId;
   // create a child logger so we can trace with original request id
