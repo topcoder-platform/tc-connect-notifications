@@ -68,7 +68,6 @@ function* projectUpdated(logger, data) {
     if (owner) {
       dataForSlack.owner = yield util.getUserById(owner.userId);
     }
-    // dataForSlack.owner = { firstName: 'F_name', lastName: 'L_name', };
     const slackNotification = util.buildSlackNotification(
       dataForSlack,
       constants.notifications.slack.projectInReview

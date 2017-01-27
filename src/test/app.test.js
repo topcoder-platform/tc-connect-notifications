@@ -188,7 +188,7 @@ describe('app', () => {
       url: `${config.API_BASE_URL}/v4/projects/1`,
     };
     stub.withArgs(sinon.match.has('url', stubArgs.url))
-      .yields(null, { statusCode: 200 }, JSON.stringify(sampleProjects.project1));
+      .yields(null, { statusCode: 200 }, sampleProjects.project1);
 
     stubArgs.url = `${config.API_BASE_URL}/v4/projects/1000`;
     stub.withArgs(sinon.match.has('url', stubArgs.url))
@@ -196,7 +196,7 @@ describe('app', () => {
 
     stubArgs.url = `${config.API_BASE_URL}/v3/members/_search/?query=userId:1`;
     stub.withArgs(sinon.match.has('url', stubArgs.url))
-      .yields(null, { statusCode: 200 }, JSON.stringify(sampleUsers.user1));
+      .yields(null, { statusCode: 200 }, sampleUsers.user1);
 
     stubArgs.url = `${config.API_BASE_URL}/v3/users/1000`;
     stub.withArgs(sinon.match.has('url', stubArgs.url))
@@ -204,14 +204,14 @@ describe('app', () => {
 
     stubArgs.url = `${config.API_BASE_URL}/v3/members/_search/?query=userId:40051331`;
     stub.withArgs(sinon.match.has('url', stubArgs.url))
-      .yields(null, { statusCode: 200 }, JSON.stringify(sampleUsers.user1));
+      .yields(null, { statusCode: 200 }, sampleUsers.user1);
 
     stubArgs.url = `${config.API_BASE_URL}/v3/members/_search/?query=userId:50051333`;
     stub.withArgs(sinon.match.has('url', stubArgs.url))
-      .yields(null, { statusCode: 200 }, JSON.stringify(sampleUsers.user1));
+      .yields(null, { statusCode: 200 }, sampleUsers.user1);
 
     postStub = sinon.stub(request, 'post');
-    postStub.yields(null, { statusCode: 200 }, JSON.stringify(sampleAuth));
+    postStub.yields(null, { statusCode: 200 }, sampleAuth);
 
     // spy the discourse notification call
     spy = sinon.spy(util, 'createProjectDiscourseNotification');
@@ -266,7 +266,7 @@ describe('app', () => {
       request.get.restore();
       stub = sinon.stub(request, 'get');
       stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v3/members/_search/?query=userId:8547900`))
-        .yields(null, { statusCode: 200 }, JSON.stringify(sampleUsers.user1));
+        .yields(null, { statusCode: 200 }, sampleUsers.user1);
 
       function mgrCallback(notifications) {
         assertCount += 1;
@@ -306,7 +306,7 @@ describe('app', () => {
       request.get.restore();
       stub = sinon.stub(request, 'get');
       stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v4/projects/1`))
-        .yields(null, { statusCode: 200 }, JSON.stringify(sampleProjects.projectTest));
+        .yields(null, { statusCode: 200 }, sampleProjects.projectTest);
 
       let assertCount = 0;
       const callbackCount = 3;

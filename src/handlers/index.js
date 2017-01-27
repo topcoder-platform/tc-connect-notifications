@@ -29,9 +29,9 @@ module.exports = (logger, message, channel, publish) => {
   const childLogger = logger.child({
     requestId: correlationId,
   });
-  const data = JSON.parse(message.content.toString());
+  const data = JSON.parse(message.content);
   childLogger.info(`Receiving event with type = '${eventType}'`);
-  childLogger.debug('Payload:', data);
+  childLogger.debug('Payload:', JSON.stringify(data));
 
   co(function* generateNotifications() {
     logger.debug(eventType, constants.events.projectDraftCreated);

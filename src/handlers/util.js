@@ -23,8 +23,7 @@ function requestPromise(options, cb = null) {
   _.defaults(options, { method: 'GET', json: true })
   return new Promise((resolve, reject) => {
     // Stubbing requests this way is easier DO NOT REFACTOR
-    request[options.method.toLowerCase()](options, (err, res, body) => {
-      const data = JSON.parse(body);
+    request[options.method.toLowerCase()](options, (err, res, data) => {
       if (err || res.statusCode > 299) {
         const errStr = data ? JSON.stringify(data) : ''
         reject(err || new Error(`Failed to ${options.method}, url '${options.url}': statusCode = ${res.statusCode}, err: ${errStr}`));
