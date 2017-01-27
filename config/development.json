@@ -1,15 +1,14 @@
 {
 
   "AUTH_DOMAIN": "topcoder-dev.com",
-  "SOURCE_RABBIT_EXCHANGE_NAME": "dev.projects",
-  "SOURCE_RABBIT_QUEUE_NAME": "dev.connect-notifications",
-  "TARGET_RABBIT_EXCHANGE_NAME": "dev.notifications",
-  "TARGET_RABBIT_DELAY_EXCHANGE_NAME": "dev.connect-notifications-reminders",
-  "TARGET_RABBIT_QUEUE_NAME": "dev.notifications",
-
-  "COPILOT_TARGET_RABBIT_QUEUE_NAME": "dev.notifications-slack-copilot",
-
-  "MANAGER_TARGET_RABBIT_QUEUE_NAME": "dev.notifications-slack-manager",
+  "RABBITMQ": {
+    "PROJECTS_EXCHANGE_NAME": "dev.projects",
+    "CONNECT_NOTIFICATIONS_QUEUE_NAME": "dev.connect-notifications",
+    "NOTIFICATIONS_EXCHANGE_NAME": "dev.notifications",
+    "DELAYED_NOTIFICATIONS_EXCHANGE_NAME": "dev.connect-notifications-reminders",
+    "SLACK_NOTIFICATIONS_COPILOT_QUEUE_NAME": "dev.notifications-slack-copilot",
+    "SLACK_NOTIFICATIONS_MANAGER_QUEUE_NAME": "dev.notifications-slack-manager",
+  },
 
   "API_BASE_URL": "https://api.topcoder-dev.com"
 }

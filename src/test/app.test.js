@@ -106,24 +106,24 @@ describe('app', () => {
   };
 
   const connectToSource = (callback) => {
-    sourceExchange = jackrabbit(config.RABBITMQ_URL)
-      .topic(config.SOURCE_RABBIT_EXCHANGE_NAME);
+    sourceExchange = jackrabbit(config.RABBITMQ.URL)
+      .topic(config.RABBITMQ.PROJECTS_EXCHANGE_NAME);
     sourceQueue = sourceExchange.queue(
-      { name: config.SOURCE_RABBIT_QUEUE_NAME },
+      { name: config.RABBITMQ.CONNECT_NOTIFICATIONS_QUEUE_NAME },
       { keys: _.values(constants.events) });
     sourceQueue.on('ready', () => {
       sourceQueue.purge(() => { callback(); });
     });
   };
   const connectToTarget = (callback) => {
-    targetExchange = jackrabbit(config.RABBITMQ_URL)
-      .topic(config.TARGET_RABBIT_EXCHANGE_NAME);
+    targetExchange = jackrabbit(config.RABBITMQ.URL)
+      .topic(config.RABBITMQ.NOTIFICATIONS_EXCHANGE_NAME);
     copilotTargetQueue = targetExchange.queue(
-      { name: config.COPILOT_TARGET_RABBIT_QUEUE_NAME },
-      { key: config.COPILOT_TARGET_RABBIT_ROUTING_KEY });
+      { name: config.RABBITMQ.SLACK_NOTIFICATIONS_COPILOT_QUEUE_NAME },
+      { key: config.RABBITMQ.SLACK_COPILOT_ROUTING_KEY });
     managerTargetQueue = targetExchange.queue(
-      { name: config.MANAGER_TARGET_RABBIT_QUEUE_NAME },
-      { key: config.MANAGER_TARGET_RABBIT_ROUTING_KEY });
+      { name: config.RABBITMQ.SLACK_NOTIFICATIONS_MANAGER_QUEUE_NAME },
+      { key: config.RABBITMQ.SLACK_MANAGER_ROUTING_KEY });
 
     let connectedQueues = 0;
     function checkCallCallback() {
@@ -268,9 +268,8 @@ describe('app', () => {
       stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v3/members/_search/?query=userId:8547900`))
         .yields(null, { statusCode: 200 }, sampleUsers.user1);
 
-      function mgrCallback(notifications) {
+      function mgrCallback(data) {
         assertCount += 1;
-        const data = JSON.parse(notifications.toString());
         assert.deepEqual(data, expectedManagerSlackNotification);
         checkAssert(assertCount, callbackCount, done);
       }
@@ -289,9 +288,8 @@ describe('app', () => {
     it('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and do not repost after delay', (done) => {
       let assertCount = 0;
       const callbackCount = 2;
-      function copCallback(notifications) {
+      function copCallback(data) {
         assertCount += 1;
-        const data = JSON.parse(notifications.toString());
         assert.deepEqual(data, expectedSlackCopilotNotification);
         checkAssert(assertCount, callbackCount, done);
       }
@@ -311,9 +309,8 @@ describe('app', () => {
       let assertCount = 0;
       const callbackCount = 3;
       // Assert count is 3 as delay is 0 copilot will again get notified if none assgned
-      function copCallback(notifications) {
+      function copCallback(data) {
         assertCount += 1;
-        const data = JSON.parse(notifications.toString());
         assert.deepEqual(data, expectedSlackCopilotNotification);
         checkAssert(assertCount, callbackCount, done);
       }

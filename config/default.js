@@ -10,26 +10,28 @@
 
 
 module.exports = {
+  RABBITMQ: {
+    URL: 'amqp://localhost:5672',
+    // Source RabbitMQ that provides events to tc-connect-notifications
+    PROJECTS_EXCHANGE_NAME: 'projects',
+    CONNECT_NOTIFICATIONS_QUEUE_NAME: 'connect-notifications',
+    SLACK_NOTIFICATIONS_COPILOT_QUEUE_NAME: "notifications-slack-copilot",
+    SLACK_NOTIFICATIONS_MANAGER_QUEUE_NAME: "notifications-slack-manager",
+
+    // Target RabbitMQ that receive notifications from tc-connect-notifications
+    NOTIFICATIONS_EXCHANGE_NAME: 'notifications',
+    SLACK_COPILOT_ROUTING_KEY: 'slack.copilot',
+    SLACK_MANAGER_ROUTING_KEY: 'slack.manager',
+
+    DELAYED_NOTIFICATIONS_EXCHANGE_NAME: 'connect-notifications-reminders',
+    // 12 hours
+    DELAY_DURATION: 43200000,
+  },
   AUTH_DOMAIN: 'topcoder-dev.com',
   LOG_LEVEL: 'info',
   CAPTURE_LOGS: 'false',
   // Token is generated from https://logentries.com/
   LOGENTRIES_TOKEN: '',
-
-  RABBITMQ_URL: 'amqp://localhost:5672',
-  // Source RabbitMQ that provides events to tc-connect-notifications
-  SOURCE_RABBIT_EXCHANGE_NAME: 'projects',
-  SOURCE_RABBIT_QUEUE_NAME: 'connect-notifications',
-
-  // Target RabbitMQ that receive notifications from tc-connect-notifications
-  TARGET_RABBIT_EXCHANGE_NAME: 'notifications',
-  COPILOT_TARGET_RABBIT_ROUTING_KEY: 'slack.copilot',
-  MANAGER_TARGET_RABBIT_ROUTING_KEY: 'slack.manager',
-
-  TARGET_RABBIT_DELAY_EXCHANGE_NAME: 'dev.connect-notifications-reminders',
-  TARGET_RABBIT_DELAY_ROUTING_KEY: 'project.copilot-unclaimed',
-  // currently 50 secs for testing
-  UNCLAIMED_PROJECT_REPOST_DELAY: 50000,
 
   // The base url to the project/user API server
   API_BASE_URL: 'http://localhost:3001',
