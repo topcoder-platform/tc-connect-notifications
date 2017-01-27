@@ -7,6 +7,9 @@
  * @author TCSCODER
  * @version 1.0
  */
+const _ = require('lodash');
+const config = require('config');
+
 module.exports = {
   // The event types to be consumed from the source RabbitMQ
   events: {
@@ -19,6 +22,41 @@ module.exports = {
   },
   // The notification types to be produce to the target RabbitMQ
   notifications: {
+    slack: {
+      projectInReview: (data) => {
+        return {
+          pretext: 'A project is ready to be reviewed.',
+          fallback: 'A project is ready to be reviewed.',
+          title: _.get(data, 'project.name', ''),
+          title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
+          text: _.truncate(_.get(data, 'project.description', ''), 200),
+          ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
+          fields: [
+            {
+              title: 'Ref Code',
+              value: _.get(data, 'project.details.utm.code', ''),
+              short: false,
+            },
+            {
+              title: 'Owner',
+              value: `${_.get(data, 'owner.firstName', '')} ${_.get(data, 'owner.lastName', '')}` ,
+              short: false,
+            },
+          ],
+        };
+      },
+      projectUnclaimed: (data) => {
+        return {
+          pretext: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
+          fallback: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
+          title: _.get(data, 'project.name', ''),
+          title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
+          text: _.truncate(_.get(data, 'project.description', ''), 200),
+          ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
+          fields: []
+        }
+      }
+    },
     discourse: {
       project: {
         created: {

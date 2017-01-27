@@ -41,7 +41,7 @@ function projectDraftCreated(logger, project) {
  * @param {String} data the event data
  * @returns {Object} the object of notifications
  */
-function projectUpdated(logger, data) {
+function* projectUpdated(logger, data) {
   const notifications = {
     discourse: [],
     slack: {
@@ -60,12 +60,30 @@ function projectUpdated(logger, data) {
     // create post notifying team members project was submitted for review
     topic = constants.notifications.discourse.project.submittedForReview;
     // Send manager notifications to slack
-    notifications.slack.manager.push(util.buildSlackNotification(project));
+    // check if project has owner and retrieve their name
+    const dataForSlack = { project, };
+    const owner = _.find(project.members,
+      (m) => m.role === constants.memberRoles.customer && m.isPrimary
+    );
+    if (owner) {
+      dataForSlack.owner = yield util.getUserById(owner.userId);
+    }
+    // dataForSlack.owner = { firstName: 'F_name', lastName: 'L_name', };
+    const slackNotification = util.buildSlackNotification(
+      dataForSlack,
+      constants.notifications.slack.projectInReview
+    );
+    notifications.slack.manager.push(slackNotification);
+
   } else if (project.status === constants.projectStatuses.reviewed) {
     // Notify to all copilots if there's no copilot is assigned
     if (!_.some(project.members, ['role', 'copilot'])) {
       // Send copilot notifications to slack
-      notifications.slack.copilot.push(util.buildSlackNotification(project));
+      const slackNotification = util.buildSlackNotification (
+        {project,},
+        constants.notifications.slack.projectUnclaimed
+      );
+      notifications.slack.copilot.push(slackNotification);
 
       // also queue up a message to process later
       notifications.delayed = data;
@@ -109,7 +127,11 @@ function* projectUnclaimedNotifications(logger, data) {
   };
   if (projectCopilotIds.length === 0) {
     notifications.delayed = data;
-    notifications.slack.copilot.push(util.buildSlackNotification(project));
+    const slackNotification = util.buildSlackNotification(
+      { project, },
+      constants.notifications.slack.projectUnclaimed
+    )
+    notifications.slack.copilot.push(slackNotification);
   }
   return notifications;
 }

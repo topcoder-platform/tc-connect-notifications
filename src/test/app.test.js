@@ -17,7 +17,7 @@ const _ = require('lodash');
 const util = require('../handlers/util');
 const constants = require('../common/constants');
 
-const testTimeout = 2000;
+const testTimeout = 1000;
 const sampleEvents = {
   draftCreated: require('./data/events.draftCreated.json'),
   draftCreatedNoOwner: require('./data/events.draftCreated.noOwner.json'),
@@ -44,28 +44,38 @@ const sampleUsers = {
 };
 const sampleAuth = require('./data/authorization.json');
 
-const expectedSlackNotfication = {
-  username: 'webhookbot',
-  icon_url: 'https://emoji.slack-edge.com/T03R80JP7/topcoder/7c68acd90a6b6d77.png',
-  attachments: [
-    {
-      fallback: 'New Project: https://connect.topcoder-dev.com/projects/|test',
-      pretext: 'New Project: https://connect.topcoder-dev.com/projects/|test',
-      fields: [
-        {
-          title: 'Description',
-          value: 'test',
-          short: true,
-        },
-        {
-          title: 'Ref Code',
-          value: '',
-          short: false,
-        },
-      ],
-    },
-  ],
+const expectedSlackNotficationBase = {
+	username: "Coder",
+	icon_url: "https://emoji.slack-edge.com/T03R80JP7/coder-grinning/a3b7f3fe9e838377.png",
+  attachments: [{
+    pretext: "",
+    fallback: "",
+    color: "#36a64f",
+    title: "test",
+    title_link: "https://connect.topcoder-dev.com/projects/1/",
+    text: "test",
+    fields: [],
+    footer: "Topcoder",
+    footer_icon: "https://emoji.slack-edge.com/T03R80JP7/topcoder/7c68acd90a6b6d77.png",
+    ts: 1478304000,
+  }]
 };
+
+const expectedSlackCopilotNotification = _.cloneDeep(expectedSlackNotficationBase);
+_.extend(expectedSlackCopilotNotification.attachments[0], {
+  pretext: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
+  fallback: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
+})
+
+const expectedManagerSlackNotification = _.cloneDeep(expectedSlackNotficationBase);
+_.extend(expectedManagerSlackNotification.attachments[0], {
+  pretext: 'A project is ready to be reviewed.',
+  fallback: 'A project is ready to be reviewed.',
+  fields: [
+    { title: 'Ref Code', value: '', short: false },
+    { title: 'Owner', value: 'F_user L_user', short: false },
+  ]
+})
 
 function checkAssert(assertCount, count, cb) {
   if (assertCount === count) {
@@ -249,13 +259,19 @@ describe('app', () => {
   });
 
   describe('`project.updated` event', () => {
+
     it('should create `Project.SubmittedForReview` and `Project.AvailableForReview` and manager slack notifications', (done) => {
       let assertCount = 0;
       const callbackCount = 2;
+      request.get.restore();
+      stub = sinon.stub(request, 'get');
+      stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v3/members/_search/?query=userId:8547900`))
+        .yields(null, { statusCode: 200 }, JSON.stringify(sampleUsers.user1));
+
       function mgrCallback(notifications) {
         assertCount += 1;
         const data = JSON.parse(notifications.toString());
-        assert.deepEqual(data, expectedSlackNotfication);
+        assert.deepEqual(data, expectedManagerSlackNotification);
         checkAssert(assertCount, callbackCount, done);
       }
       sendTestEvent(sampleEvents.updatedInReview, 'project.updated', null, mgrCallback);
@@ -273,11 +289,10 @@ describe('app', () => {
     it('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and do not repost after delay', (done) => {
       let assertCount = 0;
       const callbackCount = 2;
-
       function copCallback(notifications) {
         assertCount += 1;
         const data = JSON.parse(notifications.toString());
-        assert.deepEqual(data, expectedSlackNotfication);
+        assert.deepEqual(data, expectedSlackCopilotNotification);
         checkAssert(assertCount, callbackCount, done);
       }
       sendTestEvent(sampleEvents.updatedReviewed, 'project.updated', copCallback);
@@ -299,7 +314,7 @@ describe('app', () => {
       function copCallback(notifications) {
         assertCount += 1;
         const data = JSON.parse(notifications.toString());
-        assert.deepEqual(data, expectedSlackNotfication);
+        assert.deepEqual(data, expectedSlackCopilotNotification);
         checkAssert(assertCount, callbackCount, done);
       }
       sendTestEvent(sampleEvents.updatedReviewed, 'project.updated', copCallback);

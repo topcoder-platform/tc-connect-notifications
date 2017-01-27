@@ -191,31 +191,28 @@ function createProjectMemberNotification(userIds, project, member, notificationT
 
 /**
  * Create notification for a slack channel
- * @param {Object} project the project
+ * @param {Object} data the project
+ * @param {String} eventType type to customize notification
  * @returns the notification
  * @private
  */
 
-function buildSlackNotification(project) {
+function buildSlackNotification(data, slackDataGenerator) {
+  const slackData = slackDataGenerator(data);
   return {
     username: config.get('SLACK_USERNAME'),
     icon_url: config.get('SLACK_ICON_URL'),
     attachments: [{
-      fallback: `New Project: https://connect.${config.get('AUTH_DOMAIN')}/projects/|${project.name}`,
-      pretext: `New Project: https://connect.${config.get('AUTH_DOMAIN')}/projects/|${project.name}`,
-      fields: [{
-          title: 'Description',
-          value: _.truncate(project.description, {
-            length: 200,
-          }),
-          short: true,
-        },
-        {
-          title: 'Ref Code',
-          value: _.get(project, 'details.utm.code', ''),
-          short: false,
-        },
-      ],
+      color: "#36a64f",
+      fallback: slackData.fallback,
+      pretext: slackData.pretext,
+      fields: slackData.fields,
+      title: slackData.title,
+      title_link: slackData.title_link,
+      text: slackData.text,
+      footer: "Topcoder",
+      footer_icon: config.get('TOPCODER_ICON_URL'),
+      ts: slackData.ts,
     }],
   };
 }
