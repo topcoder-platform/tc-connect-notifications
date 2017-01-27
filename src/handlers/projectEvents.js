@@ -124,7 +124,9 @@ function* projectUnclaimedNotifications(logger, data) {
       copilot: [],
     },
   };
-  if (projectCopilotIds.length === 0) {
+  // if project is still in 'reviewed' phase and a copilot has not been assigned.
+  if (project.status === constants.projectStatuses.reviewed &&
+    projectCopilotIds.length === 0) {
     notifications.delayed = data;
     const slackNotification = util.buildSlackNotification(
       { project, },

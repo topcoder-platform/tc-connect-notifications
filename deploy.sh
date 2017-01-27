@@ -56,7 +56,7 @@ make_task_def(){
 					"value": "%s"
 				},
 				{
-					"name": "RABBITMQ.URL",
+					"name": "RABBITMQ_URL",
 					"value": "%s"
 				},
 				{
@@ -70,7 +70,7 @@ make_task_def(){
 			]
 		}
 	]'
-	RABBITMQ.URL=$(eval "echo \$${ENV}_RABBITMQ.URL")
+	RABBITMQ_URL=$(eval "echo \$${ENV}_RABBITMQ_URL")
 	CAPTURE_LOGS=$(eval "echo \$${ENV}_CAPTURE_LOGS")
 	LOGENTRIES_TOKEN=$(eval "echo \$${ENV}_LOGENTRIES_TOKEN")
 	LOG_LEVEL=$(eval "echo \$${ENV}_LOG_LEVEL")
@@ -80,7 +80,7 @@ make_task_def(){
 		NODE_ENV=development
 	fi
 
-	task_def=$(printf "$task_template" $ACCOUNT_ID $AWS_REGION $AWS_REPOSITORY $CIRCLE_SHA1 $NODE_ENV $LOG_LEVEL $CAPTURE_LOGS $LOGENTRIES_TOKEN $RABBITMQ.URL $SYSTEM_USER_CLIENT_ID $SYSTEM_USER_CLIENT_SECRET)
+	task_def=$(printf "$task_template" $ACCOUNT_ID $AWS_REGION $AWS_REPOSITORY $CIRCLE_SHA1 $NODE_ENV $LOG_LEVEL $CAPTURE_LOGS $LOGENTRIES_TOKEN $RABBITMQ_URL $SYSTEM_USER_CLIENT_ID $SYSTEM_USER_CLIENT_SECRET)
 }
 
 push_ecr_image(){
