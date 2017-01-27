@@ -7,7 +7,7 @@
     "NOTIFICATIONS_EXCHANGE_NAME": "dev.notifications",
     "DELAYED_NOTIFICATIONS_EXCHANGE_NAME": "dev.connect-notifications-reminders",
     "SLACK_NOTIFICATIONS_COPILOT_QUEUE_NAME": "dev.notifications-slack-copilot",
-    "SLACK_NOTIFICATIONS_MANAGER_QUEUE_NAME": "dev.notifications-slack-manager",
+    "SLACK_NOTIFICATIONS_MANAGER_QUEUE_NAME": "dev.notifications-slack-manager"
   },
 
   "API_BASE_URL": "https://api.topcoder-dev.com"
