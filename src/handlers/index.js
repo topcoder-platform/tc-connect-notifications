@@ -23,7 +23,9 @@ const util = require('./util');
  * @param {Object} message the message
  */
 module.exports = (logger, message, channel, publish) => {
-  console.log(message)
+
+  // TODO
+  console.log(message.properties)
   const eventType = message.fields.routingKey;
   const correlationId = message.properties.correlationId;
   // create a child logger so we can trace with original request id
@@ -35,7 +37,6 @@ module.exports = (logger, message, channel, publish) => {
   childLogger.debug('Payload:', JSON.stringify(data));
 
   co(function* generateNotifications() {
-    logger.debug(eventType, constants.events.projectDraftCreated);
     switch (eventType) {
       case constants.events.projectDraftCreated:
         return yield projectEvents.projectDraftCreated(childLogger, data);

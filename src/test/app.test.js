@@ -244,7 +244,7 @@ describe('app', () => {
     });
   });
 
-  describe.only('`project.draft-created` event', () => {
+  describe('`project.draft-created` event', () => {
     it('should create `Project.Created` notification', (done) => {
       sendTestEvent(sampleEvents.draftCreated, 'project.draft-created');
       setTimeout(() => {
@@ -258,7 +258,7 @@ describe('app', () => {
     });
   });
 
-  describe('`project.updated` event', () => {
+  describe.only('`project.updated` event', () => {
 
     it('should create `Project.SubmittedForReview` and `Project.AvailableForReview` and manager slack notifications', (done) => {
       let assertCount = 0;
@@ -302,7 +302,7 @@ describe('app', () => {
         checkAssert(assertCount, callbackCount, done);
       }, testTimeout);
     });
-    it.only('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and repost after delay', (done) => {
+    it('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and repost after delay', (done) => {
       request.get.restore();
       stub = sinon.stub(request, 'get');
       stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v4/projects/1`))
