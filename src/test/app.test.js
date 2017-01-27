@@ -258,7 +258,7 @@ describe('app', () => {
     });
   });
 
-  describe.only('`project.updated` event', () => {
+  describe('`project.updated` event', () => {
 
     it('should create `Project.SubmittedForReview` and `Project.AvailableForReview` and manager slack notifications', (done) => {
       let assertCount = 0;
@@ -268,9 +268,8 @@ describe('app', () => {
       stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v3/members/_search/?query=userId:8547900`))
         .yields(null, { statusCode: 200 }, sampleUsers.user1);
 
-      function mgrCallback(notifications) {
+      function mgrCallback(data) {
         assertCount += 1;
-        const data = JSON.parse(notifications.toString());
         assert.deepEqual(data, expectedManagerSlackNotification);
         checkAssert(assertCount, callbackCount, done);
       }
@@ -289,9 +288,8 @@ describe('app', () => {
     it('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and do not repost after delay', (done) => {
       let assertCount = 0;
       const callbackCount = 2;
-      function copCallback(notifications) {
+      function copCallback(data) {
         assertCount += 1;
-        const data = JSON.parse(notifications.toString());
         assert.deepEqual(data, expectedSlackCopilotNotification);
         checkAssert(assertCount, callbackCount, done);
       }
@@ -311,9 +309,8 @@ describe('app', () => {
       let assertCount = 0;
       const callbackCount = 3;
       // Assert count is 3 as delay is 0 copilot will again get notified if none assgned
-      function copCallback(notifications) {
+      function copCallback(data) {
         assertCount += 1;
-        const data = JSON.parse(notifications.toString());
         assert.deepEqual(data, expectedSlackCopilotNotification);
         checkAssert(assertCount, callbackCount, done);
       }
