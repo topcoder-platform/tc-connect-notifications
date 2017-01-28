@@ -78,12 +78,20 @@ module.exports = (logger, message, channel, publish) => {
     }
 
     if (notifications.delayed) {
-      publishPromises.push(publish(
-        config.get('RABBITMQ.DELAYED_NOTIFICATIONS_EXCHANGE_NAME'),
-        constants.events.projectUnclaimed,
-        notifications.delayed,
-        { headers: { 'x-delay': config.get('RABBITMQ.DELAY_DURATION'), }, }
-      ));
+      let ttl = message.properties.headers.ttl || config.get('RABBITMQ.DELAYED_NOTIFICATIONS_TTL');
+      ttl -= 1;
+      if (ttl) {
+        publishPromises.push(publish(
+          config.get('RABBITMQ.DELAYED_NOTIFICATIONS_EXCHANGE_NAME'),
+          constants.events.projectUnclaimed,
+          notifications.delayed,
+          {
+            headers: {
+              'x-delay': config.get('RABBITMQ.DELAY_DURATION'),
+              ttl,
+            },
+          }));
+      }
     }
     return Promise.all(publishPromises);
   }).then(() => {
