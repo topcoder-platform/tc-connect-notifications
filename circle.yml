@@ -4,6 +4,11 @@ machine:
     - curl -L https://github.com/docker/compose/releases/download/1.10.0/docker-compose-`uname -s`-`uname -m` > /home/ubuntu/bin/docker-compose
     - chmod +x /home/ubuntu/bin/docker-compose
     - docker-compose version
+    - echo 'deb http://www.rabbitmq.com/debian/ testing main' | sudo tee /etc/apt/sources.list.d/rabbitmq.list
+    - wget -O- https://www.rabbitmq.com/rabbitmq-release-signing-key.asc | sudo apt-key add -
+    - sudo apt-get update
+    - sudo apt-get install rabbitmq-server
+    - sudo service rabbitmq-server start
 
   node:
     version: v6.9.0
@@ -15,7 +20,6 @@ machine:
 
   services:
     - docker
-    - rabbitmq-server
 
 test:
   pre:
