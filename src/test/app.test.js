@@ -47,6 +47,7 @@ const sampleAuth = require('./data/authorization.json');
 const expectedSlackNotficationBase = {
 	username: "Coder",
 	icon_url: "https://emoji.slack-edge.com/T03R80JP7/coder-grinning/a3b7f3fe9e838377.png",
+  channel: '#connect-projects-test',
   attachments: [{
     pretext: "",
     fallback: "",

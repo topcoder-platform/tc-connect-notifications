@@ -201,6 +201,7 @@ function buildSlackNotification(data, slackDataGenerator) {
   return {
     username: config.get('SLACK_USERNAME'),
     icon_url: config.get('SLACK_ICON_URL'),
+    channel: slackData.channel,
     attachments: [{
       color: "#36a64f",
       fallback: slackData.fallback,

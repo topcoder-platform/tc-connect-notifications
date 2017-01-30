@@ -25,6 +25,7 @@ module.exports = {
     slack: {
       projectInReview: (data) => {
         return {
+          channel: `${config.get('SLACK_CHANNEL_MANAGERS')}`,
           pretext: 'A project is ready to be reviewed.',
           fallback: 'A project is ready to be reviewed.',
           title: _.get(data, 'project.name', ''),
@@ -47,6 +48,7 @@ module.exports = {
       },
       projectUnclaimed: (data) => {
         return {
+          channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
           pretext: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
           fallback: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
           title: _.get(data, 'project.name', ''),

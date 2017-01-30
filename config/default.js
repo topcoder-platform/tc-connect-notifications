@@ -44,6 +44,8 @@ module.exports = {
   // Disable delay exchange and use direct instead ( delete existing delay exchnge after changing)
   DISABLE_DELAY_EXCHANGE: false,
 
+  SLACK_CHANNEL_MANAGERS: '#connect-projects-test',
+  SLACK_CHANNEL_COPILOTS: '#connect-projects-test',
   SLACK_ICON_URL: 'https://emoji.slack-edge.com/T03R80JP7/coder-grinning/a3b7f3fe9e838377.png',
   SLACK_USERNAME: 'Coder',
   TOPCODER_ICON_URL: 'https://emoji.slack-edge.com/T03R80JP7/topcoder/7c68acd90a6b6d77.png',

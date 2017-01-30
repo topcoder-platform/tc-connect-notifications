@@ -9,6 +9,8 @@
     "SLACK_NOTIFICATIONS_COPILOT_QUEUE_NAME": "notifications-slack-copilot",
     "SLACK_NOTIFICATIONS_MANAGER_QUEUE_NAME": "notifications-slack-manager"
   },
+  "SLACK_CHANNEL_MANAGERS": "#connect",
+  "SLACK_CHANNEL_COPILOTS": "#connect-copilots",
 
   "API_BASE_URL": "https://api.topcoder-dev.com",
 }
