@@ -29,7 +29,7 @@ module.exports = {
           fallback: 'A project is ready to be reviewed.',
           title: _.get(data, 'project.name', ''),
           title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
-          text: _.truncate(_.get(data, 'project.description', ''), 200),
+          text: _.truncate(_.get(data, 'project.description', ''), {length: 200, separator: /,? +.,/ }),
           ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
           fields: [
             {
@@ -51,7 +51,7 @@ module.exports = {
           fallback: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
           title: _.get(data, 'project.name', ''),
           title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
-          text: _.truncate(_.get(data, 'project.description', ''), 200),
+          text: _.truncate(_.get(data, 'project.description', ''), {length: 200, separator: /,? +.,/ }),
           ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
           fields: []
         }
