@@ -285,7 +285,7 @@ describe('app', () => {
       }, testTimeout);
     });
     // there is no discourse notiifcation for Project.Reviewed
-    it.skip('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and do not repost after delay', (done) => {
+    it('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and do not repost after delay', (done) => {
       let assertCount = 0;
       const callbackCount = 2;
       function copCallback(data) {
@@ -300,15 +300,15 @@ describe('app', () => {
         checkAssert(assertCount, callbackCount, done);
       }, testTimeout);
     });
-    it.skip('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and repost after delay', (done) => {
+    it('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and repost after delay till TTL', (done) => {
       request.get.restore();
       stub = sinon.stub(request, 'get');
       stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v4/projects/1`))
         .yields(null, { statusCode: 200 }, sampleProjects.projectTest);
 
       let assertCount = 0;
-      const callbackCount = 3;
-      // Assert count is 3 as delay is 0 copilot will again get notified if none assgned
+      const callbackCount = config.get('RABBITMQ.DELAYED_NOTIFICATIONS_TTL') + 1;
+      // should not repost anymore after ttl;
       function copCallback(data) {
         assertCount += 1;
         assert.deepEqual(data, expectedSlackCopilotNotification);

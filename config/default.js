@@ -24,6 +24,8 @@ module.exports = {
     SLACK_MANAGER_ROUTING_KEY: 'slack.manager',
 
     DELAYED_NOTIFICATIONS_EXCHANGE_NAME: 'connect-notifications-reminders',
+    // The number of times reminders are sent
+    DELAYED_NOTIFICATIONS_TTL: 3,
     // 12 hours
     DELAY_DURATION: 43200000,
   },
