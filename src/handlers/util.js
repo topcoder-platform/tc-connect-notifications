@@ -217,6 +217,17 @@ function buildSlackNotification(data, slackDataGenerator) {
   };
 }
 
+function sendSlackNotification(webhookUrl, data, logger) {
+  return requestPromise({
+    method: 'POST',
+    url: webhookUrl,
+    json: data
+  }, (data, resolve) => {
+    logger.debug('Slack post data', data);
+    return resolve(true);
+  });
+}
+
 const getSystemUserToken = Promise.coroutine(function* () {
   const formData = {
     clientId: config.get('SYSTEM_USER_CLIENT_ID'),
@@ -242,4 +253,5 @@ module.exports = {
   getUserById,
   getProjectById,
   buildSlackNotification,
+  sendSlackNotification,
 };

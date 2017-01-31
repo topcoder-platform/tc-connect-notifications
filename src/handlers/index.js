@@ -57,31 +57,24 @@ module.exports = (logger, message, channel, publish) => {
       const { projectId, title, content } = n;
       util.createProjectDiscourseNotification(childLogger, projectId, title, content);
     });
-    const publishPromises = [];
+    const notifyPromises = [];
     if (notifications.slack) {
-      // publish with manager slack key
-      _.each(notifications.slack.manager, (n) => {
-        publishPromises.push(publish(
-          config.get('RABBITMQ.NOTIFICATIONS_EXCHANGE_NAME'),
-          config.get('RABBITMQ.SLACK_MANAGER_ROUTING_KEY'),
-          n
-        ));
-      });
-      // publish with copilot slack key
-      _.each(notifications.slack.copilot, (n) => {
-        publishPromises.push(publish(
-          config.get('RABBITMQ.NOTIFICATIONS_EXCHANGE_NAME'),
-          config.get('RABBITMQ.SLACK_COPILOT_ROUTING_KEY'),
-          n
-        ));
-      });
+      // defaulting to topcoder slack account.
+      // In the future, we can read custom slack integration urls per project.
+      const webhookUrl = config.get('TC_SLACK_WEBHOOK_URL');
+      if (!_.isEmpty(webhookUrl)) {
+        const slackNotifications = _.union(notifications.slack.manager, notifications.slack.copilot);
+        _.each(slackNotifications, (n) => {
+          notifyPromises.push(util.sendSlackNotification(webhookUrl, n, logger));
+        });
+      }
     }
 
     if (notifications.delayed) {
       let ttl = message.properties.headers.ttl || config.get('RABBITMQ.DELAYED_NOTIFICATIONS_TTL');
       ttl -= 1;
       if (ttl) {
-        publishPromises.push(publish(
+        notifyPromises.push(publish(
           config.get('RABBITMQ.DELAYED_NOTIFICATIONS_EXCHANGE_NAME'),
           constants.events.projectUnclaimed,
           notifications.delayed,
@@ -93,7 +86,7 @@ module.exports = (logger, message, channel, publish) => {
           }));
       }
     }
-    return Promise.all(publishPromises);
+    return Promise.all(notifyPromises);
   }).then(() => {
     childLogger.info('Succesfully handled event, ACKing... ');
     return channel.ack(message);

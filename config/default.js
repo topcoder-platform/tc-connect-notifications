@@ -15,14 +15,10 @@ module.exports = {
     // Source RabbitMQ that provides events to tc-connect-notifications
     PROJECTS_EXCHANGE_NAME: 'projects',
     CONNECT_NOTIFICATIONS_QUEUE_NAME: 'connect-notifications',
-    SLACK_NOTIFICATIONS_COPILOT_QUEUE_NAME: "notifications-slack-copilot",
-    SLACK_NOTIFICATIONS_MANAGER_QUEUE_NAME: "notifications-slack-manager",
 
     // Target RabbitMQ that receive notifications from tc-connect-notifications
     NOTIFICATIONS_EXCHANGE_NAME: 'notifications',
-    SLACK_COPILOT_ROUTING_KEY: 'slack.copilot',
-    SLACK_MANAGER_ROUTING_KEY: 'slack.manager',
-
+    
     DELAYED_NOTIFICATIONS_EXCHANGE_NAME: 'connect-notifications-reminders',
     // The number of times reminders are sent
     DELAYED_NOTIFICATIONS_TTL: 3,
@@ -44,6 +40,7 @@ module.exports = {
   // Disable delay exchange and use direct instead ( delete existing delay exchnge after changing)
   DISABLE_DELAY_EXCHANGE: false,
 
+  TC_SLACK_WEBHOOK_URL: '',
   SLACK_CHANNEL_MANAGERS: '#connect-projects-test',
   SLACK_CHANNEL_COPILOTS: '#connect-projects-test',
   SLACK_ICON_URL: 'https://emoji.slack-edge.com/T03R80JP7/coder-grinning/a3b7f3fe9e838377.png',

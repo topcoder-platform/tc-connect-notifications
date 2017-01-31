@@ -88,10 +88,9 @@ describe('app', () => {
   let sourceExchange;
   let sourceQueue;
   let targetExchange;
-  let copilotTargetQueue;
-  let managerTargetQueue;
   let stub;
   let spy;
+  let slackSpy;
   let correlationId = 1;
 
   const restoreStubAndSpy = () => {
@@ -103,6 +102,10 @@ describe('app', () => {
     }
     if (spy && spy.restore) {
       spy.restore();
+    }
+
+    if (slackSpy && slackSpy.restore) {
+      slackSpy.restore();
     }
   };
 
@@ -119,54 +122,10 @@ describe('app', () => {
   const connectToTarget = (callback) => {
     targetExchange = jackrabbit(config.RABBITMQ.URL)
       .topic(config.RABBITMQ.NOTIFICATIONS_EXCHANGE_NAME);
-    copilotTargetQueue = targetExchange.queue(
-      { name: config.RABBITMQ.SLACK_NOTIFICATIONS_COPILOT_QUEUE_NAME },
-      { key: config.RABBITMQ.SLACK_COPILOT_ROUTING_KEY });
-    managerTargetQueue = targetExchange.queue(
-      { name: config.RABBITMQ.SLACK_NOTIFICATIONS_MANAGER_QUEUE_NAME },
-      { key: config.RABBITMQ.SLACK_MANAGER_ROUTING_KEY });
-
-    let connectedQueues = 0;
-    function checkCallCallback() {
-      if (connectedQueues === 2) {
-        callback();
-      }
-    }
-    copilotTargetQueue.on('ready', () => {
-      copilotTargetQueue.purge(() => {
-        connectedQueues += 1;
-        checkCallCallback();
-      });
-    });
-    managerTargetQueue.on('ready', () => {
-      managerTargetQueue.purge(() => {
-        connectedQueues += 1;
-        checkCallCallback();
-      });
-    });
-    copilotTargetQueue.consume((data, ack, nack, message) => {
-      ack();
-      assert.ok(message);
-      if (copilotCallback) {
-        copilotCallback(data);
-      }
-    });
-    managerTargetQueue.consume((data, ack, nack, message) => {
-      ack();
-      assert.ok(message);
-      if (managerCallback) {
-        managerCallback(data);
-      }
-    });
+      callback();
   };
   const purgeQueues = (done) => {
-    sourceQueue.purge(() => {
-      copilotTargetQueue.purge(() => {
-        managerTargetQueue.purge(() => {
-          done();
-        });
-      });
-    });
+    sourceQueue.purge(() => done() );
   };
 
   before((done) => {
@@ -212,10 +171,15 @@ describe('app', () => {
       .yields(null, { statusCode: 200 }, sampleUsers.user1);
 
     postStub = sinon.stub(request, 'post');
-    postStub.yields(null, { statusCode: 200 }, sampleAuth);
+    postStub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v3/authorizations/`))
+      .yields(null, { statusCode: 200 }, sampleAuth);
+
+    postStub.withArgs(sinon.match.has('url', config.TC_SLACK_WEBHOOK_URL))
+      .yields(null, { statusCode: 200 }, {});
 
     // spy the discourse notification call
     spy = sinon.spy(util, 'createProjectDiscourseNotification');
+    slackSpy = sinon.spy(util, 'sendSlackNotification');
     purgeQueues(done);
   });
 
@@ -263,41 +227,36 @@ describe('app', () => {
 
     it('should create `Project.SubmittedForReview` and `Project.AvailableForReview` and manager slack notifications', (done) => {
       let assertCount = 0;
-      const callbackCount = 2;
+      const callbackCount = 1;
       request.get.restore();
       stub = sinon.stub(request, 'get');
       stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v3/members/_search/?query=userId:8547900`))
         .yields(null, { statusCode: 200 }, sampleUsers.user1);
 
-      function mgrCallback(data) {
-        assertCount += 1;
-        assert.deepEqual(data, expectedManagerSlackNotification);
-        checkAssert(assertCount, callbackCount, done);
-      }
-      sendTestEvent(sampleEvents.updatedInReview, 'project.updated', null, mgrCallback);
+      sendTestEvent(sampleEvents.updatedInReview, 'project.updated');
       setTimeout(() => {
         assertCount += 1;
         const expectedTitle = 'Your project has been submitted for review';
         const expectedBody = 'Hello, it\'s Coder again. Thanks for submitting your project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">test</a>! I\'ve used my super computational powers to route it to one of our trusty humans. They\'ll get back to you in 1-2 business days.';
-        const params = spy.lastCall.args;
+        let params = spy.lastCall.args;
         assert.equal(params[2], expectedTitle);
         assert.equal(params[3], expectedBody);
+        params = slackSpy.lastCall.args;
+        assert.deepEqual(params[1], expectedManagerSlackNotification);
         checkAssert(assertCount, callbackCount, done);
       }, testTimeout);
     });
     // there is no discourse notiifcation for Project.Reviewed
     it('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and do not repost after delay', (done) => {
       let assertCount = 0;
-      const callbackCount = 2;
-      function copCallback(data) {
-        assertCount += 1;
-        assert.deepEqual(data, expectedSlackCopilotNotification);
-        checkAssert(assertCount, callbackCount, done);
-      }
-      sendTestEvent(sampleEvents.updatedReviewed, 'project.updated', copCallback);
+      const callbackCount = 1;
+      sendTestEvent(sampleEvents.updatedReviewed, 'project.updated');
       setTimeout(() => {
         assertCount += 1;
         sinon.assert.notCalled(spy);
+        const params = slackSpy.lastCall.args;
+
+        assert.deepEqual(params[1], expectedSlackCopilotNotification);
         checkAssert(assertCount, callbackCount, done);
       }, testTimeout);
     });
@@ -312,24 +271,26 @@ describe('app', () => {
       // should not repost anymore after ttl;
       function copCallback(data) {
         assertCount += 1;
-        assert.deepEqual(data, expectedSlackCopilotNotification);
         checkAssert(assertCount, callbackCount, done);
       }
       sendTestEvent(sampleEvents.updatedReviewed, 'project.updated', copCallback);
       setTimeout(() => {
         assertCount += 1;
         sinon.assert.notCalled(spy);
-        checkAssert(assertCount, callbackCount, done);
+        const params = slackSpy.lastCall.args;
+        assert.deepEqual(params[1], expectedSlackCopilotNotification);
+        // console.log('assert#', assertCount)
+        // console.log('callbackCount#', callbackCount)
+        // checkAssert(assertCount, callbackCount, done);
+        done();
       }, testTimeout);
     });
     // there is no discourse notiifcation for Project.Reviewed
     it('should create `Project.Reviewed`, but not `Project.AvailableToClaim` and copilot slack notifications (copilot assigned)', (done) => {
       let assertCount = 0;
       const callbackCount = 1;
-      function copCallback() {
-        assert.fail();
-      }
-      sendTestEvent(sampleEvents.updatedReviewedCopilotAssigned, 'project.updated', copCallback);
+
+      sendTestEvent(sampleEvents.updatedReviewedCopilotAssigned, 'project.updated');
       setTimeout(() => {
         assertCount += 1;
         sinon.assert.notCalled(spy);

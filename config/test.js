@@ -17,12 +17,10 @@ module.exports = {
     URL: 'amqp://localhost:5672',
     PROJECTS_EXCHANGE_NAME: 'test.projects',
     CONNECT_NOTIFICATIONS_QUEUE_NAME: 'test.connect-notifications',
-    SLACK_NOTIFICATIONS_COPILOT_QUEUE_NAME: 'test.notifications-slack-copilot',
-    SLACK_NOTIFICATIONS_MANAGER_QUEUE_NAME: 'test.notifications-slack-manager',
     NOTIFICATIONS_EXCHANGE_NAME: 'test.notifications',
     DELAYED_NOTIFICATIONS_EXCHANGE_NAME: 'test.connect-notifications-reminders',
     DELAY_DURATION: 0,
   },
-
+  TC_SLACK_WEBHOOK_URL: 'http://localhost:3001/slack',
   API_BASE_URL: 'http://localhost:3001',
 };

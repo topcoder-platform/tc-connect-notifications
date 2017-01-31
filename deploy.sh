@@ -60,6 +60,10 @@ make_task_def(){
 					"value": "%s"
 				},
 				{
+					"name": "TC_SLACK_WEBHOOK_URL",
+					"value": "%s"
+				},
+				{
 					"name": "SYSTEM_USER_CLIENT_ID",
 					"value": "%s"
 				},
@@ -80,7 +84,7 @@ make_task_def(){
 		NODE_ENV=development
 	fi
 
-	task_def=$(printf "$task_template" $ACCOUNT_ID $AWS_REGION $AWS_REPOSITORY $CIRCLE_SHA1 $NODE_ENV $LOG_LEVEL $CAPTURE_LOGS $LOGENTRIES_TOKEN $RABBITMQ_URL $SYSTEM_USER_CLIENT_ID $SYSTEM_USER_CLIENT_SECRET)
+	task_def=$(printf "$task_template" $ACCOUNT_ID $AWS_REGION $AWS_REPOSITORY $CIRCLE_SHA1 $NODE_ENV $LOG_LEVEL $CAPTURE_LOGS $LOGENTRIES_TOKEN $RABBITMQ_URL $TC_SLACK_WEBHOOK_URL $SYSTEM_USER_CLIENT_ID $SYSTEM_USER_CLIENT_SECRET)
 }
 
 push_ecr_image(){

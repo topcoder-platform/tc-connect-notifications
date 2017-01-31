@@ -6,8 +6,6 @@
     "CONNECT_NOTIFICATIONS_QUEUE_NAME": "connect-notifications",
     "NOTIFICATIONS_EXCHANGE_NAME": "notifications",
     "DELAYED_NOTIFICATIONS_EXCHANGE_NAME": "connect-notifications-reminders",
-    "SLACK_NOTIFICATIONS_COPILOT_QUEUE_NAME": "notifications-slack-copilot",
-    "SLACK_NOTIFICATIONS_MANAGER_QUEUE_NAME": "notifications-slack-manager"
   },
   "SLACK_CHANNEL_MANAGERS": "#connect",
   "SLACK_CHANNEL_COPILOTS": "#connect-copilots",
