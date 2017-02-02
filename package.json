@@ -1,0 +1,37 @@
+{
+  "name": "tc-connect-notifications",
+  "version": "1.0.0",
+  "description": "TC Connect Notifications",
+  "main": "app.js",
+  "engines": {
+    "node": "6.9.2"
+  },
+  "scripts": {
+    "dev": "NODE_ENV=local ./node_modules/.bin/nodemon -w src -w config src/app.js | ./node_modules/.bin/bunyan",
+    "start": "./node_modules/.bin/node src/app.js",
+    "lint": "./node_modules/.bin/eslint config src",
+    "dev-test": "NODE_ENV=test ./node_modules/.bin/mocha -w --timeout 30000 src/**/*.test.js | ./node_modules/.bin/bunyan",
+    "test": "NODE_ENV=test ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- --timeout 3000 src/**/*.test.js"
+  },
+  "author": "TCSCODER",
+  "dependencies": {
+    "amqplib": "^0.5.1",
+    "bluebird": "^3.4.6",
+    "bunyan": "^1.8.4",
+    "bunyan-logentries": "^1.2.0",
+    "co": "^4.6.0",
+    "config": "^1.24.0",
+    "jackrabbit": "^4.3.0",
+    "lodash": "^4.16.6",
+    "request": "^2.78.0"
+  },
+  "devDependencies": {
+    "eslint": "^3.9.1",
+    "eslint-config-airbnb-base": "^10.0.1",
+    "eslint-plugin-import": "^2.2.0",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.1.2",
+    "nodemon": "^1.11.0",
+    "sinon": "^1.17.6"
+  }
+}

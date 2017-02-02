@@ -1,0 +1,12 @@
+{
+
+  "AUTH_DOMAIN": "topcoder-dev.com",
+  "RABBITMQ": {
+    "PROJECTS_EXCHANGE_NAME": "dev.projects",
+    "CONNECT_NOTIFICATIONS_QUEUE_NAME": "dev.connect-notifications",
+    "NOTIFICATIONS_EXCHANGE_NAME": "dev.notifications",
+    "DELAYED_NOTIFICATIONS_EXCHANGE_NAME": "dev.connect-notifications-reminders"
+  },
+
+  "API_BASE_URL": "http://api.topcoder-dev.com"
+}
