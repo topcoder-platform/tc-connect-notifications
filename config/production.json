@@ -10,5 +10,5 @@
   "SLACK_CHANNEL_MANAGERS": "#connect",
   "SLACK_CHANNEL_COPILOTS": "#connect-copilots",
 
-  "API_BASE_URL": "http://api.topcoder-dev.com"
+  "API_BASE_URL": "http://api.topcoder.com"
 }
