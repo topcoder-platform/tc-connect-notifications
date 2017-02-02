@@ -8,5 +8,5 @@
     "DELAYED_NOTIFICATIONS_EXCHANGE_NAME": "dev.connect-notifications-reminders"
   },
 
-  "API_BASE_URL": "https://api.topcoder-dev.com"
+  "API_BASE_URL": "http://api.topcoder-dev.com"
 }
