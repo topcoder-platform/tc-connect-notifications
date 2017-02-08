@@ -16,6 +16,13 @@ const projectTypes = {
   visual_prototype: 'Design & Prototype',
   visual_design: 'Design',
 };
+const icons = {
+  slack: {
+    CoderBotIcon: 'https://emoji.slack-edge.com/T03R80JP7/coder-the-bot/85ae574c0c7063ef.png',
+    CoderErrorIcon: 'https://emoji.slack-edge.com/T03R80JP7/coder-error/cd2633216e7fd385.png',
+    CoderGrinningIcon: 'https://emoji.slack-edge.com/T03R80JP7/coder-grinning/a3b7f3fe9e838377.png',
+  },
+};
 module.exports = {
   // The event types to be consumed from the source RabbitMQ
   events: {
@@ -59,7 +66,7 @@ module.exports = {
       },
       projectUnclaimed: (data) => {
         return {
-          icon_url: 'https://emoji.slack-edge.com/T03R80JP7/coder-the-bot/85ae574c0c7063ef.png',
+          icon_url: icons.slack.CoderBotIcon,
           channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
           pretext: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
           fallback: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
@@ -78,7 +85,7 @@ module.exports = {
       },
       projectUnclaimedReposted: (data) => {
         return {
-          icon_url: 'https://emoji.slack-edge.com/T03R80JP7/coder-error/cd2633216e7fd385.png',
+          icon_url: icons.slack.CoderErrorIcon,
           channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
           pretext: 'We\'re still looking for a copilot for a reviewed project. Please check it out and claim it.',
           fallback: 'We\'re still looking for a copilot for a reviewed project. Please check it out and claim it.',
@@ -97,7 +104,7 @@ module.exports = {
       },
       projectClaimed: (data) => {
         return {
-          icon_url: 'https://emoji.slack-edge.com/T03R80JP7/coder-grinning/a3b7f3fe9e838377.png',
+          icon_url: icons.slack.CoderGrinningIcon,
           channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
           pretext: `${data.firstName} ${data.lastName} has claimed a project. Welcome to the team!`,
           fallback: `${data.firstName} ${data.lastName} has claimed a project. Welcome to the team!`,
@@ -193,10 +200,11 @@ module.exports = {
     canceled: 'cancelled', // spelling is not a type :)
     completed: 'completed',
   },
-  projectTypes,
   memberRoles: {
     manager: 'manager',
     customer: 'customer',
     copilot: 'copilot',
   },
+  projectTypes,
+  icons,
 };
