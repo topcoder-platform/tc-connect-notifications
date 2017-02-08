@@ -60,7 +60,7 @@ const expectedSlackNotficationBase = {
       {
         short: false,
         title: 'Project Type',
-        value: 'visual_design',
+        value: 'Design',
       },
     ],
     footer: "Topcoder",
@@ -99,7 +99,7 @@ _.extend(expectedManagerSlackNotification.attachments[0], {
     {
       short: false,
       title: 'Project Type',
-      value: 'visual_design',
+      value: 'Design',
     },
   ]
 })

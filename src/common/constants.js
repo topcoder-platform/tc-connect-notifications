@@ -10,6 +10,12 @@
 const _ = require('lodash');
 const config = require('config');
 
+const projectTypes = {
+  app_dev: 'Full App',
+  generic: 'Work Project',
+  visual_prototype: 'Design & Prototype',
+  visual_design: 'Design',
+};
 module.exports = {
   // The event types to be consumed from the source RabbitMQ
   events: {
@@ -45,7 +51,7 @@ module.exports = {
             },
             {
               title: 'Project Type',
-              value: data.project.type,
+              value: projectTypes[data.project.type],
               short: false,
             },
           ],
@@ -64,7 +70,7 @@ module.exports = {
           fields: [
             {
               title: 'Project Type',
-              value: data.project.type,
+              value: projectTypes[data.project.type],
               short: false,
             },
           ]
@@ -83,7 +89,7 @@ module.exports = {
           fields: [
             {
               title: 'Project Type',
-              value: data.project.type,
+              value: projectTypes[data.project.type],
               short: false,
             },
           ]
@@ -102,7 +108,7 @@ module.exports = {
           fields: [
             {
               title: 'Project Type',
-              value: data.project.type,
+              value: projectTypes[data.project.type],
               short: false,
             },
           ]
@@ -187,6 +193,7 @@ module.exports = {
     canceled: 'cancelled', // spelling is not a type :)
     completed: 'completed',
   },
+  projectTypes,
   memberRoles: {
     manager: 'manager',
     customer: 'customer',
