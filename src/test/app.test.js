@@ -386,8 +386,32 @@ describe('app', () => {
         const params = spy.lastCall.args;
         assert.equal(params[2], expectedTitle);
         assert.equal(params[3], expectedBody);
+        done();
+      }, testTimeout);
+    });
+    it('should create `Project.Member.CopilotJoined` notification and slack copilot joined notification', (done) => {
+      request.get.restore();
+      stub = sinon.stub(request, 'get');
+      stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v4/projects/1`))
+        .yields(null, { statusCode: 200 }, sampleProjects.projectTest);
+      stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v3/members/_search/?query=userId:40051331`))
+        .yields(null, { statusCode: 200 }, sampleUsers.user1);
+
+      sendTestEvent(sampleEvents.memberAddedCopilot, 'project.member.added');
+      setTimeout(() => {
+        const expectedTitle = 'A Topcoder copilot has joined your project';
+        const expectedBody = 'F_user L_user has joined your project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">test</a> as a copilot.';
+        const params = spy.lastCall.args;
+        assert.equal(params[2], expectedTitle);
+        assert.equal(params[3], expectedBody);
         const slackParams = slackSpy.lastCall.args;
-        assert.deepEqual(slackParams[1], expectedClaimedSlackCopilotNotification);
+        const expectedTestCopilotNotificaton = _.cloneDeep(expectedClaimedSlackCopilotNotification);
+        _.extend(expectedTestCopilotNotificaton.attachments[0], {
+          text: 'test',
+          title: 'test',
+          ts: 1478304000,
+        });
+        assert.deepEqual(slackParams[1], expectedTestCopilotNotificaton);
         done();
       }, testTimeout);
     });

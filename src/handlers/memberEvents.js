@@ -38,14 +38,18 @@ function* memberAdded(logger, data) {
   } else if (data.role === constants.memberRoles.copilot) {
     topic = constants.notifications.discourse.teamMembers.copilotJoined;
     // Notify project claimed
-    const slackNotification = util.buildSlackNotification(
-      {
-        project,
-        firstName: addedMember.firstName,
-        lastName: addedMember.lastName,
-      },
-      constants.notifications.slack.projectClaimed);
-    notifications.slack.copilot.push(slackNotification);
+    if ((project.status === constants.projectStatuses.active ||
+      project.status === constants.projectStatuses.reviewed)
+      && _.filter(project.members, ['role', 'copilot']).length < 2) {
+      const slackNotification = util.buildSlackNotification(
+        {
+          project,
+          firstName: addedMember.firstName,
+          lastName: addedMember.lastName,
+        },
+        constants.notifications.slack.projectClaimed);
+      notifications.slack.copilot.push(slackNotification);
+    }
   }
 
   const topicData = {
