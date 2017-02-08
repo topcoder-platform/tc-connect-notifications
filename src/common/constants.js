@@ -11,10 +11,22 @@ const _ = require('lodash');
 const config = require('config');
 
 const projectTypes = {
-  app_dev: 'Full App',
-  generic: 'Work Project',
-  visual_prototype: 'Design & Prototype',
-  visual_design: 'Design',
+  app_dev: {
+    label: 'Full App',
+    color: '#96d957'
+  },
+  generic: {
+    label: 'Work Project',
+    color: '#b47dd6'
+  },
+  visual_prototype: {
+    label: 'Design & Prototype',
+    color: '#67c5ef'
+  },
+  visual_design: {
+    label: 'Design',
+    color: '#67c5ef'
+  }
 };
 const icons = {
   slack: {
@@ -39,14 +51,17 @@ module.exports = {
       projectInReview: (data) => {
         return {
           channel: `${config.get('SLACK_CHANNEL_MANAGERS')}`,
+          color: projectTypes[data.project.type].color,
           pretext: 'A project is ready to be reviewed.',
           fallback: 'A project is ready to be reviewed.',
           title: _.get(data, 'project.name', ''),
           title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
-          text: _.truncate(_.get(data, 'project.description', ''), { length: 200, separator: /,? +.,/ }),
+          text: _.truncate(_.get(data, 'project.description', ''), {
+            length: 200,
+            separator: /,? +.,/
+          }),
           ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
-          fields: [
-            {
+          fields: [{
               title: 'Ref Code',
               value: _.get(data, 'project.details.utm.code', ''),
               short: false,
@@ -58,7 +73,7 @@ module.exports = {
             },
             {
               title: 'Project Type',
-              value: projectTypes[data.project.type],
+              value: projectTypes[data.project.type].label,
               short: false,
             },
           ],
@@ -67,58 +82,64 @@ module.exports = {
       projectUnclaimed: (data) => {
         return {
           icon_url: icons.slack.CoderBotIcon,
+          color: projectTypes[data.project.type].color,
           channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
           pretext: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
           fallback: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
           title: _.get(data, 'project.name', ''),
           title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
-          text: _.truncate(_.get(data, 'project.description', ''), { length: 200, separator: /,? +.,/ }),
+          text: _.truncate(_.get(data, 'project.description', ''), {
+            length: 200,
+            separator: /,? +.,/
+          }),
           ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
-          fields: [
-            {
-              title: 'Project Type',
-              value: projectTypes[data.project.type],
-              short: false,
-            },
-          ]
+          fields: [{
+            title: 'Project Type',
+            value: projectTypes[data.project.type].label,
+            short: false,
+          }, ]
         }
       },
       projectUnclaimedReposted: (data) => {
         return {
           icon_url: icons.slack.CoderErrorIcon,
+          color: projectTypes[data.project.type].color,
           channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
           pretext: 'We\'re still looking for a copilot for a reviewed project. Please check it out and claim it.',
           fallback: 'We\'re still looking for a copilot for a reviewed project. Please check it out and claim it.',
           title: _.get(data, 'project.name', ''),
           title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
-          text: _.truncate(_.get(data, 'project.description', ''), { length: 200, separator: /,? +.,/ }),
+          text: _.truncate(_.get(data, 'project.description', ''), {
+            length: 200,
+            separator: /,? +.,/
+          }),
           ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
-          fields: [
-            {
-              title: 'Project Type',
-              value: projectTypes[data.project.type],
-              short: false,
-            },
-          ]
+          fields: [{
+            title: 'Project Type',
+            value: projectTypes[data.project.type].label,
+            short: false,
+          }, ]
         }
       },
       projectClaimed: (data) => {
         return {
           icon_url: icons.slack.CoderGrinningIcon,
+          color: projectTypes[data.project.type].color,
           channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
           pretext: `${data.firstName} ${data.lastName} has claimed a project. Welcome to the team!`,
           fallback: `${data.firstName} ${data.lastName} has claimed a project. Welcome to the team!`,
           title: _.get(data, 'project.name', ''),
           title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
-          text: _.truncate(_.get(data, 'project.description', ''), { length: 200, separator: /,? +.,/ }),
+          text: _.truncate(_.get(data, 'project.description', ''), {
+            length: 200,
+            separator: /,? +.,/
+          }),
           ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
-          fields: [
-            {
-              title: 'Project Type',
-              value: projectTypes[data.project.type],
-              short: false,
-            },
-          ]
+          fields: [{
+            title: 'Project Type',
+            value: projectTypes[data.project.type].label,
+            short: false,
+          }, ]
         }
       },
     },
@@ -177,19 +198,52 @@ module.exports = {
       },
     },
     project: {
-      created: { notificationType: 'Project.Created', subject: 'Created' },
-      submittedForReview: { notificationType: 'Project.SubmittedForReview', subject: 'Submitted for review' },
-      availableForReview: { notificationType: 'Project.AvailableForReview', subject: 'Available for review' },
-      reviewed: { notificationType: 'Project.Reviewed', subject: 'Reviewed' },
-      availableToClaim: { notificationType: 'Project.AvailableToClaim', subject: 'Reviewed - Available to claim' },
+      created: {
+        notificationType: 'Project.Created',
+        subject: 'Created'
+      },
+      submittedForReview: {
+        notificationType: 'Project.SubmittedForReview',
+        subject: 'Submitted for review'
+      },
+      availableForReview: {
+        notificationType: 'Project.AvailableForReview',
+        subject: 'Available for review'
+      },
+      reviewed: {
+        notificationType: 'Project.Reviewed',
+        subject: 'Reviewed'
+      },
+      availableToClaim: {
+        notificationType: 'Project.AvailableToClaim',
+        subject: 'Reviewed - Available to claim'
+      },
     },
     teamMember: {
-      added: { notificationType: 'Project.Member.Added', subject: 'Member added' },
-      managerJoined: { notificationType: 'Project.Member.ManagerJoined', subject: 'Manager joined' },
-      copilotJoined: { notificationType: 'Project.Member.CopilotJoined', subject: 'Copilot joined' },
-      removed: { notificationType: 'Project.Member.Removed', subject: 'Member removed' },
-      left: { notificationType: 'Project.Member.Left', subject: 'Member left' },
-      ownerChanged: { notificationType: 'Project.Member.OwnerChanged', subject: 'Ownership changed' },
+      added: {
+        notificationType: 'Project.Member.Added',
+        subject: 'Member added'
+      },
+      managerJoined: {
+        notificationType: 'Project.Member.ManagerJoined',
+        subject: 'Manager joined'
+      },
+      copilotJoined: {
+        notificationType: 'Project.Member.CopilotJoined',
+        subject: 'Copilot joined'
+      },
+      removed: {
+        notificationType: 'Project.Member.Removed',
+        subject: 'Member removed'
+      },
+      left: {
+        notificationType: 'Project.Member.Left',
+        subject: 'Member left'
+      },
+      ownerChanged: {
+        notificationType: 'Project.Member.OwnerChanged',
+        subject: 'Ownership changed'
+      },
     },
   },
   projectStatuses: {

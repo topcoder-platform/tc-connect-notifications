@@ -203,7 +203,7 @@ function buildSlackNotification(data, slackDataGenerator) {
     icon_url: slackData.url || config.get('SLACK_ICON_URL'),
     channel: slackData.channel,
     attachments: [{
-      color: "#36a64f",
+      color: slackData.color || "#36a64f",
       fallback: slackData.fallback,
       pretext: slackData.pretext,
       fields: slackData.fields,

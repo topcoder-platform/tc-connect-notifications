@@ -52,7 +52,7 @@ const expectedSlackNotficationBase = {
   attachments: [{
     pretext: "",
     fallback: "",
-    color: "#36a64f",
+    color: "#67c5ef",
     title: "test",
     title_link: "https://connect.topcoder-dev.com/projects/1/",
     text: "test",
