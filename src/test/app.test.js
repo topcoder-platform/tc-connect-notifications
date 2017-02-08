@@ -27,6 +27,7 @@ const sampleEvents = {
   updatedReviewedAnotherStatus: require('./data/events.updated.reviewed.anotherStatus.json'),
   updatedReviewedSameStatus: require('./data/events.updated.reviewed.sameStatus.json'),
   memberAddedTeamMember: require('./data/events.memberAdded.teamMember.json'),
+  memberAddedOwner: require('./data/events.memberAdded.owner.json'),
   memberAddedManager: require('./data/events.memberAdded.manager.json'),
   memberAddedCopilot: require('./data/events.memberAdded.copilot.json'),
   memberRemovedLeft: require('./data/events.memberRemoved.left.json'),
@@ -55,7 +56,13 @@ const expectedSlackNotficationBase = {
     title: "test",
     title_link: "https://connect.topcoder-dev.com/projects/1/",
     text: "test",
-    fields: [],
+    fields: [
+      {
+        short: false,
+        title: 'Project Type',
+        value: 'Design',
+      },
+    ],
     footer: "Topcoder",
     footer_icon: "https://emoji.slack-edge.com/T03R80JP7/topcoder/7c68acd90a6b6d77.png",
     ts: 1478304000,
@@ -66,7 +73,21 @@ const expectedSlackCopilotNotification = _.cloneDeep(expectedSlackNotficationBas
 _.extend(expectedSlackCopilotNotification.attachments[0], {
   pretext: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
   fallback: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
-})
+});
+
+const expectedRepostedSlackCopilotNotification = _.cloneDeep(expectedSlackNotficationBase);
+_.extend(expectedRepostedSlackCopilotNotification.attachments[0], {
+  pretext: 'We\'re still looking for a copilot for a reviewed project. Please check it out and claim it.',
+  fallback: 'We\'re still looking for a copilot for a reviewed project. Please check it out and claim it.',
+});
+const expectedClaimedSlackCopilotNotification = _.cloneDeep(expectedSlackNotficationBase);
+_.extend(expectedClaimedSlackCopilotNotification.attachments[0], {
+  pretext: 'F_user L_user has claimed a project. Welcome to the team!',
+  fallback: 'F_user L_user has claimed a project. Welcome to the team!',
+  text: 'Project description 1',
+  title: 'Project name 1',
+  ts: '1477671612',
+});
 
 const expectedManagerSlackNotification = _.cloneDeep(expectedSlackNotficationBase);
 _.extend(expectedManagerSlackNotification.attachments[0], {
@@ -75,6 +96,11 @@ _.extend(expectedManagerSlackNotification.attachments[0], {
   fields: [
     { title: 'Ref Code', value: '', short: false },
     { title: 'Owner', value: 'F_user L_user', short: false },
+    {
+      short: false,
+      title: 'Project Type',
+      value: 'Design',
+    },
   ]
 })
 
@@ -278,7 +304,7 @@ describe('app', () => {
         assertCount += 1;
         sinon.assert.notCalled(spy);
         const params = slackSpy.lastCall.args;
-        assert.deepEqual(params[1], expectedSlackCopilotNotification);
+        assert.deepEqual(params[1], expectedRepostedSlackCopilotNotification);
         // console.log('assert#', assertCount)
         // console.log('callbackCount#', callbackCount)
         // checkAssert(assertCount, callbackCount, done);
@@ -316,6 +342,18 @@ describe('app', () => {
   });
 
   describe('`project.member.added` event', () => {
+    it('should create `Project.Member.ownerAdded` notification', (done) => {
+      sendTestEvent(sampleEvents.memberAddedOwner, 'project.member.added');
+      setTimeout(() => {
+        const expectedTitle = 'Ownership changed';
+        const expectedBody = 'Your project has a new owner F_user L_user is now responsible for project Project title. Good luck F_user!';
+        const params = spy.lastCall.args;
+        assert.equal(params[2], expectedTitle);
+        assert.equal(params[3], expectedBody);
+        done();
+      }, testTimeout);
+    });
+
     it('should create `Project.Member.TeamMemberAdded` notification', (done) => {
       sendTestEvent(sampleEvents.memberAddedTeamMember, 'project.member.added');
       setTimeout(() => {
@@ -348,6 +386,32 @@ describe('app', () => {
         const params = spy.lastCall.args;
         assert.equal(params[2], expectedTitle);
         assert.equal(params[3], expectedBody);
+        done();
+      }, testTimeout);
+    });
+    it('should create `Project.Member.CopilotJoined` notification and slack copilot joined notification', (done) => {
+      request.get.restore();
+      stub = sinon.stub(request, 'get');
+      stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v4/projects/1`))
+        .yields(null, { statusCode: 200 }, sampleProjects.projectTest);
+      stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v3/members/_search/?query=userId:40051331`))
+        .yields(null, { statusCode: 200 }, sampleUsers.user1);
+
+      sendTestEvent(sampleEvents.memberAddedCopilot, 'project.member.added');
+      setTimeout(() => {
+        const expectedTitle = 'A Topcoder copilot has joined your project';
+        const expectedBody = 'F_user L_user has joined your project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">test</a> as a copilot.';
+        const params = spy.lastCall.args;
+        assert.equal(params[2], expectedTitle);
+        assert.equal(params[3], expectedBody);
+        const slackParams = slackSpy.lastCall.args;
+        const expectedTestCopilotNotificaton = _.cloneDeep(expectedClaimedSlackCopilotNotification);
+        _.extend(expectedTestCopilotNotificaton.attachments[0], {
+          text: 'test',
+          title: 'test',
+          ts: 1478304000,
+        });
+        assert.deepEqual(slackParams[1], expectedTestCopilotNotificaton);
         done();
       }, testTimeout);
     });

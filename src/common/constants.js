@@ -10,6 +10,19 @@
 const _ = require('lodash');
 const config = require('config');
 
+const projectTypes = {
+  app_dev: 'Full App',
+  generic: 'Work Project',
+  visual_prototype: 'Design & Prototype',
+  visual_design: 'Design',
+};
+const icons = {
+  slack: {
+    CoderBotIcon: 'https://emoji.slack-edge.com/T03R80JP7/coder-the-bot/85ae574c0c7063ef.png',
+    CoderErrorIcon: 'https://emoji.slack-edge.com/T03R80JP7/coder-error/cd2633216e7fd385.png',
+    CoderGrinningIcon: 'https://emoji.slack-edge.com/T03R80JP7/coder-grinning/a3b7f3fe9e838377.png',
+  },
+};
 module.exports = {
   // The event types to be consumed from the source RabbitMQ
   events: {
@@ -30,7 +43,7 @@ module.exports = {
           fallback: 'A project is ready to be reviewed.',
           title: _.get(data, 'project.name', ''),
           title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
-          text: _.truncate(_.get(data, 'project.description', ''), {length: 200, separator: /,? +.,/ }),
+          text: _.truncate(_.get(data, 'project.description', ''), { length: 200, separator: /,? +.,/ }),
           ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
           fields: [
             {
@@ -40,7 +53,12 @@ module.exports = {
             },
             {
               title: 'Owner',
-              value: `${_.get(data, 'owner.firstName', '')} ${_.get(data, 'owner.lastName', '')}` ,
+              value: `${_.get(data, 'owner.firstName', '')} ${_.get(data, 'owner.lastName', '')}`,
+              short: false,
+            },
+            {
+              title: 'Project Type',
+              value: projectTypes[data.project.type],
               short: false,
             },
           ],
@@ -48,16 +66,61 @@ module.exports = {
       },
       projectUnclaimed: (data) => {
         return {
+          icon_url: icons.slack.CoderBotIcon,
           channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
           pretext: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
           fallback: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
           title: _.get(data, 'project.name', ''),
           title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
-          text: _.truncate(_.get(data, 'project.description', ''), {length: 200, separator: /,? +.,/ }),
+          text: _.truncate(_.get(data, 'project.description', ''), { length: 200, separator: /,? +.,/ }),
           ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
-          fields: []
+          fields: [
+            {
+              title: 'Project Type',
+              value: projectTypes[data.project.type],
+              short: false,
+            },
+          ]
         }
-      }
+      },
+      projectUnclaimedReposted: (data) => {
+        return {
+          icon_url: icons.slack.CoderErrorIcon,
+          channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
+          pretext: 'We\'re still looking for a copilot for a reviewed project. Please check it out and claim it.',
+          fallback: 'We\'re still looking for a copilot for a reviewed project. Please check it out and claim it.',
+          title: _.get(data, 'project.name', ''),
+          title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
+          text: _.truncate(_.get(data, 'project.description', ''), { length: 200, separator: /,? +.,/ }),
+          ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
+          fields: [
+            {
+              title: 'Project Type',
+              value: projectTypes[data.project.type],
+              short: false,
+            },
+          ]
+        }
+      },
+      projectClaimed: (data) => {
+        return {
+          icon_url: icons.slack.CoderGrinningIcon,
+          channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
+          pretext: `${data.firstName} ${data.lastName} has claimed a project. Welcome to the team!`,
+          fallback: `${data.firstName} ${data.lastName} has claimed a project. Welcome to the team!`,
+          title: _.get(data, 'project.name', ''),
+          title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
+          text: _.truncate(_.get(data, 'project.description', ''), { length: 200, separator: /,? +.,/ }),
+          ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
+          fields: [
+            {
+              title: 'Project Type',
+              value: projectTypes[data.project.type],
+              short: false,
+            },
+          ]
+        }
+      },
     },
     discourse: {
       project: {
@@ -107,6 +170,10 @@ module.exports = {
           title: 'Your project has a new owner',
           content: (data) => `${data.firstName} ${data.lastName} is now responsible for project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Good luck ${data.firstName}.`,
         },
+        ownerAdded: {
+          title: 'Ownership changed',
+          content: (data) => `Your project has a new owner ${data.firstName} ${data.lastName} is now responsible for project Project title. Good luck ${data.firstName}!`,
+        },
       },
     },
     project: {
@@ -138,4 +205,6 @@ module.exports = {
     customer: 'customer',
     copilot: 'copilot',
   },
+  projectTypes,
+  icons,
 };
