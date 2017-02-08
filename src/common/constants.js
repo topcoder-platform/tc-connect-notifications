@@ -72,6 +72,19 @@ module.exports = {
           fields: []
         }
       },
+      projectClaimed: (data) => {
+        return {
+          icon_url: 'https://emoji.slack-edge.com/T03R80JP7/coder-grinning/a3b7f3fe9e838377.png',
+          channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
+          pretext: `${data.firstName} ${data.lastName} has claimed a project. Welcome to the team!`,
+          fallback: `${data.firstName} ${data.lastName} has claimed a project. Welcome to the team!`,
+          title: _.get(data, 'project.name', ''),
+          title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
+          text: _.truncate(_.get(data, 'project.description', ''), {length: 200, separator: /,? +.,/ }),
+          ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
+          fields: []
+        }
+      },
     },
     discourse: {
       project: {

@@ -73,6 +73,14 @@ _.extend(expectedRepostedSlackCopilotNotification.attachments[0], {
   pretext: 'We\'re still looking for a copilot for a reviewed project. Please check it out and claim it.',
   fallback: 'We\'re still looking for a copilot for a reviewed project. Please check it out and claim it.',
 });
+const expectedClaimedSlackCopilotNotification = _.cloneDeep(expectedSlackNotficationBase);
+_.extend(expectedClaimedSlackCopilotNotification.attachments[0], {
+  pretext: 'F_user L_user has claimed a project. Welcome to the team!',
+  fallback: 'F_user L_user has claimed a project. Welcome to the team!',
+  text: 'Project description 1',
+  title: 'Project name 1',
+  ts: '1477671612',
+});
 
 const expectedManagerSlackNotification = _.cloneDeep(expectedSlackNotficationBase);
 _.extend(expectedManagerSlackNotification.attachments[0], {
@@ -354,6 +362,8 @@ describe('app', () => {
         const params = spy.lastCall.args;
         assert.equal(params[2], expectedTitle);
         assert.equal(params[3], expectedBody);
+        const slackParams = slackSpy.lastCall.args;
+        assert.deepEqual(slackParams[1], expectedClaimedSlackCopilotNotification);
         done();
       }, testTimeout);
     });

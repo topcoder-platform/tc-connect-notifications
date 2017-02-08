@@ -23,12 +23,26 @@ function* memberAdded(logger, data) {
   ];
 
   let topic;
+  const notifications = {
+    slack: {
+      copilot: [],
+    },
+  };
+
   if (data.role === constants.memberRoles.customer) {
     topic = constants.notifications.discourse.teamMembers.added;
   } else if (data.role === constants.memberRoles.manager) {
     topic = constants.notifications.discourse.teamMembers.managerJoined;
   } else if (data.role === constants.memberRoles.copilot) {
     topic = constants.notifications.discourse.teamMembers.copilotJoined;
+    // Notify project claimed
+    const slackNotification = util.buildSlackNotification(
+      { project,
+        firstName: addedMember.firstName,
+        lastName: addedMember.lastName,
+      },
+      constants.notifications.slack.projectClaimed);
+    notifications.slack.copilot.push(slackNotification);
   }
 
   const topicData = {
@@ -38,13 +52,11 @@ function* memberAdded(logger, data) {
     lastName: addedMember.lastName,
   };
 
-  const notifications = {
-    discourse: [{
-      projectId: project.id,
-      title: topic.title,
-      content: topic.content(topicData),
-    }],
-  };
+  notifications.discourse = [{
+    projectId: project.id,
+    title: topic.title,
+    content: topic.content(topicData),
+  }];
   return notifications;
 }
 
