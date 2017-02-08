@@ -27,6 +27,7 @@ const sampleEvents = {
   updatedReviewedAnotherStatus: require('./data/events.updated.reviewed.anotherStatus.json'),
   updatedReviewedSameStatus: require('./data/events.updated.reviewed.sameStatus.json'),
   memberAddedTeamMember: require('./data/events.memberAdded.teamMember.json'),
+  memberAddedOwner: require('./data/events.memberAdded.owner.json'),
   memberAddedManager: require('./data/events.memberAdded.manager.json'),
   memberAddedCopilot: require('./data/events.memberAdded.copilot.json'),
   memberRemovedLeft: require('./data/events.memberRemoved.left.json'),
@@ -341,6 +342,18 @@ describe('app', () => {
   });
 
   describe('`project.member.added` event', () => {
+    it('should create `Project.Member.ownerAdded` notification', (done) => {
+      sendTestEvent(sampleEvents.memberAddedOwner, 'project.member.added');
+      setTimeout(() => {
+        const expectedTitle = 'Ownership changed';
+        const expectedBody = 'Your project has a new owner F_user L_user is now responsible for project Project title. Good luck F_user!';
+        const params = spy.lastCall.args;
+        assert.equal(params[2], expectedTitle);
+        assert.equal(params[3], expectedBody);
+        done();
+      }, testTimeout);
+    });
+
     it('should create `Project.Member.TeamMemberAdded` notification', (done) => {
       sendTestEvent(sampleEvents.memberAddedTeamMember, 'project.member.added');
       setTimeout(() => {

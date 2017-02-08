@@ -10,6 +10,7 @@
 const config = require('config');
 const constants = require('../common/constants');
 const util = require('./util');
+const _ = require('lodash');
 
 /**
  * Create notifications from project.member.added events
@@ -28,8 +29,9 @@ function* memberAdded(logger, data) {
       copilot: [],
     },
   };
-
-  if (data.role === constants.memberRoles.customer) {
+  if (data.role === constants.memberRoles.customer && data.isPrimary) {
+    topic = constants.notifications.discourse.teamMembers.ownerAdded;
+  } else if (data.role === constants.memberRoles.customer) {
     topic = constants.notifications.discourse.teamMembers.added;
   } else if (data.role === constants.memberRoles.manager) {
     topic = constants.notifications.discourse.teamMembers.managerJoined;
@@ -37,7 +39,8 @@ function* memberAdded(logger, data) {
     topic = constants.notifications.discourse.teamMembers.copilotJoined;
     // Notify project claimed
     const slackNotification = util.buildSlackNotification(
-      { project,
+      {
+        project,
         firstName: addedMember.firstName,
         lastName: addedMember.lastName,
       },

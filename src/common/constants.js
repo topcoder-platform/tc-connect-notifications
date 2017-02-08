@@ -157,6 +157,10 @@ module.exports = {
           title: 'Your project has a new owner',
           content: (data) => `${data.firstName} ${data.lastName} is now responsible for project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Good luck ${data.firstName}.`,
         },
+        ownerAdded: {
+          title: 'Ownership changed',
+          content: (data) => `Your project has a new owner ${data.firstName} ${data.lastName} is now responsible for project Project title. Good luck ${data.firstName}!`,
+        },
       },
     },
     project: {

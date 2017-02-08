@@ -2,7 +2,7 @@
   "id": 1185,
   "userId": 40051331,
   "role": "customer",
-  "isPrimary": false,
+  "isPrimary": true,
   "createdAt": "2016-11-04T03:57:57.000Z",
   "updatedAt": "2016-11-04T03:57:57.000Z",
   "createdBy": 40152856,
