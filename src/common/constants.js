@@ -48,6 +48,7 @@ module.exports = {
       },
       projectUnclaimed: (data) => {
         return {
+          icon_url: 'https://emoji.slack-edge.com/T03R80JP7/coder-the-bot/85ae574c0c7063ef.png',
           channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
           pretext: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
           fallback: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
@@ -57,7 +58,20 @@ module.exports = {
           ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
           fields: []
         }
-      }
+      },
+      projectUnclaimedReposted: (data) => {
+        return {
+          icon_url: 'https://emoji.slack-edge.com/T03R80JP7/coder-error/cd2633216e7fd385.png',
+          channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
+          pretext: 'We\'re still looking for a copilot for a reviewed project. Please check it out and claim it.',
+          fallback: 'We\'re still looking for a copilot for a reviewed project. Please check it out and claim it.',
+          title: _.get(data, 'project.name', ''),
+          title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
+          text: _.truncate(_.get(data, 'project.description', ''), {length: 200, separator: /,? +.,/ }),
+          ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
+          fields: []
+        }
+      },
     },
     discourse: {
       project: {

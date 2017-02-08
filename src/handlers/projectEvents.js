@@ -129,9 +129,9 @@ function* projectUnclaimedNotifications(logger, data) {
     projectCopilotIds.length === 0) {
     notifications.delayed = data;
     const slackNotification = util.buildSlackNotification(
-      { project, },
-      constants.notifications.slack.projectUnclaimed
-    )
+      { project },
+      constants.notifications.slack.projectUnclaimedReposted
+    );
     notifications.slack.copilot.push(slackNotification);
   }
   return notifications;

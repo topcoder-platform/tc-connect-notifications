@@ -66,7 +66,13 @@ const expectedSlackCopilotNotification = _.cloneDeep(expectedSlackNotficationBas
 _.extend(expectedSlackCopilotNotification.attachments[0], {
   pretext: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
   fallback: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
-})
+});
+
+const expectedRepostedSlackCopilotNotification = _.cloneDeep(expectedSlackNotficationBase);
+_.extend(expectedRepostedSlackCopilotNotification.attachments[0], {
+  pretext: 'We\'re still looking for a copilot for a reviewed project. Please check it out and claim it.',
+  fallback: 'We\'re still looking for a copilot for a reviewed project. Please check it out and claim it.',
+});
 
 const expectedManagerSlackNotification = _.cloneDeep(expectedSlackNotficationBase);
 _.extend(expectedManagerSlackNotification.attachments[0], {
@@ -278,7 +284,7 @@ describe('app', () => {
         assertCount += 1;
         sinon.assert.notCalled(spy);
         const params = slackSpy.lastCall.args;
-        assert.deepEqual(params[1], expectedSlackCopilotNotification);
+        assert.deepEqual(params[1], expectedRepostedSlackCopilotNotification);
         // console.log('assert#', assertCount)
         // console.log('callbackCount#', callbackCount)
         // checkAssert(assertCount, callbackCount, done);
