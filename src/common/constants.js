@@ -30,7 +30,7 @@ module.exports = {
           fallback: 'A project is ready to be reviewed.',
           title: _.get(data, 'project.name', ''),
           title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
-          text: _.truncate(_.get(data, 'project.description', ''), {length: 200, separator: /,? +.,/ }),
+          text: _.truncate(_.get(data, 'project.description', ''), { length: 200, separator: /,? +.,/ }),
           ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
           fields: [
             {
@@ -40,7 +40,12 @@ module.exports = {
             },
             {
               title: 'Owner',
-              value: `${_.get(data, 'owner.firstName', '')} ${_.get(data, 'owner.lastName', '')}` ,
+              value: `${_.get(data, 'owner.firstName', '')} ${_.get(data, 'owner.lastName', '')}`,
+              short: false,
+            },
+            {
+              title: 'Project Type',
+              value: data.project.type,
               short: false,
             },
           ],
@@ -54,9 +59,15 @@ module.exports = {
           fallback: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
           title: _.get(data, 'project.name', ''),
           title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
-          text: _.truncate(_.get(data, 'project.description', ''), {length: 200, separator: /,? +.,/ }),
+          text: _.truncate(_.get(data, 'project.description', ''), { length: 200, separator: /,? +.,/ }),
           ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
-          fields: []
+          fields: [
+            {
+              title: 'Project Type',
+              value: data.project.type,
+              short: false,
+            },
+          ]
         }
       },
       projectUnclaimedReposted: (data) => {
@@ -67,9 +78,15 @@ module.exports = {
           fallback: 'We\'re still looking for a copilot for a reviewed project. Please check it out and claim it.',
           title: _.get(data, 'project.name', ''),
           title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
-          text: _.truncate(_.get(data, 'project.description', ''), {length: 200, separator: /,? +.,/ }),
+          text: _.truncate(_.get(data, 'project.description', ''), { length: 200, separator: /,? +.,/ }),
           ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
-          fields: []
+          fields: [
+            {
+              title: 'Project Type',
+              value: data.project.type,
+              short: false,
+            },
+          ]
         }
       },
       projectClaimed: (data) => {
@@ -80,9 +97,15 @@ module.exports = {
           fallback: `${data.firstName} ${data.lastName} has claimed a project. Welcome to the team!`,
           title: _.get(data, 'project.name', ''),
           title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
-          text: _.truncate(_.get(data, 'project.description', ''), {length: 200, separator: /,? +.,/ }),
+          text: _.truncate(_.get(data, 'project.description', ''), { length: 200, separator: /,? +.,/ }),
           ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
-          fields: []
+          fields: [
+            {
+              title: 'Project Type',
+              value: data.project.type,
+              short: false,
+            },
+          ]
         }
       },
     },

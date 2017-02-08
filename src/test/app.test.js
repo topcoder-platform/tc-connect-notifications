@@ -55,7 +55,13 @@ const expectedSlackNotficationBase = {
     title: "test",
     title_link: "https://connect.topcoder-dev.com/projects/1/",
     text: "test",
-    fields: [],
+    fields: [
+      {
+        short: false,
+        title: 'Project Type',
+        value: 'visual_design',
+      },
+    ],
     footer: "Topcoder",
     footer_icon: "https://emoji.slack-edge.com/T03R80JP7/topcoder/7c68acd90a6b6d77.png",
     ts: 1478304000,
@@ -89,6 +95,11 @@ _.extend(expectedManagerSlackNotification.attachments[0], {
   fields: [
     { title: 'Ref Code', value: '', short: false },
     { title: 'Owner', value: 'F_user L_user', short: false },
+    {
+      short: false,
+      title: 'Project Type',
+      value: 'visual_design',
+    },
   ]
 })
 
