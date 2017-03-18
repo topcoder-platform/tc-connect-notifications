@@ -18,7 +18,7 @@ module.exports = {
 
     // Target RabbitMQ that receive notifications from tc-connect-notifications
     NOTIFICATIONS_EXCHANGE_NAME: 'notifications',
-    
+
     DELAYED_NOTIFICATIONS_EXCHANGE_NAME: 'connect-notifications-reminders',
     // The number of times reminders are sent
     DELAYED_NOTIFICATIONS_TTL: 3,

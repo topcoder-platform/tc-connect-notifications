@@ -20,23 +20,37 @@ const request = require('request');
  */
 function requestPromise(options, cb = null) {
   // setting default options
-  _.defaults(options, { method: 'GET', json: true })
+  _.defaults(options, { method: 'GET', json: true });
   return new Promise((resolve, reject) => {
     // Stubbing requests this way is easier DO NOT REFACTOR
-    request[options.method.toLowerCase()](options, (err, res, data) => {
-      if (err || res.statusCode > 299) {
-        const errStr = data ? JSON.stringify(data) : ''
-        reject(err || new Error(`Failed to ${options.method}, url '${options.url}': statusCode = ${res.statusCode}, err: ${errStr}`));
-      } else {
-        if (cb) {
+    request[options.method.toLowerCase()](options,
+      (err, res, data) => {
+        if (err || res.statusCode > 299) {
+          const errStr = data ? JSON.stringify(data) : '';
+          reject(err || new Error(`Failed to ${options.method}, url '${options.url}': statusCode = ${res.statusCode}, err: ${errStr}`));
+        } else if (cb) {
           cb(data, resolve, reject);
         } else {
           return resolve(data.result.content);
         }
-      }
-    });
+        return undefined;
+      });
   });
 }
+
+const getSystemUserToken = Promise.coroutine(function* () {
+  const formData = {
+    clientId: config.get('SYSTEM_USER_CLIENT_ID'),
+    secret: config.get('SYSTEM_USER_CLIENT_SECRET'),
+  };
+  return yield requestPromise(
+    {
+      method: 'POST',
+      url: `${config.get('API_BASE_URL')}/v3/authorizations/`,
+      form: formData,
+    },
+    (data, resolve) => resolve(data.result.content.token));
+});
 
 /**
  * Makes a POST request to member service to create a new topic
@@ -49,8 +63,8 @@ const createProjectDiscourseNotification = Promise.coroutine(
     try {
       const token = yield getSystemUserToken();
       if (!token) {
-        logger.error('Error retrieving system token')
-        return Promise.reject(new Error('Error retrieving system token'))
+        logger.error('Error retrieving system token');
+        return Promise.reject(new Error('Error retrieving system token'));
       }
       const options = {
         url: `${config.get('API_BASE_URL')}/v4/topics/`,
@@ -66,16 +80,15 @@ const createProjectDiscourseNotification = Promise.coroutine(
           body,
         },
       };
-      return requestPromise(options, (data, resolve, reject) => resolve(data))
+      return requestPromise(options, (data, resolve) => resolve(data))
         .catch((err) => {
-          logger.error(err)
+          logger.error(err);
         });
     } catch (err) {
-      logger.error(err)
-      return Promise.reject(err)
+      logger.error(err);
+      return Promise.reject(err);
     }
-  }
-);
+  });
 
 /**
  * Create notification for a project event
@@ -128,8 +141,8 @@ function getProjectMemberIdsByRole(project, role) {
 function* getProjectById(id) {
   const token = yield getSystemUserToken();
   if (!token) {
-    logger.error('Error retrieving system token')
-    return Promise.reject(new Error('Error retrieving system token'))
+    // logger.error('Error retrieving system token');
+    return Promise.reject(new Error('Error retrieving system token'));
   }
   return yield requestPromise({
     url: `${config.get('API_BASE_URL')}/v4/projects/${id}`,
@@ -145,7 +158,7 @@ function* getProjectById(id) {
  * @returns {Promise} the promise that resolves to the user
  * @private
  */
-function* getUserById(id) {
+function* getUserById(id) { // eslint-disable-line require-yield
   const cb = (data, resolve, reject) => {
     const user = _.get(data, 'result.content.0', null);
     if (user) {
@@ -153,7 +166,7 @@ function* getUserById(id) {
     }
     return reject(new Error('user not found'));
   };
-  return requestPromise({url: `${config.get('API_BASE_URL')}/v3/members/_search/?query=userId:${id}`}, cb);
+  return requestPromise({ url: `${config.get('API_BASE_URL')}/v3/members/_search/?query=userId:${id}` }, cb);
 }
 
 
@@ -203,14 +216,14 @@ function buildSlackNotification(data, slackDataGenerator) {
     icon_url: slackData.url || config.get('SLACK_ICON_URL'),
     channel: slackData.channel,
     attachments: [{
-      color: slackData.color || "#36a64f",
+      color: slackData.color || '#36a64f',
       fallback: slackData.fallback,
       pretext: slackData.pretext,
       fields: slackData.fields,
       title: slackData.title,
       title_link: slackData.title_link,
       text: slackData.text,
-      footer: "Topcoder",
+      footer: 'Topcoder',
       footer_icon: config.get('TOPCODER_ICON_URL'),
       ts: slackData.ts,
     }],
@@ -221,29 +234,13 @@ function sendSlackNotification(webhookUrl, data, logger) {
   return requestPromise({
     method: 'POST',
     url: webhookUrl,
-    json: data
-  }, (data, resolve) => {
-    logger.debug('Slack post data', data);
+    json: data,
+  },
+  (_data, resolve) => {
+    logger.debug('Slack post data', _data);
     return resolve(true);
   });
 }
-
-const getSystemUserToken = Promise.coroutine(function* () {
-  const formData = {
-    clientId: config.get('SYSTEM_USER_CLIENT_ID'),
-    secret: config.get('SYSTEM_USER_CLIENT_SECRET'),
-  };
-  return yield requestPromise(
-    {
-      method: 'POST',
-      url: `${config.get('API_BASE_URL')}/v3/authorizations/`,
-      form: formData,
-    },
-    (data, resolve, reject) => {
-      return resolve(data.result.content.token);
-    }
-  )
-})
 
 module.exports = {
   createProjectMemberNotification,

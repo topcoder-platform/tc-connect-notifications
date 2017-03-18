@@ -13,21 +13,22 @@ const config = require('config');
 const projectTypes = {
   app_dev: {
     label: 'Full App',
-    color: '#96d957'
+    color: '#96d957',
   },
   generic: {
     label: 'Work Project',
-    color: '#b47dd6'
+    color: '#b47dd6',
   },
   visual_prototype: {
     label: 'Design & Prototype',
-    color: '#67c5ef'
+    color: '#67c5ef',
   },
   visual_design: {
     label: 'Design',
-    color: '#67c5ef'
-  }
+    color: '#67c5ef',
+  },
 };
+
 const icons = {
   slack: {
     CoderBotIcon: 'https://emoji.slack-edge.com/T03R80JP7/coder-the-bot/85ae574c0c7063ef.png',
@@ -49,7 +50,7 @@ module.exports = {
   notifications: {
     slack: {
       projectInReview: (data) => {
-        return {
+        const obj = {
           channel: `${config.get('SLACK_CHANNEL_MANAGERS')}`,
           color: projectTypes[data.project.type].color,
           pretext: 'A project is ready to be reviewed.',
@@ -58,29 +59,27 @@ module.exports = {
           title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
           text: _.truncate(_.get(data, 'project.description', ''), {
             length: 200,
-            separator: /,? +.,/
+            separator: /,? +.,/,
           }),
           ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
           fields: [{
-              title: 'Ref Code',
-              value: _.get(data, 'project.details.utm.code', ''),
-              short: false,
-            },
-            {
-              title: 'Owner',
-              value: `${_.get(data, 'owner.firstName', '')} ${_.get(data, 'owner.lastName', '')}`,
-              short: false,
-            },
-            {
-              title: 'Project Type',
-              value: projectTypes[data.project.type].label,
-              short: false,
-            },
-          ],
+            title: 'Ref Code',
+            value: _.get(data, 'project.details.utm.code', ''),
+            short: false,
+          }, {
+            title: 'Owner',
+            value: `${_.get(data, 'owner.firstName', '')} ${_.get(data, 'owner.lastName', '')}`,
+            short: false,
+          }, {
+            title: 'Project Type',
+            value: projectTypes[data.project.type].label,
+            short: false,
+          }],
         };
+        return obj;
       },
       projectUnclaimed: (data) => {
-        return {
+        const obj = {
           icon_url: icons.slack.CoderBotIcon,
           color: projectTypes[data.project.type].color,
           channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
@@ -90,18 +89,19 @@ module.exports = {
           title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
           text: _.truncate(_.get(data, 'project.description', ''), {
             length: 200,
-            separator: /,? +.,/
+            separator: /,? +.,/,
           }),
           ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
           fields: [{
             title: 'Project Type',
             value: projectTypes[data.project.type].label,
             short: false,
-          }, ]
-        }
+          }],
+        };
+        return obj;
       },
       projectUnclaimedReposted: (data) => {
-        return {
+        const obj = {
           icon_url: icons.slack.CoderErrorIcon,
           color: projectTypes[data.project.type].color,
           channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
@@ -111,18 +111,19 @@ module.exports = {
           title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
           text: _.truncate(_.get(data, 'project.description', ''), {
             length: 200,
-            separator: /,? +.,/
+            separator: /,? +.,/,
           }),
           ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
           fields: [{
             title: 'Project Type',
             value: projectTypes[data.project.type].label,
             short: false,
-          }, ]
-        }
+          }],
+        };
+        return obj;
       },
       projectClaimed: (data) => {
-        return {
+        const obj = {
           icon_url: icons.slack.CoderGrinningIcon,
           color: projectTypes[data.project.type].color,
           channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
@@ -132,117 +133,118 @@ module.exports = {
           title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
           text: _.truncate(_.get(data, 'project.description', ''), {
             length: 200,
-            separator: /,? +.,/
+            separator: /,? +.,/,
           }),
           ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
           fields: [{
             title: 'Project Type',
             value: projectTypes[data.project.type].label,
             short: false,
-          }, ]
-        }
+          }],
+        };
+        return obj;
       },
     },
     discourse: {
       project: {
         created: {
           title: 'Your project has been created, and we\'re ready for your specification',
-          content: (data) => `Hello, Coder here! Your project '${data.projectName}' has been created successfully. For your next step, please head over to the <a href="${data.projectUrl}specification/" rel="nofollow">Specification</a> section and answer all of the required questions. If you already have a document with your requirements, just verify it against our checklist and then upload it. Once you're done, hit the "Submit for Review" button on the Specification. Get stuck or need help? Email us at <a href="mailto:support@topcoder.com?subject=Question%20Regarding%20My%20New%20Topcoder%20Connect%20Project" rel="nofollow">support@topcoder.com</a>.`,
+          content: data => `Hello, Coder here! Your project '${data.projectName}' has been created successfully. For your next step, please head over to the <a href="${data.projectUrl}specification/" rel="nofollow">Specification</a> section and answer all of the required questions. If you already have a document with your requirements, just verify it against our checklist and then upload it. Once you're done, hit the "Submit for Review" button on the Specification. Get stuck or need help? Email us at <a href="mailto:support@topcoder.com?subject=Question%20Regarding%20My%20New%20Topcoder%20Connect%20Project" rel="nofollow">support@topcoder.com</a>.`,
         },
         submittedForReview: {
           title: 'Your project has been submitted for review',
-          content: (data) => `Hello, it's Coder again. Thanks for submitting your project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>! I've used my super computational powers to route it to one of our trusty humans. They'll get back to you in 1-2 business days.`,
+          content: data => `Hello, it's Coder again. Thanks for submitting your project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>! I've used my super computational powers to route it to one of our trusty humans. They'll get back to you in 1-2 business days.`,
         },
         activated: {
           title: 'Work on your project has begun',
-          content: (data) => `Good news, everyone! Work on project ${data.projectName} has kicked off. Please keep an eye on the <a href="${data.projectUrl}" rel="nofollow">Dashboard</a> section (or your email inbox) for the latest status updates.`,
+          content: data => `Good news, everyone! Work on project ${data.projectName} has kicked off. Please keep an eye on the <a href="${data.projectUrl}" rel="nofollow">Dashboard</a> section (or your email inbox) for the latest status updates.`,
         },
         canceled: {
           title: 'Your project has been canceled',
-          content: (data) => `Project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a> has been canceled. If you think this may have been a mistake, please reply to this message immediately. Otherwise, looking forward to your next project. Coder signing off....`,
+          content: data => `Project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a> has been canceled. If you think this may have been a mistake, please reply to this message immediately. Otherwise, looking forward to your next project. Coder signing off....`,
         },
         completed: {
           title: 'Your project has been completed',
-          content: (data) => `Project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a> is finished! Well done, team. Looking forward to seeing your next project soon. Coder signing off....`,
+          content: data => `Project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a> is finished! Well done, team. Looking forward to seeing your next project soon. Coder signing off....`,
         },
       },
       teamMembers: {
         added: {
           title: 'A new team member has joined your project',
-          content: (data) => `${data.firstName} ${data.lastName} has joined project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Welcome ${data.firstName}! Looking forward to working with you.`,
+          content: data => `${data.firstName} ${data.lastName} has joined project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Welcome ${data.firstName}! Looking forward to working with you.`,
         },
         managerJoined: {
           title: 'A Topcoder project manager has joined your project',
-          content: (data) => `${data.firstName} ${data.lastName} has joined your project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a> as a project manager.`,
+          content: data => `${data.firstName} ${data.lastName} has joined your project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a> as a project manager.`,
         },
         copilotJoined: {
           title: 'A Topcoder copilot has joined your project',
-          content: (data) => `${data.firstName} ${data.lastName} has joined your project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a> as a copilot.`,
+          content: data => `${data.firstName} ${data.lastName} has joined your project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a> as a copilot.`,
         },
         left: {
           title: 'A team member has left your project',
-          content: (data) => `${data.firstName} ${data.lastName} has left project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Thanks for all your work ${data.firstName}.`,
+          content: data => `${data.firstName} ${data.lastName} has left project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Thanks for all your work ${data.firstName}.`,
         },
         removed: {
           title: 'A team member has left your project',
-          content: (data) => `${data.firstName} ${data.lastName} has left project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Thanks for all your work ${data.firstName}.`,
+          content: data => `${data.firstName} ${data.lastName} has left project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Thanks for all your work ${data.firstName}.`,
         },
         ownerChanged: {
           title: 'Your project has a new owner',
-          content: (data) => `${data.firstName} ${data.lastName} is now responsible for project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Good luck ${data.firstName}.`,
+          content: data => `${data.firstName} ${data.lastName} is now responsible for project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Good luck ${data.firstName}.`,
         },
         ownerAdded: {
           title: 'Ownership changed',
-          content: (data) => `Your project has a new owner ${data.firstName} ${data.lastName} is now responsible for project Project title. Good luck ${data.firstName}!`,
+          content: data => `Your project has a new owner. ${data.firstName} ${data.lastName} is now responsible for project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Good luck ${data.firstName}!`,
         },
       },
     },
     project: {
       created: {
         notificationType: 'Project.Created',
-        subject: 'Created'
+        subject: 'Created',
       },
       submittedForReview: {
         notificationType: 'Project.SubmittedForReview',
-        subject: 'Submitted for review'
+        subject: 'Submitted for review',
       },
       availableForReview: {
         notificationType: 'Project.AvailableForReview',
-        subject: 'Available for review'
+        subject: 'Available for review',
       },
       reviewed: {
         notificationType: 'Project.Reviewed',
-        subject: 'Reviewed'
+        subject: 'Reviewed',
       },
       availableToClaim: {
         notificationType: 'Project.AvailableToClaim',
-        subject: 'Reviewed - Available to claim'
+        subject: 'Reviewed - Available to claim',
       },
     },
     teamMember: {
       added: {
         notificationType: 'Project.Member.Added',
-        subject: 'Member added'
+        subject: 'Member added',
       },
       managerJoined: {
         notificationType: 'Project.Member.ManagerJoined',
-        subject: 'Manager joined'
+        subject: 'Manager joined',
       },
       copilotJoined: {
         notificationType: 'Project.Member.CopilotJoined',
-        subject: 'Copilot joined'
+        subject: 'Copilot joined',
       },
       removed: {
         notificationType: 'Project.Member.Removed',
-        subject: 'Member removed'
+        subject: 'Member removed',
       },
       left: {
         notificationType: 'Project.Member.Left',
-        subject: 'Member left'
+        subject: 'Member left',
       },
       ownerChanged: {
         notificationType: 'Project.Member.OwnerChanged',
-        subject: 'Ownership changed'
+        subject: 'Ownership changed',
       },
     },
   },

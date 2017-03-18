@@ -46,16 +46,16 @@ const sampleUsers = {
 const sampleAuth = require('./data/authorization.json');
 
 const expectedSlackNotficationBase = {
-	username: "Coder",
-	icon_url: "https://emoji.slack-edge.com/T03R80JP7/coder-grinning/a3b7f3fe9e838377.png",
+  username: 'Coder',
+  icon_url: 'https://emoji.slack-edge.com/T03R80JP7/coder-grinning/a3b7f3fe9e838377.png',
   channel: '#connect-projects-test',
   attachments: [{
-    pretext: "",
-    fallback: "",
-    color: "#67c5ef",
-    title: "test",
-    title_link: "https://connect.topcoder-dev.com/projects/1/",
-    text: "test",
+    pretext: '',
+    fallback: '',
+    color: '#67c5ef',
+    title: 'test',
+    title_link: 'https://connect.topcoder-dev.com/projects/1/',
+    text: 'test',
     fields: [
       {
         short: false,
@@ -63,10 +63,10 @@ const expectedSlackNotficationBase = {
         value: 'Design',
       },
     ],
-    footer: "Topcoder",
-    footer_icon: "https://emoji.slack-edge.com/T03R80JP7/topcoder/7c68acd90a6b6d77.png",
+    footer: 'Topcoder',
+    footer_icon: 'https://emoji.slack-edge.com/T03R80JP7/topcoder/7c68acd90a6b6d77.png',
     ts: 1478304000,
-  }]
+  }],
 };
 
 const expectedSlackCopilotNotification = _.cloneDeep(expectedSlackNotficationBase);
@@ -101,19 +101,20 @@ _.extend(expectedManagerSlackNotification.attachments[0], {
       title: 'Project Type',
       value: 'Design',
     },
-  ]
-})
+  ],
+});
 
 function checkAssert(assertCount, count, cb) {
   if (assertCount === count) {
     return cb();
   }
+  return undefined;
 }
 
 describe('app', () => {
   let sourceExchange;
   let sourceQueue;
-  let targetExchange;
+  let targetExchange; // eslint-disable-line
   let stub;
   let spy;
   let slackSpy;
@@ -148,10 +149,10 @@ describe('app', () => {
   const connectToTarget = (callback) => {
     targetExchange = jackrabbit(config.RABBITMQ.URL)
       .topic(config.RABBITMQ.NOTIFICATIONS_EXCHANGE_NAME);
-      callback();
+    callback();
   };
   const purgeQueues = (done) => {
-    sourceQueue.purge(() => done() );
+    sourceQueue.purge(() => done());
   };
 
   before((done) => {
@@ -250,7 +251,6 @@ describe('app', () => {
   });
 
   describe('`project.updated` event', () => {
-
     it('should create `Project.SubmittedForReview` and `Project.AvailableForReview` and manager slack notifications', (done) => {
       let assertCount = 0;
       const callbackCount = 1;
@@ -295,7 +295,7 @@ describe('app', () => {
       let assertCount = 0;
       const callbackCount = config.get('RABBITMQ.DELAYED_NOTIFICATIONS_TTL') + 1;
       // should not repost anymore after ttl;
-      function copCallback(data) {
+      function copCallback(data) { // eslint-disable-line
         assertCount += 1;
         checkAssert(assertCount, callbackCount, done);
       }

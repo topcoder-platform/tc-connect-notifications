@@ -23,7 +23,6 @@ const util = require('./util');
  * @param {Object} message the message
  */
 module.exports = (logger, message, channel, publish) => {
-
   const eventType = message.fields.routingKey;
   const correlationId = message.properties.correlationId;
   // create a child logger so we can trace with original request id
@@ -52,7 +51,7 @@ module.exports = (logger, message, channel, publish) => {
         return [];
     }
   }).then((notifications) => {
-    logger.debug('Notifications: ', notifications)
+    logger.debug('Notifications: ', notifications);
     _.each(notifications.discourse, (n) => {
       const { projectId, title, content } = n;
       util.createProjectDiscourseNotification(childLogger, projectId, title, content);
@@ -63,7 +62,9 @@ module.exports = (logger, message, channel, publish) => {
       // In the future, we can read custom slack integration urls per project.
       const webhookUrl = config.get('TC_SLACK_WEBHOOK_URL');
       if (!_.isEmpty(webhookUrl)) {
-        const slackNotifications = _.union(notifications.slack.manager, notifications.slack.copilot);
+        const slackNotifications = _.union(
+          notifications.slack.manager,
+          notifications.slack.copilot);
         _.each(slackNotifications, (n) => {
           notifyPromises.push(util.sendSlackNotification(webhookUrl, n, logger));
         });

@@ -19,7 +19,7 @@ const delayService = require('./rabbitmq')(logger);
 const connectNotificationsqueueOptions = {
   url: config.get('RABBITMQ.URL'),
   exchangeName: config.get('RABBITMQ.NOTIFICATIONS_EXCHANGE_NAME'),
-  queues: []
+  queues: [],
 };
 
 const delayQueueOptions = {
