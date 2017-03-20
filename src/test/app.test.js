@@ -346,7 +346,7 @@ describe('app', () => {
       sendTestEvent(sampleEvents.memberAddedOwner, 'project.member.added');
       setTimeout(() => {
         const expectedTitle = 'Ownership changed';
-        const expectedBody = 'Your project has a new owner F_user L_user is now responsible for project Project title. Good luck F_user!';
+        const expectedBody = 'Your project has a new owner. F_user L_user is now responsible for project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">Project name 1</a>. Good luck F_user!';
         const params = spy.lastCall.args;
         assert.equal(params[2], expectedTitle);
         assert.equal(params[3], expectedBody);
