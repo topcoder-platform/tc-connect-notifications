@@ -18,19 +18,22 @@ const util = require('./util');
  * @return {Array} the array of notifications
  */
 function projectDraftCreated(logger, project) {
+  const notifications = {
+    discourse: [],
+  };
   const topic = constants.notifications.discourse.project.created;
   const topicData = {
     projectName: project.name,
     projectUrl: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${project.id}/`,
   };
-  // return notificaiton object with discourse data
-  const notifications = {
-    discourse: [{
+  if (topic && !topic.disabled) {
+    // return notificaiton object with discourse data
+    notifications.discourse.push({
       projectId: project.id,
       title: topic.title,
       content: topic.content(topicData),
-    }],
-  };
+    });
+  }
   return notifications;
 }
 
@@ -88,8 +91,8 @@ function* projectUpdated(logger, data) {
     topic = constants.notifications.discourse.project.completed;
   }
 
-  // post to discourse if topic is set
-  if (topic) {
+  // post to discourse if topic is set and is not disabled
+  if (topic && !topic.disabled) {
     const topicData = {
       projectName: project.name,
       projectUrl: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${project.id}/`,
