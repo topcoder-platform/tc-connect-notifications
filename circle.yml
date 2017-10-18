@@ -29,7 +29,7 @@ test:
 
 deployment:
   development:
-    branch: [dev, 'feature/bring-back-draft']
+    branch: dev
     owner: topcoder-platform
     commands:
       - docker build -t $DEV_AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:$CIRCLE_SHA1 .
