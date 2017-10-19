@@ -150,11 +150,10 @@ module.exports = {
         created: {
           title: 'Your project has been created, and we\'re ready for your specification',
           content: data => `Hello, Coder here! Your project '${data.projectName}' has been created successfully. For your next step, please head over to the <a href="${data.projectUrl}specification/" rel="nofollow">Specification</a> section and answer all of the required questions. If you already have a document with your requirements, just verify it against our checklist and then upload it. Once you're done, hit the "Submit for Review" button on the Specification. Get stuck or need help? Email us at <a href="mailto:support@topcoder.com?subject=Question%20Regarding%20My%20New%20Topcoder%20Connect%20Project" rel="nofollow">support@topcoder.com</a>.`,
-          disabled: true,
         },
         submittedForReview: {
-          title: 'Your project is being reviewed. Provide additional info if you have it.',
-          content: data => `Hello, Coder here! Thanks for submitting your project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>! I've used my super computational powers to route it to one of our trusty humans. They'll get back to you in 1-2 business days. Meanwhile, if have any additional project information or documents to upload, please head over to the <a href="${data.projectUrl}specification/" rel="nofollow">Specification</a> section. Get stuck or need help? Email us at <a href="mailto:support@topcoder.com?subject=Question%20Regarding%20My%20New%20Topcoder%20Connect%20Project" rel="nofollow">support@topcoder.com</a>.`,
+          title: 'Your project has been submitted for review',
+          content: data => `Hello, it's Coder again. Thanks for submitting your project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>! I've used my super computational powers to route it to one of our trusty humans. They'll get back to you in 1-2 business days.`,
         },
         activated: {
           title: 'Work on your project has begun',
