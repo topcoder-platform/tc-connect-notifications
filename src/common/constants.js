@@ -10,7 +10,7 @@
 const _ = require('lodash');
 const config = require('config');
 
-const defaultColor = '#67c5ef'
+const defaultColor = '#67c5ef';
 const projectTypes = {
   app_dev: {
     label: 'Full App',
@@ -69,7 +69,7 @@ module.exports = {
       projectInReview: (data) => {
         const obj = {
           channel: `${config.get('SLACK_CHANNEL_MANAGERS')}`,
-          color: _.get(projectTypes, data.project.type + '.color', defaultColor),
+          color: _.get(projectTypes, `${data.project.type}.color`, defaultColor),
           pretext: 'A project is ready to be reviewed.',
           fallback: 'A project is ready to be reviewed.',
           title: _.get(data, 'project.name', ''),
@@ -98,7 +98,7 @@ module.exports = {
       projectUnclaimed: (data) => {
         const obj = {
           icon_url: icons.slack.CoderBotIcon,
-          color: _.get(projectTypes, data.project.type + '.color', defaultColor),
+          color: _.get(projectTypes, `${data.project.type}.color`, defaultColor),
           channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
           pretext: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
           fallback: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
@@ -120,7 +120,7 @@ module.exports = {
       projectUnclaimedReposted: (data) => {
         const obj = {
           icon_url: icons.slack.CoderErrorIcon,
-          color: _.get(projectTypes, data.project.type + '.color', defaultColor),
+          color: _.get(projectTypes, `${data.project.type}.color`, defaultColor),
           channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
           pretext: 'We\'re still looking for a copilot for a reviewed project. Please check it out and claim it.',
           fallback: 'We\'re still looking for a copilot for a reviewed project. Please check it out and claim it.',
@@ -142,7 +142,7 @@ module.exports = {
       projectClaimed: (data) => {
         const obj = {
           icon_url: icons.slack.CoderGrinningIcon,
-          color: _.get(projectTypes, data.project.type + '.color', defaultColor),
+          color: _.get(projectTypes, `${data.project.type}.color`, defaultColor),
           channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
           pretext: `${data.firstName} ${data.lastName} has claimed a project. Welcome to the team!`,
           fallback: `${data.firstName} ${data.lastName} has claimed a project. Welcome to the team!`,
