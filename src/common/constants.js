@@ -10,6 +10,7 @@
 const _ = require('lodash');
 const config = require('config');
 
+const defaultColor = '#67c5ef';
 const projectTypes = {
   app_dev: {
     label: 'Full App',
@@ -26,6 +27,22 @@ const projectTypes = {
   visual_design: {
     label: 'Design',
     color: '#67c5ef',
+  },
+  app: {
+    label: 'App',
+    color: '#96d957',
+  },
+  quality_assurance: {
+    label: 'QA',
+    color: '#96d957',
+  },
+  chatbot: {
+    label: 'Chatbot',
+    color: '#96d957',
+  },
+  website: {
+    label: 'Website',
+    color: '#96d957',
   },
 };
 
@@ -52,7 +69,7 @@ module.exports = {
       projectInReview: (data) => {
         const obj = {
           channel: `${config.get('SLACK_CHANNEL_MANAGERS')}`,
-          color: projectTypes[data.project.type].color,
+          color: _.get(projectTypes, `${data.project.type}.color`, defaultColor),
           pretext: 'A project is ready to be reviewed.',
           fallback: 'A project is ready to be reviewed.',
           title: _.get(data, 'project.name', ''),
@@ -81,7 +98,7 @@ module.exports = {
       projectUnclaimed: (data) => {
         const obj = {
           icon_url: icons.slack.CoderBotIcon,
-          color: projectTypes[data.project.type].color,
+          color: _.get(projectTypes, `${data.project.type}.color`, defaultColor),
           channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
           pretext: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
           fallback: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
@@ -103,7 +120,7 @@ module.exports = {
       projectUnclaimedReposted: (data) => {
         const obj = {
           icon_url: icons.slack.CoderErrorIcon,
-          color: projectTypes[data.project.type].color,
+          color: _.get(projectTypes, `${data.project.type}.color`, defaultColor),
           channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
           pretext: 'We\'re still looking for a copilot for a reviewed project. Please check it out and claim it.',
           fallback: 'We\'re still looking for a copilot for a reviewed project. Please check it out and claim it.',
@@ -125,7 +142,7 @@ module.exports = {
       projectClaimed: (data) => {
         const obj = {
           icon_url: icons.slack.CoderGrinningIcon,
-          color: projectTypes[data.project.type].color,
+          color: _.get(projectTypes, `${data.project.type}.color`, defaultColor),
           channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
           pretext: `${data.firstName} ${data.lastName} has claimed a project. Welcome to the team!`,
           fallback: `${data.firstName} ${data.lastName} has claimed a project. Welcome to the team!`,
