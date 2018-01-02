@@ -345,11 +345,7 @@ describe('app', () => {
     it('should create `Project.Member.ownerAdded` notification', (done) => {
       sendTestEvent(sampleEvents.memberAddedOwner, 'project.member.added');
       setTimeout(() => {
-        const expectedTitle = 'Ownership changed';
-        const expectedBody = 'Your project has a new owner. F_user L_user is now responsible for project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">Project name 1</a>. Good luck F_user!';
-        const params = spy.lastCall.args;
-        assert.equal(params[2], expectedTitle);
-        assert.equal(params[3], expectedBody);
+        sinon.assert.notCalled(spy);
         done();
       }, testTimeout);
     });
@@ -357,11 +353,7 @@ describe('app', () => {
     it('should create `Project.Member.TeamMemberAdded` notification', (done) => {
       sendTestEvent(sampleEvents.memberAddedTeamMember, 'project.member.added');
       setTimeout(() => {
-        const expectedTitle = 'A new team member has joined your project';
-        const expectedBody = 'F_user L_user has joined project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">Project name 1</a>. Welcome F_user! Looking forward to working with you.';
-        const params = spy.lastCall.args;
-        assert.equal(params[2], expectedTitle);
-        assert.equal(params[3], expectedBody);
+        sinon.assert.notCalled(spy);
         done();
       }, testTimeout);
     });
@@ -369,11 +361,7 @@ describe('app', () => {
     it('should create `Project.Member.ManagerJoined` notification', (done) => {
       sendTestEvent(sampleEvents.memberAddedManager, 'project.member.added');
       setTimeout(() => {
-        const expectedTitle = 'A Topcoder project manager has joined your project';
-        const expectedBody = 'F_user L_user has joined your project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">Project name 1</a> as a project manager.';
-        const params = spy.lastCall.args;
-        assert.equal(params[2], expectedTitle);
-        assert.equal(params[3], expectedBody);
+        sinon.assert.notCalled(spy);
         done();
       }, testTimeout);
     });
@@ -381,11 +369,7 @@ describe('app', () => {
     it('should create `Project.Member.CopilotJoined` notification', (done) => {
       sendTestEvent(sampleEvents.memberAddedCopilot, 'project.member.added');
       setTimeout(() => {
-        const expectedTitle = 'A Topcoder copilot has joined your project';
-        const expectedBody = 'F_user L_user has joined your project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">Project name 1</a> as a copilot.';
-        const params = spy.lastCall.args;
-        assert.equal(params[2], expectedTitle);
-        assert.equal(params[3], expectedBody);
+        sinon.assert.notCalled(spy);
         done();
       }, testTimeout);
     });
@@ -399,11 +383,7 @@ describe('app', () => {
 
       sendTestEvent(sampleEvents.memberAddedCopilot, 'project.member.added');
       setTimeout(() => {
-        const expectedTitle = 'A Topcoder copilot has joined your project';
-        const expectedBody = 'F_user L_user has joined your project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">test</a> as a copilot.';
-        const params = spy.lastCall.args;
-        assert.equal(params[2], expectedTitle);
-        assert.equal(params[3], expectedBody);
+        sinon.assert.notCalled(spy);
         const slackParams = slackSpy.lastCall.args;
         const expectedTestCopilotNotificaton = _.cloneDeep(expectedClaimedSlackCopilotNotification);
         _.extend(expectedTestCopilotNotificaton.attachments[0], {
@@ -421,11 +401,7 @@ describe('app', () => {
     it('should create `Project.Member.Left` notification', (done) => {
       sendTestEvent(sampleEvents.memberRemovedLeft, 'project.member.removed');
       setTimeout(() => {
-        const expectedTitle = 'A team member has left your project';
-        const expectedBody = 'F_user L_user has left project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">Project name 1</a>. Thanks for all your work F_user.';
-        const params = spy.lastCall.args;
-        assert.equal(params[2], expectedTitle);
-        assert.equal(params[3], expectedBody);
+        sinon.assert.notCalled(spy);
         done();
       }, testTimeout);
     });
@@ -433,11 +409,7 @@ describe('app', () => {
     it('should create `Project.Member.Removed` notification', (done) => {
       sendTestEvent(sampleEvents.memberRemovedRemoved, 'project.member.removed');
       setTimeout(() => {
-        const expectedTitle = 'A team member has left your project';
-        const expectedBody = 'F_user L_user has left project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">Project name 1</a>. Thanks for all your work F_user.';
-        const params = spy.lastCall.args;
-        assert.equal(params[2], expectedTitle);
-        assert.equal(params[3], expectedBody);
+        sinon.assert.notCalled(spy);
         done();
       }, testTimeout);
     });
@@ -447,11 +419,7 @@ describe('app', () => {
     it('should create `Project.OwnerChanged` notification', (done) => {
       sendTestEvent(sampleEvents.memberUpdated, 'project.member.updated');
       setTimeout(() => {
-        const expectedTitle = 'Your project has a new owner';
-        const expectedBody = 'F_user L_user is now responsible for project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">Project name 1</a>. Good luck F_user.';
-        const params = spy.lastCall.args;
-        assert.equal(params[2], expectedTitle);
-        assert.equal(params[3], expectedBody);
+        sinon.assert.notCalled(spy);
         done();
       }, testTimeout);
     });

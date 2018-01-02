@@ -59,11 +59,13 @@ function* memberAdded(logger, data) {
     lastName: addedMember.lastName,
   };
 
-  notifications.discourse = [{
-    projectId: project.id,
-    title: topic.title,
-    content: topic.content(topicData),
-  }];
+  if (topic && !topic.disabled) {
+    notifications.discourse = [{
+      projectId: project.id,
+      title: topic.title,
+      content: topic.content(topicData),
+    }];
+  }
   return notifications;
 }
 
@@ -79,6 +81,7 @@ function* memberRemoved(logger, data) {
   ];
 
   let topic;
+  const notifications = {};
   if (data.updatedBy === data.userId) {
     // Left
     topic = constants.notifications.discourse.teamMembers.left;
@@ -93,13 +96,13 @@ function* memberRemoved(logger, data) {
     lastName: removedMember.lastName,
   };
 
-  const notifications = {
-    discourse: [{
+  if (topic && !topic.disabled) {
+    notifications.discourse = [{
       projectId: project.id,
       title: topic.title,
       content: topic.content(topicData),
-    }],
-  };
+    }];
+  }
   return notifications;
 }
 
@@ -119,6 +122,8 @@ function* memberUpdated(logger, data) {
   ];
 
   const topic = constants.notifications.discourse.teamMembers.ownerChanged;
+
+  const notifications = {};
   const topicData = {
     projectName: project.name,
     projectUrl: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${project.id}/`,
@@ -126,13 +131,13 @@ function* memberUpdated(logger, data) {
     lastName: updatedMember.lastName,
   };
 
-  const notifications = {
-    discourse: [{
+  if (topic && !topic.disabled) {
+    notifications.discourse = [{
       projectId: project.id,
       title: topic.title,
       content: topic.content(topicData),
-    }],
-  };
+    }];
+  }
   return notifications;
 }
 
