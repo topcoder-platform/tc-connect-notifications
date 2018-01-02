@@ -189,30 +189,37 @@ module.exports = {
         added: {
           title: 'A new team member has joined your project',
           content: data => `${data.firstName} ${data.lastName} has joined project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Welcome ${data.firstName}! Looking forward to working with you.`,
+          disabled: true,
         },
         managerJoined: {
           title: 'A Topcoder project manager has joined your project',
           content: data => `${data.firstName} ${data.lastName} has joined your project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a> as a project manager.`,
+          disabled: true,
         },
         copilotJoined: {
           title: 'A Topcoder copilot has joined your project',
           content: data => `${data.firstName} ${data.lastName} has joined your project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a> as a copilot.`,
+          disabled: true,
         },
         left: {
           title: 'A team member has left your project',
           content: data => `${data.firstName} ${data.lastName} has left project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Thanks for all your work ${data.firstName}.`,
+          disabled: true,
         },
         removed: {
           title: 'A team member has left your project',
           content: data => `${data.firstName} ${data.lastName} has left project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Thanks for all your work ${data.firstName}.`,
+          disabled: true,
         },
         ownerChanged: {
           title: 'Your project has a new owner',
           content: data => `${data.firstName} ${data.lastName} is now responsible for project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Good luck ${data.firstName}.`,
+          disabled: true,
         },
         ownerAdded: {
           title: 'Ownership changed',
           content: data => `Your project has a new owner. ${data.firstName} ${data.lastName} is now responsible for project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>. Good luck ${data.firstName}!`,
+          disabled: true,
         },
       },
     },
