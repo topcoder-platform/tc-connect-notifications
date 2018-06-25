@@ -99,8 +99,8 @@ module.exports = {
         const obj = {
           channel: `${config.get('SLACK_CHANNEL_NPS')}`,
           color: _.get(projectTypes, `${data.project.type}.color`, defaultColor),
-          pretext: 'A project is completed.',
-          fallback: 'A project is completed.',
+          pretext: 'A project has been completed and is available for NPS follow-up.',
+          fallback: 'A project has been completed and is available for NPS follow-up.',
           title: _.get(data, 'project.name', ''),
           title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
           text: _.truncate(_.get(data, 'project.description', ''), {
