@@ -95,6 +95,35 @@ module.exports = {
         };
         return obj;
       },
+      projectCompleted: (data) => {
+        const obj = {
+          channel: `${config.get('SLACK_CHANNEL_NPS')}`,
+          color: _.get(projectTypes, `${data.project.type}.color`, defaultColor),
+          pretext: 'A project has been completed and is available for NPS follow-up.',
+          fallback: 'A project has been completed and is available for NPS follow-up.',
+          title: _.get(data, 'project.name', ''),
+          title_link: `https://connect.${config.get('AUTH_DOMAIN')}/projects/${data.project.id}/`,
+          text: _.truncate(_.get(data, 'project.description', ''), {
+            length: 200,
+            separator: /,? +.,/,
+          }),
+          ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
+          fields: [{
+            title: 'Ref Code',
+            value: _.get(data, 'project.details.utm.code', ''),
+            short: false,
+          }, {
+            title: 'Owner',
+            value: `${_.get(data, 'owner.firstName', '')} ${_.get(data, 'owner.lastName', '')}`,
+            short: false,
+          }, {
+            title: 'Project Type',
+            value: projectTypes[data.project.type].label,
+            short: false,
+          }],
+        };
+        return obj;
+      },
       projectUnclaimed: (data) => {
         const obj = {
           icon_url: icons.slack.CoderBotIcon,

@@ -42,6 +42,7 @@ module.exports = {
 
   TC_SLACK_WEBHOOK_URL: '',
   SLACK_CHANNEL_MANAGERS: '#connect-projects-test',
+  SLACK_CHANNEL_NPS: '#connect-projects-test',
   SLACK_CHANNEL_COPILOTS: '#connect-projects-test',
   SLACK_ICON_URL: 'https://emoji.slack-edge.com/T03R80JP7/coder-grinning/a3b7f3fe9e838377.png',
   SLACK_USERNAME: 'Coder',

@@ -89,6 +89,17 @@ function* projectUpdated(logger, data) {
     topic = constants.notifications.discourse.project.canceled;
   } else if (project.status === constants.projectStatuses.completed) {
     topic = constants.notifications.discourse.project.completed;
+     // Send manager notifications to slack
+    // check if project has owner and retrieve their name
+    const dataForSlack = { project };
+    const owner = _.find(project.members,
+      m => m.role === constants.memberRoles.customer && m.isPrimary);
+    if (owner) {
+      dataForSlack.owner = yield util.getUserById(owner.userId);
+    }
+    const slackNotification = util
+      .buildSlackNotification(dataForSlack, constants.notifications.slack.projectCompleted);
+    notifications.slack.manager.push(slackNotification);
   }
 
   // post to discourse if topic is set and is not disabled

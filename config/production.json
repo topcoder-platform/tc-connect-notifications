@@ -9,6 +9,7 @@
   },
   "SLACK_CHANNEL_MANAGERS": "#connect",
   "SLACK_CHANNEL_COPILOTS": "#connect-copilots",
+  "SLACK_CHANNEL_NPS": "#customer-experience",
 
   "API_BASE_URL": "http://api.topcoder.com"
 }
