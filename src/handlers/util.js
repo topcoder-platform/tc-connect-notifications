@@ -67,7 +67,7 @@ const createProjectDiscourseNotification = Promise.coroutine(
         return Promise.reject(new Error('Error retrieving system token'));
       }
       const options = {
-        url: `${config.get('API_BASE_URL')}/v4/topics/`,
+        url: `${config.get('API_BASE_URL')}/v5/topics/`,
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
