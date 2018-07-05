@@ -29,7 +29,7 @@ test:
 
 deployment:
   development:
-    branch: dev
+    branch: ['dev', 'feature/m2m-support']
     owner: topcoder-platform
     commands:
       - docker build -t $DEV_AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:$CIRCLE_SHA1 .

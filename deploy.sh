@@ -70,6 +70,26 @@ make_task_def(){
 				{
 					"name": "TC_SLACK_WEBHOOK_URL",
 					"value": "%s"
+				},
+				{
+					"name": "AUTH0_URL",
+					"value": "%s"
+				},
+				{
+					"name": "AUTH0_AUDIENCE",
+					"value": "%s"
+				},
+				{
+					"name": "AUTH0_CLIENT_ID",
+					"value": "%s"
+				},
+				{
+					"name": "AUTH0_CLIENT_SECRET",
+					"value": "%s"
+				},
+				{
+					"name": "TOKEN_CACHE_TIME",
+					"value": "%s"
 				}
 			]
 		}
@@ -84,7 +104,13 @@ make_task_def(){
 		NODE_ENV=development
 	fi
 
-	task_def=$(printf "$task_template" $ACCOUNT_ID $AWS_REGION $AWS_REPOSITORY $CIRCLE_SHA1 $NODE_ENV $LOG_LEVEL $CAPTURE_LOGS $LOGENTRIES_TOKEN $RABBITMQ_URL $SYSTEM_USER_CLIENT_ID $SYSTEM_USER_CLIENT_SECRET $TC_SLACK_WEBHOOK_URL)
+	AUTH0_URL=$(eval "echo \$${ENV}_AUTH0_URL")
+	AUTH0_AUDIENCE=$(eval "echo \$${ENV}_AUTH0_AUDIENCE")
+	TOKEN_CACHE_TIME=$(eval "echo \$${ENV}_TOKEN_CACHE_TIME")
+	AUTH0_CLIENT_ID=$(eval "echo \$${ENV}_AUTH0_CLIENT_ID")
+	AUTH0_CLIENT_SECRET=$(eval "echo \$${ENV}_AUTH0_CLIENT_SECRET")
+
+	task_def=$(printf "$task_template" $ACCOUNT_ID $AWS_REGION $AWS_REPOSITORY $CIRCLE_SHA1 $NODE_ENV $LOG_LEVEL $CAPTURE_LOGS $LOGENTRIES_TOKEN $RABBITMQ_URL $SYSTEM_USER_CLIENT_ID $SYSTEM_USER_CLIENT_SECRET $TC_SLACK_WEBHOOK_URL "$AUTH0_URL" "$AUTH0_AUDIENCE" $AUTH0_CLIENT_ID "$AUTH0_CLIENT_SECRET" $TOKEN_CACHE_TIME)
 }
 
 push_ecr_image(){

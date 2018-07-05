@@ -11,6 +11,9 @@ const _ = require('lodash');
 const config = require('config');
 const Promise = require('bluebird');
 const request = require('request');
+const tcCoreLibAuth = require('tc-core-library-js').auth;
+
+const M2m = tcCoreLibAuth.m2m(config);
 
 /**
  * Makes a GET request to the API server
@@ -39,17 +42,7 @@ function requestPromise(options, cb = null) {
 }
 
 const getSystemUserToken = Promise.coroutine(function* () {
-  const formData = {
-    clientId: config.get('SYSTEM_USER_CLIENT_ID'),
-    secret: config.get('SYSTEM_USER_CLIENT_SECRET'),
-  };
-  return yield requestPromise(
-    {
-      method: 'POST',
-      url: `${config.get('API_BASE_URL')}/v3/authorizations/`,
-      form: formData,
-    },
-    (data, resolve) => resolve(data.result.content.token));
+  return M2m.getMachineToken(config.AUTH0_CLIENT_ID, config.AUTH0_CLIENT_SECRET);
 });
 
 /**
