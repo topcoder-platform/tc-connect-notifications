@@ -42,7 +42,7 @@ function requestPromise(options, cb = null) {
 }
 
 const getSystemUserToken = Promise.coroutine(function* () {
-  return M2m.getMachineToken(config.AUTH0_CLIENT_ID, config.AUTH0_CLIENT_SECRET);
+  return yield M2m.getMachineToken(config.AUTH0_CLIENT_ID, config.AUTH0_CLIENT_SECRET);
 });
 
 /**
