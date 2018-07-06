@@ -262,9 +262,7 @@ describe('app', () => {
       sendTestEvent(sampleEvents.updatedInReview, 'project.updated');
       setTimeout(() => {
         assertCount += 1;
-        const expectedTitle = 'Your project has been submitted for review';
-        const expectedBody = 'Hello, it\'s Coder again. Thanks for submitting your project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">test</a>! I\'ve used my super computational powers to route it to one of our trusty humans. They\'ll get back to you in 1-2 business days.';
-        sinon.assert.notCalled(spy)
+        sinon.assert.notCalled(spy);
         params = slackSpy.lastCall.args;
         assert.deepEqual(params[1], expectedManagerSlackNotification);
         checkAssert(assertCount, callbackCount, done);
