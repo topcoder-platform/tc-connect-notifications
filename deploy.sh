@@ -71,7 +71,15 @@ make_task_def(){
 					"name": "TC_SLACK_WEBHOOK_URL",
 					"value": "%s"
 				}
-			]
+			],
+			"logConfiguration": {
+				"logDriver": "awslogs",
+				"options": {
+				"awslogs-group": "/aws/ecs/%s",
+				"awslogs-region": "%s",
+				"awslogs-stream-prefix": "%s"
+				}
+			}
 		}
 	]'
 	RABBITMQ_URL=$(eval "echo \$${ENV}_RABBITMQ_URL")
@@ -84,7 +92,7 @@ make_task_def(){
 		NODE_ENV=development
 	fi
 
-	task_def=$(printf "$task_template" $ACCOUNT_ID $AWS_REGION $AWS_REPOSITORY $CIRCLE_SHA1 $NODE_ENV $LOG_LEVEL $CAPTURE_LOGS $LOGENTRIES_TOKEN $RABBITMQ_URL $SYSTEM_USER_CLIENT_ID $SYSTEM_USER_CLIENT_SECRET $TC_SLACK_WEBHOOK_URL)
+	task_def=$(printf "$task_template" $ACCOUNT_ID $AWS_REGION $AWS_REPOSITORY $CIRCLE_SHA1 $NODE_ENV $LOG_LEVEL $CAPTURE_LOGS $LOGENTRIES_TOKEN $RABBITMQ_URL $SYSTEM_USER_CLIENT_ID $SYSTEM_USER_CLIENT_SECRET $TC_SLACK_WEBHOOK_URL $AWS_ECS_CLUSTER $AWS_REGION $NODE_ENV)
 }
 
 push_ecr_image(){
@@ -94,7 +102,7 @@ push_ecr_image(){
 
 register_definition() {
 
-    if revision=$(aws ecs register-task-definition --container-definitions "$task_def" --family $family | $JQ '.taskDefinition.taskDefinitionArn'); then
+    if revision=$(aws ecs register-task-definition --container-definitions "$task_def" --family $family 2> /dev/null  | $JQ '.taskDefinition.taskDefinitionArn'); then
         echo "Revision: $revision"
     else
         echo "Failed to register task definition"
