@@ -200,18 +200,22 @@ module.exports = {
         submittedForReview: {
           title: 'Your project has been submitted for review',
           content: data => `Hello, it's Coder again. Thanks for submitting your project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a>! I've used my super computational powers to route it to one of our trusty humans. They'll get back to you in 1-2 business days.`,
+          disabled: true,
         },
         activated: {
           title: 'Work on your project has begun',
           content: data => `Good news, everyone! Work on project ${data.projectName} has kicked off. Please keep an eye on the <a href="${data.projectUrl}" rel="nofollow">Dashboard</a> section (or your email inbox) for the latest status updates.`,
+          disabled: true,
         },
         canceled: {
           title: 'Your project has been canceled',
           content: data => `Project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a> has been canceled. If you think this may have been a mistake, please reply to this message immediately. Otherwise, looking forward to your next project. Coder signing off....`,
+          disabled: true,
         },
         completed: {
           title: 'Your project has been completed',
           content: data => `Project <a href="${data.projectUrl}" rel="nofollow">${data.projectName}</a> is finished! Well done, team. Looking forward to seeing your next project soon. Coder signing off....`,
+          disabled: true,
         },
       },
       teamMembers: {
