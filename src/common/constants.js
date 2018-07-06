@@ -195,7 +195,7 @@ module.exports = {
       project: {
         created: {
           title: 'Your project has been created, and we\'re ready for your specification',
-          content: data => `Hello, Coder here! Your project '${data.projectName}' has been created successfully. For your next step, please head over to the <a href="${data.projectUrl}specification/" rel="nofollow">Specification</a> section and answer all of the required questions. If you already have a document with your requirements, just verify it against our checklist and then upload it. Once you're done, hit the "Submit for Review" button on the Specification. Get stuck or need help? Email us at <a href="mailto:support@topcoder.com?subject=Question%20Regarding%20My%20New%20Topcoder%20Connect%20Project" rel="nofollow">support@topcoder.com</a>.`,
+          content: data => `Hello, Coder here! Your project '${data.projectName}' has been created successfully. For your next step, please head over to the <a href="${data.projectUrl}scope/" rel="nofollow">Scope</a> section and answer all of the required questions. If you already have a document with your requirements, just verify it against our checklist and then upload it. Once you're done, hit the "Submit for Review" button on the Specification. Get stuck or need help? Email us at <a href="mailto:support@topcoder.com?subject=Question%20Regarding%20My%20New%20Topcoder%20Connect%20Project" rel="nofollow">support@topcoder.com</a>.`,
         },
         submittedForReview: {
           title: 'Your project has been submitted for review',
