@@ -1,0 +1,88 @@
+version: 2
+defaults: &defaults
+  docker:
+    - image: circleci/node:6.14-stretch-browsers
+    # environment variables for all commands executed in the primary container
+  environment:
+    NODE_ENV: test
+    LOG_LEVEL: debug
+    AUTH_DOMAIN: topcoder-dev.com
+    AUTH_SECRET: secret
+
+jobs:
+  test:
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache:
+          key: node-modules-{{ checksum "package.json" }}
+      - run: npm install
+      - save_cache:
+          key: node-modules-{{ checksum "package.json" }}
+          paths: 
+            - node_modules
+
+      - run:
+          name: Install and setup Rabbitmq
+          command: |
+            echo 'deb http://www.rabbitmq.com/debian/ testing main' | sudo tee /etc/apt/sources.list.d/rabbitmq.list
+            wget -O- https://www.rabbitmq.com/rabbitmq-release-signing-key.asc | sudo apt-key add -
+            sudo apt-get update
+            sudo apt-get install rabbitmq-server
+            sudo service rabbitmq-server start
+            sudo cp local/rabbitmq_delayed_message_exchange-0.0.1.ez /usr/lib/rabbitmq/lib/rabbitmq_server-*/plugins
+            sudo rabbitmq-plugins enable rabbitmq_delayed_message_exchange
+            sudo service rabbitmq-server restart
+
+      - run: npm run test
+      - store_artifacts:
+          path: coverage
+
+
+  deploy_dev:
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          name: Install Docker Compose
+          command: |
+            curl -L https://github.com/docker/compose/releases/download/1.10.0/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
+            chmod +x ~/docker-compose
+            sudo mv ~/docker-compose /usr/local/bin/docker-compose
+            docker-compose version
+      - setup_remote_docker
+      - run: docker build -t $DEV_AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:$CIRCLE_SHA1 .
+      - run: ./deploy.sh DEV
+
+  deploy_prod:
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          name: Install Docker Compose
+          command: |
+            curl -L https://github.com/docker/compose/releases/download/1.10.0/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
+            chmod +x ~/docker-compose
+            sudo mv ~/docker-compose /usr/local/bin/docker-compose
+            docker-compose version
+      - setup_remote_docker
+      - run: docker build -t $PROD_AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:$CIRCLE_SHA1 .
+      - run: ./deploy.sh PROD
+
+workflows:
+  version: 2
+  test-and-deploy:
+    jobs:
+      - test
+      - deploy_prod:
+          requires:
+            - test
+          filters:
+            branches:
+              only: master
+      - deploy_dev:
+          requires:
+            - test
+          filters:
+            branches:
+              only: [dev, dev-circleci2]
