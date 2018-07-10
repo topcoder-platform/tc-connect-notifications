@@ -50,6 +50,8 @@ jobs:
             chmod +x ~/docker-compose
             sudo mv ~/docker-compose /usr/local/bin/docker-compose
             docker-compose version
+      - run: sudo apt-get update && sudo apt-get install -y python-pip
+      - run: pip install awscli
       - setup_remote_docker
       - run: docker build -t $DEV_AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:$CIRCLE_SHA1 .
       - run: ./deploy.sh DEV
@@ -65,6 +67,8 @@ jobs:
             chmod +x ~/docker-compose
             sudo mv ~/docker-compose /usr/local/bin/docker-compose
             docker-compose version
+      - run: sudo apt-get update && sudo apt-get install -y python-pip
+      - run: pip install awscli
       - setup_remote_docker
       - run: docker build -t $PROD_AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$AWS_REPOSITORY:$CIRCLE_SHA1 .
       - run: ./deploy.sh PROD
