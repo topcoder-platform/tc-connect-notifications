@@ -25,7 +25,7 @@
     "jackrabbit": "^4.3.0",
     "lodash": "^4.16.6",
     "request": "^2.78.0",
-    "tc-core-library-js": "appirio-tech/tc-core-library-js.git#v2.4"
+    "tc-core-library-js": "appirio-tech/tc-core-library-js.git#v2.3"
   },
   "devDependencies": {
     "babel-cli": "^6.9.0",
