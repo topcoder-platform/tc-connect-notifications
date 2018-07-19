@@ -99,7 +99,7 @@ server.use(function(req, res, next) {
         "success": true,
         "status": 200,
         "content": {
-          "key": "key1",
+          "key": key,
           "displayName": projectTypes[key].label,
           "icon": "http://example.com/icon1.ico",
           "question": "question 1",
