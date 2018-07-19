@@ -6,6 +6,41 @@ var middlewares = jsonServer.defaults()
 var _ = require('lodash')
 server.use(middlewares)
 
+const projectTypes = {
+  app_dev: {
+    label: 'Full App',
+    color: '#96d957',
+  },
+  generic: {
+    label: 'Work Project',
+    color: '#b47dd6',
+  },
+  visual_prototype: {
+    label: 'Design & Prototype',
+    color: '#67c5ef',
+  },
+  visual_design: {
+    label: 'Design',
+    color: '#67c5ef',
+  },
+  app: {
+    label: 'App',
+    color: '#96d957',
+  },
+  quality_assurance: {
+    label: 'QA',
+    color: '#96d957',
+  },
+  chatbot: {
+    label: 'Chatbot',
+    color: '#96d957',
+  },
+  website: {
+    label: 'Website',
+    color: '#96d957',
+  },
+};
+
 server.use(jsonServer.rewriter({
   '/v3/': '/',
   '/v4/': '/',
@@ -55,6 +90,29 @@ server.use(function(req, res, next) {
           "content": [data.result.content]
         }
       })
+  } else if (req.method == 'GET' && req.url.indexOf('projectTypes') > -1) {
+    var key = req.url.split('/').pop()
+    return res.json({
+      "id": "1",
+      "version": "v4",
+      "result": {
+        "success": true,
+        "status": 200,
+        "content": {
+          "key": "key1",
+          "displayName": projectTypes[key].label,
+          "icon": "http://example.com/icon1.ico",
+          "question": "question 1",
+          "info": "info 1",
+          "aliases": ["key-1", "key_1"],
+          "disabled": true,
+          "hidden": true,
+          "metadata": { "slack-notification-mappings": projectTypes[key] },
+          "createdBy": 1,
+          "updatedBy": 1,
+        }
+      }
+    })
   } else {
     next();
   }

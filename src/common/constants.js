@@ -9,6 +9,7 @@
  */
 const _ = require('lodash');
 const config = require('config');
+const { getProjectTypeByKey } = require('../handlers/util');
 
 const defaultColor = '#67c5ef';
 const projectTypes = {
@@ -66,10 +67,11 @@ module.exports = {
   // The notification types to be produce to the target RabbitMQ
   notifications: {
     slack: {
-      projectInReview: (data) => {
+      * projectInReview(data) {
+        const projectTypeData = yield getProjectTypeByKey(data.project.type);
         const obj = {
           channel: `${config.get('SLACK_CHANNEL_MANAGERS')}`,
-          color: _.get(projectTypes, `${data.project.type}.color`, defaultColor),
+          color: _.get(projectTypeData, 'metadata.slack-notification-mappings.color', defaultColor),
           pretext: 'A project is ready to be reviewed.',
           fallback: 'A project is ready to be reviewed.',
           title: _.get(data, 'project.name', ''),
@@ -89,16 +91,17 @@ module.exports = {
             short: false,
           }, {
             title: 'Project Type',
-            value: projectTypes[data.project.type].label,
+            value: _.get(projectTypeData, 'metadata.slack-notification-mappings.label', projectTypeData.displayName),
             short: false,
           }],
         };
         return obj;
       },
-      projectCompleted: (data) => {
+      * projectCompleted(data) {
+        const projectTypeData = yield getProjectTypeByKey(data.project.type);
         const obj = {
           channel: `${config.get('SLACK_CHANNEL_NPS')}`,
-          color: _.get(projectTypes, `${data.project.type}.color`, defaultColor),
+          color: _.get(projectTypeData, 'metadata.slack-notification-mappings.color', defaultColor),
           pretext: 'A project has been completed and is available for NPS follow-up.',
           fallback: 'A project has been completed and is available for NPS follow-up.',
           title: _.get(data, 'project.name', ''),
@@ -118,16 +121,17 @@ module.exports = {
             short: false,
           }, {
             title: 'Project Type',
-            value: projectTypes[data.project.type].label,
+            value: _.get(projectTypeData, 'metadata.slack-notification-mappings.label', projectTypeData.displayName),
             short: false,
           }],
         };
         return obj;
       },
-      projectUnclaimed: (data) => {
+      * projectUnclaimed(data) {
+        const projectTypeData = yield getProjectTypeByKey(data.project.type);
         const obj = {
           icon_url: icons.slack.CoderBotIcon,
-          color: _.get(projectTypes, `${data.project.type}.color`, defaultColor),
+          color: _.get(projectTypeData, 'metadata.slack-notification-mappings.color', defaultColor),
           channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
           pretext: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
           fallback: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
@@ -140,16 +144,17 @@ module.exports = {
           ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
           fields: [{
             title: 'Project Type',
-            value: projectTypes[data.project.type].label,
+            value: _.get(projectTypeData, 'metadata.slack-notification-mappings.label', projectTypeData.displayName),
             short: false,
           }],
         };
         return obj;
       },
-      projectUnclaimedReposted: (data) => {
+      * projectUnclaimedReposted(data) {
+        const projectTypeData = yield getProjectTypeByKey(data.project.type);
         const obj = {
           icon_url: icons.slack.CoderErrorIcon,
-          color: _.get(projectTypes, `${data.project.type}.color`, defaultColor),
+          color: _.get(projectTypeData, 'metadata.slack-notification-mappings.color', defaultColor),
           channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
           pretext: 'We\'re still looking for a copilot for a reviewed project. Please check it out and claim it.',
           fallback: 'We\'re still looking for a copilot for a reviewed project. Please check it out and claim it.',
@@ -162,16 +167,17 @@ module.exports = {
           ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
           fields: [{
             title: 'Project Type',
-            value: projectTypes[data.project.type].label,
+            value: _.get(projectTypeData, 'metadata.slack-notification-mappings.label', projectTypeData.displayName),
             short: false,
           }],
         };
         return obj;
       },
-      projectClaimed: (data) => {
+      * projectClaimed(data) {
+        const projectTypeData = yield getProjectTypeByKey(data.project.type);
         const obj = {
           icon_url: icons.slack.CoderGrinningIcon,
-          color: _.get(projectTypes, `${data.project.type}.color`, defaultColor),
+          color: _.get(projectTypeData, 'metadata.slack-notification-mappings.color', defaultColor),
           channel: `${config.get('SLACK_CHANNEL_COPILOTS')}`,
           pretext: `${data.firstName} ${data.lastName} has claimed a project. Welcome to the team!`,
           fallback: `${data.firstName} ${data.lastName} has claimed a project. Welcome to the team!`,
@@ -184,7 +190,7 @@ module.exports = {
           ts: (new Date(_.get(data, 'project.updatedAt', null))).getTime() / 1000,
           fields: [{
             title: 'Project Type',
-            value: projectTypes[data.project.type].label,
+            value: _.get(projectTypeData, 'metadata.slack-notification-mappings.label', projectTypeData.displayName),
             short: false,
           }],
         };

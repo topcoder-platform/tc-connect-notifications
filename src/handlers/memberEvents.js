@@ -41,7 +41,7 @@ function* memberAdded(logger, data) {
     if ((project.status === constants.projectStatuses.active ||
       project.status === constants.projectStatuses.reviewed)
       && _.filter(project.members, ['role', 'copilot']).length < 2) {
-      const slackNotification = util.buildSlackNotification(
+      const slackNotification = yield util.buildSlackNotification(
         {
           project,
           firstName: addedMember.firstName,
