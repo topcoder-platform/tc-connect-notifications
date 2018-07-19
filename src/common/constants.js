@@ -12,41 +12,6 @@ const config = require('config');
 const { getProjectTypeByKey } = require('../handlers/util');
 
 const defaultColor = '#67c5ef';
-const projectTypes = {
-  app_dev: {
-    label: 'Full App',
-    color: '#96d957',
-  },
-  generic: {
-    label: 'Work Project',
-    color: '#b47dd6',
-  },
-  visual_prototype: {
-    label: 'Design & Prototype',
-    color: '#67c5ef',
-  },
-  visual_design: {
-    label: 'Design',
-    color: '#67c5ef',
-  },
-  app: {
-    label: 'App',
-    color: '#96d957',
-  },
-  quality_assurance: {
-    label: 'QA',
-    color: '#96d957',
-  },
-  chatbot: {
-    label: 'Chatbot',
-    color: '#96d957',
-  },
-  website: {
-    label: 'Website',
-    color: '#96d957',
-  },
-};
-
 const icons = {
   slack: {
     CoderBotIcon: 'https://emoji.slack-edge.com/T03R80JP7/coder-the-bot/85ae574c0c7063ef.png',
@@ -324,6 +289,5 @@ module.exports = {
     customer: 'customer',
     copilot: 'copilot',
   },
-  projectTypes,
   icons,
 };
