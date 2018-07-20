@@ -146,6 +146,26 @@ function* getProjectById(id) {
 }
 
 /**
+ * Get project type from API server
+ * @param {String} key the project type key
+ * @returns {Promise} the promise that resolves to the project type
+ * @private
+ */
+function* getProjectTypeByKey(key) {
+  const token = yield getSystemUserToken();
+  if (!token) {
+    // logger.error('Error retrieving system token');
+    return Promise.reject(new Error('Error retrieving system token'));
+  }
+  return yield requestPromise({
+    url: `${config.get('API_BASE_URL')}/v4/projectTypes/${key}`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+/**
  * Get user from API server
  * @param {Number} id the user id
  * @returns {Promise} the promise that resolves to the user
@@ -198,12 +218,12 @@ function createProjectMemberNotification(userIds, project, member, notificationT
  * Create notification for a slack channel
  * @param {Object} data the project
  * @param {String} eventType type to customize notification
- * @returns the notification
+ * @returns Promise
  * @private
  */
 
-function buildSlackNotification(data, slackDataGenerator) {
-  const slackData = slackDataGenerator(data);
+function* buildSlackNotification(data, slackDataGenerator) {
+  const slackData = yield slackDataGenerator(data);
   return {
     username: config.get('SLACK_USERNAME'),
     icon_url: slackData.url || config.get('SLACK_ICON_URL'),
@@ -242,6 +262,7 @@ module.exports = {
   getProjectMemberIdsByRole,
   getUserById,
   getProjectById,
+  getProjectTypeByKey,
   buildSlackNotification,
   sendSlackNotification,
 };
