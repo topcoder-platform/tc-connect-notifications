@@ -19,12 +19,11 @@ To override default settings please add them to a file `./config/local.js`:
 - `RABBITMQ.DELAY_DURATION`: Amount of delay before reposting unclaimed project
 - `RABBITMQ.NOTIFICATIONS_EXCHANGE_NAME`: the notification RabbitMQ's topic exchange name
 - `LOGENTRIES_TOKEN`: the Logentries token generated from https://logentries.com/
-- `API_BASE_URL`: the base url to the API server to get project/user info
-- `API_URL_PROJECTS`: `API_BASE_URL` path accessed by this project
-- `API_URL_MEMBERS`: `API_BASE_URL` path accessed by this project
-- `API_URL_USERS`: `API_BASE_URL` path accessed by this project
-- `API_URL_AUTHORIZATIONS`: `API_BASE_URL` path accessed by this project
-- `API_URL_TOPICS`: `API_BASE_URL` path accessed by this project
+- `API_URL_PROJECTS`: the projects service url
+- `API_URL_MEMBERS`: `API_BASE_URL` the members service url
+- `API_URL_USERS`: `API_BASE_URL` the users service url
+- `API_URL_AUTHORIZATIONS`: `API_BASE_URL` the authorizations service url
+- `API_URL_TOPICS`: `API_BASE_URL` the topics service url
 - `DISABLE_DELAY_EXCHANGE`: Disable exchage type delay and use 'direct' instead(Note: after changing this delete existing delay exchange )
 - `TC_SLACK_WEBHOOK_URL`: slack webhook url
 - `SLACK_ICON_URL`: slack webhook icon url
