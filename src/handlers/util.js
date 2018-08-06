@@ -11,6 +11,9 @@ const _ = require('lodash');
 const config = require('config');
 const Promise = require('bluebird');
 const request = require('request');
+const tcCoreLibAuth = require('tc-core-library-js').auth;
+
+const M2m = tcCoreLibAuth.m2m(config);
 
 /**
  * Makes a GET request to the API server
@@ -39,17 +42,7 @@ function requestPromise(options, cb = null) {
 }
 
 const getSystemUserToken = Promise.coroutine(function* () {
-  const formData = {
-    clientId: config.get('SYSTEM_USER_CLIENT_ID'),
-    secret: config.get('SYSTEM_USER_CLIENT_SECRET'),
-  };
-  return yield requestPromise(
-    {
-      method: 'POST',
-      url: `${config.get('API_BASE_URL')}/v3/authorizations/`,
-      form: formData,
-    },
-    (data, resolve) => resolve(data.result.content.token));
+  return yield M2m.getMachineToken(config.AUTH0_CLIENT_ID, config.AUTH0_CLIENT_SECRET);
 });
 
 /**
@@ -67,7 +60,7 @@ const createProjectDiscourseNotification = Promise.coroutine(
         return Promise.reject(new Error('Error retrieving system token'));
       }
       const options = {
-        url: `${config.get('API_BASE_URL')}/v4/topics/`,
+        url: `${config.get('API_BASE_URL')}/v5/topics/create`,
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -153,6 +146,26 @@ function* getProjectById(id) {
 }
 
 /**
+ * Get project type from API server
+ * @param {String} key the project type key
+ * @returns {Promise} the promise that resolves to the project type
+ * @private
+ */
+function* getProjectTypeByKey(key) {
+  const token = yield getSystemUserToken();
+  if (!token) {
+    // logger.error('Error retrieving system token');
+    return Promise.reject(new Error('Error retrieving system token'));
+  }
+  return yield requestPromise({
+    url: `${config.get('API_BASE_URL')}/v4/projectTypes/${key}`,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
+
+/**
  * Get user from API server
  * @param {Number} id the user id
  * @returns {Promise} the promise that resolves to the user
@@ -205,12 +218,12 @@ function createProjectMemberNotification(userIds, project, member, notificationT
  * Create notification for a slack channel
  * @param {Object} data the project
  * @param {String} eventType type to customize notification
- * @returns the notification
+ * @returns Promise
  * @private
  */
 
-function buildSlackNotification(data, slackDataGenerator) {
-  const slackData = slackDataGenerator(data);
+function* buildSlackNotification(data, slackDataGenerator) {
+  const slackData = yield slackDataGenerator(data);
   return {
     username: config.get('SLACK_USERNAME'),
     icon_url: slackData.url || config.get('SLACK_ICON_URL'),
@@ -249,6 +262,7 @@ module.exports = {
   getProjectMemberIdsByRole,
   getUserById,
   getProjectById,
+  getProjectTypeByKey,
   buildSlackNotification,
   sendSlackNotification,
 };
