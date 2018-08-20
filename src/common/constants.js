@@ -9,7 +9,7 @@
  */
 const _ = require('lodash');
 const config = require('config');
-const { getProjectTypeByKey } = require('../handlers/util');
+const util = require('../handlers/util');
 
 const defaultColor = '#67c5ef';
 const icons = {
@@ -33,7 +33,7 @@ module.exports = {
   notifications: {
     slack: {
       * projectInReview(data) {
-        const projectTypeData = yield getProjectTypeByKey(data.project.type);
+        const projectTypeData = yield util.getProjectTypeByKey(data.project.type);
         const obj = {
           channel: `${config.get('SLACK_CHANNEL_MANAGERS')}`,
           color: _.get(projectTypeData, 'metadata.slack-notification-mappings.color', defaultColor),
@@ -63,7 +63,7 @@ module.exports = {
         return obj;
       },
       * projectCompleted(data) {
-        const projectTypeData = yield getProjectTypeByKey(data.project.type);
+        const projectTypeData = yield util.getProjectTypeByKey(data.project.type);
         const obj = {
           channel: `${config.get('SLACK_CHANNEL_NPS')}`,
           color: _.get(projectTypeData, 'metadata.slack-notification-mappings.color', defaultColor),
@@ -93,7 +93,7 @@ module.exports = {
         return obj;
       },
       * projectUnclaimed(data) {
-        const projectTypeData = yield getProjectTypeByKey(data.project.type);
+        const projectTypeData = yield util.getProjectTypeByKey(data.project.type);
         const obj = {
           icon_url: icons.slack.CoderBotIcon,
           color: _.get(projectTypeData, 'metadata.slack-notification-mappings.color', defaultColor),
@@ -116,7 +116,7 @@ module.exports = {
         return obj;
       },
       * projectUnclaimedReposted(data) {
-        const projectTypeData = yield getProjectTypeByKey(data.project.type);
+        const projectTypeData = yield util.getProjectTypeByKey(data.project.type);
         const obj = {
           icon_url: icons.slack.CoderErrorIcon,
           color: _.get(projectTypeData, 'metadata.slack-notification-mappings.color', defaultColor),
@@ -139,7 +139,7 @@ module.exports = {
         return obj;
       },
       * projectClaimed(data) {
-        const projectTypeData = yield getProjectTypeByKey(data.project.type);
+        const projectTypeData = yield util.getProjectTypeByKey(data.project.type);
         const obj = {
           icon_url: icons.slack.CoderGrinningIcon,
           color: _.get(projectTypeData, 'metadata.slack-notification-mappings.color', defaultColor),

@@ -43,6 +43,40 @@ const sampleProjects = {
 const sampleUsers = {
   user1: require('./data/users.1.json'),
 };
+const projectTypes = {
+  app_dev: {
+    label: 'Full App',
+    color: '#96d957',
+  },
+  generic: {
+    label: 'Work Project',
+    color: '#b47dd6',
+  },
+  visual_prototype: {
+    label: 'Design & Prototype',
+    color: '#67c5ef',
+  },
+  visual_design: {
+    label: 'Design',
+    color: '#67c5ef',
+  },
+  app: {
+    label: 'App',
+    color: '#96d957',
+  },
+  quality_assurance: {
+    label: 'QA',
+    color: '#96d957',
+  },
+  chatbot: {
+    label: 'Chatbot',
+    color: '#96d957',
+  },
+  website: {
+    label: 'Website',
+    color: '#96d957',
+  },
+};
 const sampleAuth = require('./data/authorization.json');
 
 const expectedSlackNotficationBase = {
@@ -118,6 +152,8 @@ describe('app', () => {
   let stub;
   let spy;
   let slackSpy;
+  let systemTokenSpy;
+  let getProjectByIdSpy;
   let correlationId = 1;
 
   const restoreStubAndSpy = () => {
@@ -133,6 +169,14 @@ describe('app', () => {
 
     if (slackSpy && slackSpy.restore) {
       slackSpy.restore();
+    }
+
+    if (systemTokenSpy && systemTokenSpy.restore) {
+      systemTokenSpy.restore();
+    }
+
+    if (getProjectByIdSpy && getProjectByIdSpy.restore) {
+      getProjectByIdSpy.restore();
     }
   };
 
@@ -207,6 +251,25 @@ describe('app', () => {
     // spy the discourse notification call
     spy = sinon.spy(util, 'createProjectDiscourseNotification');
     slackSpy = sinon.spy(util, 'sendSlackNotification');
+    systemTokenSpy = sinon.stub(util, 'getProjectTypeByKey', key => new Promise(resolve => (
+      // console.log(key, 'mock called');
+      resolve({
+        key,
+        displayName: projectTypes[key].label,
+        icon: 'http://example.com/icon1.ico',
+        question: 'question 1',
+        info: 'info 1',
+        aliases: ['key-1', 'key_1'],
+        disabled: true,
+        hidden: true,
+        metadata: { 'slack-notification-mappings': projectTypes[key] },
+        createdBy: 1,
+        updatedBy: 1,
+      })
+    )));
+    getProjectByIdSpy = sinon.stub(util, 'getProjectById', () => new Promise((resolve) => {
+      resolve(sampleProjects.project1.result.content);
+    }));
     purgeQueues(done);
   });
 
@@ -283,10 +346,13 @@ describe('app', () => {
       }, testTimeout);
     });
     it('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and repost after delay till TTL', (done) => {
-      request.get.restore();
-      stub = sinon.stub(request, 'get');
-      stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v4/projects/1`))
-        .yields(null, { statusCode: 200 }, sampleProjects.projectTest);
+      getProjectByIdSpy.restore();
+      getProjectByIdSpy = sinon.stub(util, 'getProjectById', () => (
+        // console.log('getProjectById spy');
+        new Promise((resolve) => {
+          resolve(sampleProjects.projectTest.result.content);
+        })
+      ));
 
       let assertCount = 0;
       const callbackCount = config.get('RABBITMQ.DELAYED_NOTIFICATIONS_TTL') + 1;
@@ -370,12 +436,12 @@ describe('app', () => {
       }, testTimeout);
     });
     it('should create `Project.Member.CopilotJoined` notification and slack copilot joined notification', (done) => {
-      request.get.restore();
-      stub = sinon.stub(request, 'get');
-      stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v4/projects/1`))
-        .yields(null, { statusCode: 200 }, sampleProjects.projectTest);
-      stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v3/members/_search/?query=userId:40051331`))
-        .yields(null, { statusCode: 200 }, sampleUsers.user1);
+      getProjectByIdSpy.restore();
+      getProjectByIdSpy = sinon.stub(util, 'getProjectById', () => (
+        new Promise((resolve) => {
+          resolve(sampleProjects.projectTest.result.content);
+        })
+      ));
 
       sendTestEvent(sampleEvents.memberAddedCopilot, 'project.member.added');
       setTimeout(() => {
