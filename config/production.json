@@ -11,5 +11,5 @@
   "SLACK_CHANNEL_COPILOTS": "#connect-copilots",
   "SLACK_CHANNEL_NPS": "#customer-experience",
 
-  "API_BASE_URL": "http://api.topcoder.com"
+  "API_BASE_URL": "https://api.topcoder.com"
 }

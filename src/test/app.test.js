@@ -43,6 +43,40 @@ const sampleProjects = {
 const sampleUsers = {
   user1: require('./data/users.1.json'),
 };
+const projectTypes = {
+  app_dev: {
+    label: 'Full App',
+    color: '#96d957',
+  },
+  generic: {
+    label: 'Work Project',
+    color: '#b47dd6',
+  },
+  visual_prototype: {
+    label: 'Design & Prototype',
+    color: '#67c5ef',
+  },
+  visual_design: {
+    label: 'Design',
+    color: '#67c5ef',
+  },
+  app: {
+    label: 'App',
+    color: '#96d957',
+  },
+  quality_assurance: {
+    label: 'QA',
+    color: '#96d957',
+  },
+  chatbot: {
+    label: 'Chatbot',
+    color: '#96d957',
+  },
+  website: {
+    label: 'Website',
+    color: '#96d957',
+  },
+};
 const sampleAuth = require('./data/authorization.json');
 
 const expectedSlackNotficationBase = {
@@ -118,6 +152,8 @@ describe('app', () => {
   let stub;
   let spy;
   let slackSpy;
+  let systemTokenSpy;
+  let getProjectByIdSpy;
   let correlationId = 1;
 
   const restoreStubAndSpy = () => {
@@ -133,6 +169,14 @@ describe('app', () => {
 
     if (slackSpy && slackSpy.restore) {
       slackSpy.restore();
+    }
+
+    if (systemTokenSpy && systemTokenSpy.restore) {
+      systemTokenSpy.restore();
+    }
+
+    if (getProjectByIdSpy && getProjectByIdSpy.restore) {
+      getProjectByIdSpy.restore();
     }
   };
 
@@ -207,6 +251,25 @@ describe('app', () => {
     // spy the discourse notification call
     spy = sinon.spy(util, 'createProjectDiscourseNotification');
     slackSpy = sinon.spy(util, 'sendSlackNotification');
+    systemTokenSpy = sinon.stub(util, 'getProjectTypeByKey', key => new Promise(resolve => (
+      // console.log(key, 'mock called');
+      resolve({
+        key,
+        displayName: projectTypes[key].label,
+        icon: 'http://example.com/icon1.ico',
+        question: 'question 1',
+        info: 'info 1',
+        aliases: ['key-1', 'key_1'],
+        disabled: true,
+        hidden: true,
+        metadata: { 'slack-notification-mappings': projectTypes[key] },
+        createdBy: 1,
+        updatedBy: 1,
+      })
+    )));
+    getProjectByIdSpy = sinon.stub(util, 'getProjectById', () => new Promise((resolve) => {
+      resolve(sampleProjects.project1.result.content);
+    }));
     purgeQueues(done);
   });
 
@@ -241,7 +304,7 @@ describe('app', () => {
       sendTestEvent(sampleEvents.draftCreated, 'project.draft-created');
       setTimeout(() => {
         const expectedTitle = 'Your project has been created, and we\'re ready for your specification';
-        const expectedBody = 'Hello, Coder here! Your project \'test\' has been created successfully. For your next step, please head over to the <a href="https://connect.topcoder-dev.com/projects/1/specification/" rel="nofollow">Specification</a> section and answer all of the required questions. If you already have a document with your requirements, just verify it against our checklist and then upload it. Once you\'re done, hit the "Submit for Review" button on the Specification. Get stuck or need help? Email us at <a href="mailto:support@topcoder.com?subject=Question%20Regarding%20My%20New%20Topcoder%20Connect%20Project" rel="nofollow">support@topcoder.com</a>.';
+        const expectedBody = 'Hello, Coder here! Your project \'test\' has been created successfully. For your next step, please head over to the <a href="https://connect.topcoder-dev.com/projects/1/scope/" rel="nofollow">Scope</a> section and answer all of the required questions. If you already have a document with your requirements, just verify it against our checklist and then upload it. Once you\'re done, hit the "Submit for Review" button on the Specification. Get stuck or need help? Email us at <a href="mailto:support@topcoder.com?subject=Question%20Regarding%20My%20New%20Topcoder%20Connect%20Project" rel="nofollow">support@topcoder.com</a>.';
         const params = spy.lastCall.args;
         assert.equal(params[2], expectedTitle);
         assert.equal(params[3], expectedBody);
@@ -262,11 +325,7 @@ describe('app', () => {
       sendTestEvent(sampleEvents.updatedInReview, 'project.updated');
       setTimeout(() => {
         assertCount += 1;
-        const expectedTitle = 'Your project has been submitted for review';
-        const expectedBody = 'Hello, it\'s Coder again. Thanks for submitting your project <a href="https://connect.topcoder-dev.com/projects/1/" rel="nofollow">test</a>! I\'ve used my super computational powers to route it to one of our trusty humans. They\'ll get back to you in 1-2 business days.';
-        let params = spy.lastCall.args;
-        assert.equal(params[2], expectedTitle);
-        assert.equal(params[3], expectedBody);
+        sinon.assert.notCalled(spy);
         params = slackSpy.lastCall.args;
         assert.deepEqual(params[1], expectedManagerSlackNotification);
         checkAssert(assertCount, callbackCount, done);
@@ -287,10 +346,13 @@ describe('app', () => {
       }, testTimeout);
     });
     it('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and repost after delay till TTL', (done) => {
-      request.get.restore();
-      stub = sinon.stub(request, 'get');
-      stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v4/projects/1`))
-        .yields(null, { statusCode: 200 }, sampleProjects.projectTest);
+      getProjectByIdSpy.restore();
+      getProjectByIdSpy = sinon.stub(util, 'getProjectById', () => (
+        // console.log('getProjectById spy');
+        new Promise((resolve) => {
+          resolve(sampleProjects.projectTest.result.content);
+        })
+      ));
 
       let assertCount = 0;
       const callbackCount = config.get('RABBITMQ.DELAYED_NOTIFICATIONS_TTL') + 1;
@@ -374,12 +436,12 @@ describe('app', () => {
       }, testTimeout);
     });
     it('should create `Project.Member.CopilotJoined` notification and slack copilot joined notification', (done) => {
-      request.get.restore();
-      stub = sinon.stub(request, 'get');
-      stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v4/projects/1`))
-        .yields(null, { statusCode: 200 }, sampleProjects.projectTest);
-      stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v3/members/_search/?query=userId:40051331`))
-        .yields(null, { statusCode: 200 }, sampleUsers.user1);
+      getProjectByIdSpy.restore();
+      getProjectByIdSpy = sinon.stub(util, 'getProjectById', () => (
+        new Promise((resolve) => {
+          resolve(sampleProjects.projectTest.result.content);
+        })
+      ));
 
       sendTestEvent(sampleEvents.memberAddedCopilot, 'project.member.added');
       setTimeout(() => {

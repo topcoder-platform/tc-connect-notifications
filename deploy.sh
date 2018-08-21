@@ -60,31 +60,57 @@ make_task_def(){
 					"value": "%s"
 				},
 				{
-					"name": "SYSTEM_USER_CLIENT_ID",
-					"value": "%s"
-				},
-				{
-					"name": "SYSTEM_USER_CLIENT_SECRET",
-					"value": "%s"
-				},
-				{
 					"name": "TC_SLACK_WEBHOOK_URL",
 					"value": "%s"
+				},
+				{
+					"name": "AUTH0_URL",
+					"value": "%s"
+				},
+				{
+					"name": "AUTH0_AUDIENCE",
+					"value": "%s"
+				},
+				{
+					"name": "AUTH0_CLIENT_ID",
+					"value": "%s"
+				},
+				{
+					"name": "AUTH0_CLIENT_SECRET",
+					"value": "%s"
+				},
+				{
+					"name": "TOKEN_CACHE_TIME",
+					"value": "%s"
 				}
-			]
+			],
+			"logConfiguration": {
+				"logDriver": "awslogs",
+				"options": {
+				"awslogs-group": "/aws/ecs/%s",
+				"awslogs-region": "%s",
+				"awslogs-stream-prefix": "%s"
+				}
+			}
 		}
 	]'
 	RABBITMQ_URL=$(eval "echo \$${ENV}_RABBITMQ_URL")
 	CAPTURE_LOGS=$(eval "echo \$${ENV}_CAPTURE_LOGS")
 	LOGENTRIES_TOKEN=$(eval "echo \$${ENV}_LOGENTRIES_TOKEN")
 	LOG_LEVEL=$(eval "echo \$${ENV}_LOG_LEVEL")
+	AUTH0_URL=$(eval "echo \$${ENV}_AUTH0_URL")
+	AUTH0_AUDIENCE=$(eval "echo \$${ENV}_AUTH0_AUDIENCE")
+	TOKEN_CACHE_TIME=$(eval "echo \$${ENV}_TOKEN_CACHE_TIME")
+	AUTH0_CLIENT_ID=$(eval "echo \$${ENV}_AUTH0_CLIENT_ID")
+	AUTH0_CLIENT_SECRET=$(eval "echo \$${ENV}_AUTH0_CLIENT_SECRET")
+
 	if [ "$ENV" = "PROD" ]; then
 		NODE_ENV=production
 	elif [ "$ENV" = "DEV" ]; then
 		NODE_ENV=development
 	fi
 
-	task_def=$(printf "$task_template" $ACCOUNT_ID $AWS_REGION $AWS_REPOSITORY $CIRCLE_SHA1 $NODE_ENV $LOG_LEVEL $CAPTURE_LOGS $LOGENTRIES_TOKEN $RABBITMQ_URL $SYSTEM_USER_CLIENT_ID $SYSTEM_USER_CLIENT_SECRET $TC_SLACK_WEBHOOK_URL)
+	task_def=$(printf "$task_template" $ACCOUNT_ID $AWS_REGION $AWS_REPOSITORY $CIRCLE_SHA1 $NODE_ENV $LOG_LEVEL $CAPTURE_LOGS $LOGENTRIES_TOKEN $RABBITMQ_URL $TC_SLACK_WEBHOOK_URL "$AUTH0_URL" "$AUTH0_AUDIENCE" $AUTH0_CLIENT_ID "$AUTH0_CLIENT_SECRET" $TOKEN_CACHE_TIME $AWS_ECS_CLUSTER $AWS_REGION $NODE_ENV)
 }
 
 push_ecr_image(){
@@ -94,7 +120,7 @@ push_ecr_image(){
 
 register_definition() {
 
-    if revision=$(aws ecs register-task-definition --container-definitions "$task_def" --family $family | $JQ '.taskDefinition.taskDefinitionArn'); then
+    if revision=$(aws ecs register-task-definition --container-definitions "$task_def" --family $family 2> /dev/null  | $JQ '.taskDefinition.taskDefinitionArn'); then
         echo "Revision: $revision"
     else
         echo "Failed to register task definition"

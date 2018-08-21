@@ -23,4 +23,9 @@ module.exports = {
   },
   TC_SLACK_WEBHOOK_URL: 'http://localhost:3001/slack',
   API_BASE_URL: 'http://localhost:3001',
+  AUTH0_URL: process.env.DEV_AUTH0_URL || '',
+  AUTH0_AUDIENCE: process.env.DEV_AUTH0_AUDIENCE || '',
+  TOKEN_CACHE_TIME: process.env.DEV_TOKEN_CACHE_TIME || 86400000,
+  AUTH0_CLIENT_ID: process.env.DEV_AUTH0_CLIENT_ID,
+  AUTH0_CLIENT_SECRET: process.env.DEV_AUTH0_CLIENT_SECRET,
 };

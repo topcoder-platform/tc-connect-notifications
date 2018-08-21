@@ -69,14 +69,14 @@ function* projectUpdated(logger, data) {
     if (owner) {
       dataForSlack.owner = yield util.getUserById(owner.userId);
     }
-    const slackNotification = util
+    const slackNotification = yield util
       .buildSlackNotification(dataForSlack, constants.notifications.slack.projectInReview);
     notifications.slack.manager.push(slackNotification);
   } else if (project.status === constants.projectStatuses.reviewed) {
     // Notify to all copilots if there's no copilot is assigned
     if (!_.some(project.members, ['role', 'copilot'])) {
       // Send copilot notifications to slack
-      const slackNotification = util
+      const slackNotification = yield util
         .buildSlackNotification({ project }, constants.notifications.slack.projectUnclaimed);
       notifications.slack.copilot.push(slackNotification);
 
@@ -97,7 +97,7 @@ function* projectUpdated(logger, data) {
     if (owner) {
       dataForSlack.owner = yield util.getUserById(owner.userId);
     }
-    const slackNotification = util
+    const slackNotification = yield util
       .buildSlackNotification(dataForSlack, constants.notifications.slack.projectCompleted);
     notifications.slack.manager.push(slackNotification);
   }
@@ -135,7 +135,7 @@ function* projectUnclaimedNotifications(logger, data) {
   if (project.status === constants.projectStatuses.reviewed &&
     projectCopilotIds.length === 0) {
     notifications.delayed = data;
-    const slackNotification = util
+    const slackNotification = yield util
       .buildSlackNotification({ project }, constants.notifications.slack.projectUnclaimedReposted);
     notifications.slack.copilot.push(slackNotification);
   }

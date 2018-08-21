@@ -33,9 +33,6 @@ module.exports = {
 
   // The base url to the project/user API server
   API_BASE_URL: 'http://localhost:3001',
-  // Id and secret to generate token to make calls as system admin user
-  SYSTEM_USER_CLIENT_ID: '',
-  SYSTEM_USER_CLIENT_SECRET: '',
 
   // Disable delay exchange and use direct instead ( delete existing delay exchnge after changing)
   DISABLE_DELAY_EXCHANGE: false,
