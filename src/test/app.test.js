@@ -36,48 +36,6 @@ const sampleEvents = {
   memberUpdatedOwnerNotChanged: require('./data/events.memberUpdated.ownerNotChanged.json'),
   memberUpdated404: require('./data/events.memberUpdated.404.json'),
 };
-const sampleProjects = {
-  project1: require('./data/projects.1.json'),
-  projectTest: require('./data/projects.test.json'),
-};
-const sampleUsers = {
-  user1: require('./data/users.1.json'),
-};
-const projectTypes = {
-  app_dev: {
-    label: 'Full App',
-    color: '#96d957',
-  },
-  generic: {
-    label: 'Work Project',
-    color: '#b47dd6',
-  },
-  visual_prototype: {
-    label: 'Design & Prototype',
-    color: '#67c5ef',
-  },
-  visual_design: {
-    label: 'Design',
-    color: '#67c5ef',
-  },
-  app: {
-    label: 'App',
-    color: '#96d957',
-  },
-  quality_assurance: {
-    label: 'QA',
-    color: '#96d957',
-  },
-  chatbot: {
-    label: 'Chatbot',
-    color: '#96d957',
-  },
-  website: {
-    label: 'Website',
-    color: '#96d957',
-  },
-};
-const sampleAuth = require('./data/authorization.json');
 
 const expectedSlackNotficationBase = {
   username: 'Coder',
@@ -105,6 +63,7 @@ const expectedSlackNotficationBase = {
 
 const expectedSlackCopilotNotification = _.cloneDeep(expectedSlackNotficationBase);
 _.extend(expectedSlackCopilotNotification.attachments[0], {
+  title_link: 'https://connect.topcoder-dev.com/projects/2/',
   pretext: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
   fallback: 'A project has been reviewed and needs a copilot. Please check it out and claim it.',
 });
@@ -149,11 +108,8 @@ describe('app', () => {
   let sourceExchange;
   let sourceQueue;
   let targetExchange; // eslint-disable-line
-  let stub;
   let spy;
   let slackSpy;
-  let systemTokenSpy;
-  let getProjectByIdSpy;
   let correlationId = 1;
 
   const restoreStubAndSpy = () => {
@@ -169,14 +125,6 @@ describe('app', () => {
 
     if (slackSpy && slackSpy.restore) {
       slackSpy.restore();
-    }
-
-    if (systemTokenSpy && systemTokenSpy.restore) {
-      systemTokenSpy.restore();
-    }
-
-    if (getProjectByIdSpy && getProjectByIdSpy.restore) {
-      getProjectByIdSpy.restore();
     }
   };
 
@@ -214,36 +162,7 @@ describe('app', () => {
     restoreStubAndSpy();
 
     // Stub the calls to API server
-    stub = sinon.stub(request, 'get');
-    const stubArgs = {
-      url: `${config.API_BASE_URL}/v4/projects/1`,
-    };
-    stub.withArgs(sinon.match.has('url', stubArgs.url))
-      .yields(null, { statusCode: 200 }, sampleProjects.project1);
-
-    stubArgs.url = `${config.API_BASE_URL}/v4/projects/1000`;
-    stub.withArgs(sinon.match.has('url', stubArgs.url))
-      .yields(null, { statusCode: 404 });
-
-    stubArgs.url = `${config.API_BASE_URL}/v3/members/_search/?query=userId:1`;
-    stub.withArgs(sinon.match.has('url', stubArgs.url))
-      .yields(null, { statusCode: 200 }, sampleUsers.user1);
-
-    stubArgs.url = `${config.API_BASE_URL}/v3/users/1000`;
-    stub.withArgs(sinon.match.has('url', stubArgs.url))
-      .yields(null, { statusCode: 404 });
-
-    stubArgs.url = `${config.API_BASE_URL}/v3/members/_search/?query=userId:40051331`;
-    stub.withArgs(sinon.match.has('url', stubArgs.url))
-      .yields(null, { statusCode: 200 }, sampleUsers.user1);
-
-    stubArgs.url = `${config.API_BASE_URL}/v3/members/_search/?query=userId:50051333`;
-    stub.withArgs(sinon.match.has('url', stubArgs.url))
-      .yields(null, { statusCode: 200 }, sampleUsers.user1);
-
     postStub = sinon.stub(request, 'post');
-    postStub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v3/authorizations/`))
-      .yields(null, { statusCode: 200 }, sampleAuth);
 
     postStub.withArgs(sinon.match.has('url', config.TC_SLACK_WEBHOOK_URL))
       .yields(null, { statusCode: 200 }, {});
@@ -251,25 +170,6 @@ describe('app', () => {
     // spy the discourse notification call
     spy = sinon.spy(util, 'createProjectDiscourseNotification');
     slackSpy = sinon.spy(util, 'sendSlackNotification');
-    systemTokenSpy = sinon.stub(util, 'getProjectTypeByKey', key => new Promise(resolve => (
-      // console.log(key, 'mock called');
-      resolve({
-        key,
-        displayName: projectTypes[key].label,
-        icon: 'http://example.com/icon1.ico',
-        question: 'question 1',
-        info: 'info 1',
-        aliases: ['key-1', 'key_1'],
-        disabled: true,
-        hidden: true,
-        metadata: { 'slack-notification-mappings': projectTypes[key] },
-        createdBy: 1,
-        updatedBy: 1,
-      })
-    )));
-    getProjectByIdSpy = sinon.stub(util, 'getProjectById', () => new Promise((resolve) => {
-      resolve(sampleProjects.project1.result.content);
-    }));
     purgeQueues(done);
   });
 
@@ -317,10 +217,6 @@ describe('app', () => {
     it('should create `Project.SubmittedForReview` and `Project.AvailableForReview` and manager slack notifications', (done) => {
       let assertCount = 0;
       const callbackCount = 1;
-      request.get.restore();
-      stub = sinon.stub(request, 'get');
-      stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v3/members/_search/?query=userId:8547900`))
-        .yields(null, { statusCode: 200 }, sampleUsers.user1);
 
       sendTestEvent(sampleEvents.updatedInReview, 'project.updated');
       setTimeout(() => {
@@ -329,13 +225,17 @@ describe('app', () => {
         params = slackSpy.lastCall.args;
         assert.deepEqual(params[1], expectedManagerSlackNotification);
         checkAssert(assertCount, callbackCount, done);
-      }, testTimeout);
+      }, 3 * testTimeout);
     });
     // there is no discourse notiifcation for Project.Reviewed
     it('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and do not repost after delay', (done) => {
       let assertCount = 0;
       const callbackCount = 1;
-      sendTestEvent(sampleEvents.updatedReviewed, 'project.updated');
+      const updatedReviewedEvent = _._.cloneDeep(sampleEvents.updatedReviewed);
+      // project with id == 2, has a copilot assigned
+      updatedReviewedEvent.original.id = 2;
+      updatedReviewedEvent.updated.id = 2;
+      sendTestEvent(updatedReviewedEvent, 'project.updated');
       setTimeout(() => {
         assertCount += 1;
         sinon.assert.notCalled(spy);
@@ -346,14 +246,6 @@ describe('app', () => {
       }, testTimeout);
     });
     it('should create `Project.Reviewed` and `Project.AvailableToClaim` and copilot slack notifications and repost after delay till TTL', (done) => {
-      getProjectByIdSpy.restore();
-      getProjectByIdSpy = sinon.stub(util, 'getProjectById', () => (
-        // console.log('getProjectById spy');
-        new Promise((resolve) => {
-          resolve(sampleProjects.projectTest.result.content);
-        })
-      ));
-
       let assertCount = 0;
       const callbackCount = config.get('RABBITMQ.DELAYED_NOTIFICATIONS_TTL') + 1;
       // should not repost anymore after ttl;
@@ -361,17 +253,15 @@ describe('app', () => {
         assertCount += 1;
         checkAssert(assertCount, callbackCount, done);
       }
+      // project with id == 1, does not have a copilot assigned
       sendTestEvent(sampleEvents.updatedReviewed, 'project.updated', copCallback);
       setTimeout(() => {
         assertCount += 1;
         sinon.assert.notCalled(spy);
         const params = slackSpy.lastCall.args;
         assert.deepEqual(params[1], expectedRepostedSlackCopilotNotification);
-        // console.log('assert#', assertCount)
-        // console.log('callbackCount#', callbackCount)
-        // checkAssert(assertCount, callbackCount, done);
         done();
-      }, testTimeout);
+      }, 2 * testTimeout);
     });
     // there is no discourse notiifcation for Project.Reviewed
     it('should create `Project.Reviewed`, but not `Project.AvailableToClaim` and copilot slack notifications (copilot assigned)', (done) => {
@@ -436,13 +326,6 @@ describe('app', () => {
       }, testTimeout);
     });
     it('should create `Project.Member.CopilotJoined` notification and slack copilot joined notification', (done) => {
-      getProjectByIdSpy.restore();
-      getProjectByIdSpy = sinon.stub(util, 'getProjectById', () => (
-        new Promise((resolve) => {
-          resolve(sampleProjects.projectTest.result.content);
-        })
-      ));
-
       sendTestEvent(sampleEvents.memberAddedCopilot, 'project.member.added');
       setTimeout(() => {
         sinon.assert.notCalled(spy);

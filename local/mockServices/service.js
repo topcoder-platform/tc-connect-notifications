@@ -113,6 +113,28 @@ server.use(function(req, res, next) {
         }
       }
     })
+  } else if (req.method == 'GET' && req.url.indexOf('projects') > -1) {
+    var projectId = req.url.split('/').pop()
+    if (!projectId) {
+      return res.status(404).json()
+    }
+    var projectsDb = router.db.get('projects').value()
+    var data = _.find(projectsDb, (u) => {
+      return parseInt(u.result.content.id) === parseInt(projectId, 10)
+    })
+
+    if (!data) {
+      return res.status(404).json({})
+    }
+    return res.json({
+      "id": "1",
+      "result": {
+        "success": true,
+        "status": 200,
+        "metadata": null,
+        "content": data.result.content
+      }
+    })
   } else {
     next();
   }

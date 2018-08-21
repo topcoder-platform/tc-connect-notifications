@@ -183,26 +183,24 @@
           "id": 1,
           "directProjectId": 10588,
           "billingAccountId": null,
-          "name": "Project name 1",
-          "description": "sfjsfjslkfjsdfsdfs",
+          "name": "test",
+          "description": "test",
           "external": null,
           "bookmarks": [],
           "estimatedPrice": null,
           "actualPrice": null,
           "terms": [],
           "type": "visual_design",
-          "status": "draft",
+          "status": "reviewed",
           "details": {
             "devices": [
               "phone"
             ],
-            "utm": {
-              "code": "TC"
-            }
+            "utm": {}
           },
           "challengeEligibility": [],
           "createdAt": "2016-10-28T16:20:12.000Z",
-          "updatedAt": "2016-10-28T16:20:12.000Z",
+          "updatedAt": "2016-11-05T00:00:00.000Z",
           "createdBy": 8547899,
           "updatedBy": 8547899,
           "members": [
@@ -287,25 +285,23 @@
         "success": true,
         "status": 200,
         "content": {
-          "id": 1,
+          "id": 2,
           "directProjectId": 10588,
           "billingAccountId": null,
-          "name": "Test forum change 1",
-          "description": "sfjsfjslkfjsdfsdfs",
+          "name": "Project name 1",
+          "description": "Project description 1",
           "external": null,
           "bookmarks": [],
           "estimatedPrice": null,
           "actualPrice": null,
           "terms": [],
           "type": "visual_design",
-          "status": "draft",
+          "status": "reviewed",
           "details": {
             "devices": [
               "phone"
             ],
-            "utm": {
-              "code": "TC"
-            }
+            "utm": {}
           },
           "challengeEligibility": [],
           "createdAt": "2016-10-28T16:20:12.000Z",

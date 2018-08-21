@@ -153,6 +153,7 @@ function* getProjectById(id) {
  */
 function* getProjectTypeByKey(key) {
   const token = yield getSystemUserToken();
+  // token.next();
   if (!token) {
     // logger.error('Error retrieving system token');
     return Promise.reject(new Error('Error retrieving system token'));
