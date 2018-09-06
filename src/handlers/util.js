@@ -158,7 +158,7 @@ function* getProjectTypeByKey(key) {
     return Promise.reject(new Error('Error retrieving system token'));
   }
   return yield requestPromise({
-    url: `${config.get('API_BASE_URL')}/v4/projectTypes/${key}`,
+    url: `${config.get('API_BASE_URL')}/v4/projects/metadata/projectTypes/${key}`,
     headers: {
       Authorization: `Bearer ${token}`,
     },
