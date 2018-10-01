@@ -36,8 +36,8 @@ make_task_def(){
 			"name": "tc-connect-notifications",
 			"image": "%s.dkr.ecr.%s.amazonaws.com/%s:%s",
 			"essential": true,
-			"memory": 200,
-			"cpu": 10,
+			"memory": 512,
+			"cpu": 256,
 			"environment": [
 				{
 					"name": "NODE_ENV",
