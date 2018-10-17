@@ -89,4 +89,4 @@ workflows:
             - test
           filters:
             branches:
-              only: [dev, dev-circleci2]
+              only: [dev, dev-circleci2, feature/Updated_coderbot_message]
