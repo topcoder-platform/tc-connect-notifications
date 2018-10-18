@@ -304,7 +304,7 @@ describe('app', () => {
       sendTestEvent(sampleEvents.draftCreated, 'project.draft-created');
       setTimeout(() => {
         const expectedTitle = 'Your project has been created, and we\'re ready for your specification';
-        const expectedBody = 'Hello, Coder here! Your project \'test\' has been created successfully. For your next step, please head over to the <a href="https://connect.topcoder-dev.com/projects/1/scope/" rel="nofollow">Scope</a> section and answer all of the required questions. If you already have a document with your requirements, just verify it against our checklist and then upload it. Once you\'re done, hit the "Submit for Review" button on the Specification. Get stuck or need help? Email us at <a href="mailto:support@topcoder.com?subject=Question%20Regarding%20My%20New%20Topcoder%20Connect%20Project" rel="nofollow">support@topcoder.com</a>.';
+        const expectedBody = 'Hello, Coder here! Your project \'test\' has been drafted. If you have your requirements documented, just verify it against our checklist and then upload it on the <a href="https://connect.topcoder-dev.com/projects/1/scope/" rel="nofollow">Scope</a> section. Once you\'ve finalized your scope, select the "Submit for Review" button. Topcoder will then review your drafted project and will assign a manager to get your delivery in-progress! Get stuck or need help? Email us at <a href="mailto:support@topcoder.com?subject=Question%20Regarding%20My%20New%20Topcoder%20Connect%20Project" rel="nofollow">support@topcoder.com</a>.';
         const params = spy.lastCall.args;
         assert.equal(params[2], expectedTitle);
         assert.equal(params[3], expectedBody);
