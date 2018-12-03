@@ -1,4 +1,4 @@
-FROM node:8.2.1
+FROM node:6
 LABEL version="1.0"
 LABEL description="Connect Messages Serivce"
 
