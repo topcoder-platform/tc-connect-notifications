@@ -44,4 +44,5 @@ module.exports = {
   SLACK_ICON_URL: 'https://emoji.slack-edge.com/T03R80JP7/coder-grinning/a3b7f3fe9e838377.png',
   SLACK_USERNAME: 'Coder',
   TOPCODER_ICON_URL: 'https://emoji.slack-edge.com/T03R80JP7/topcoder/7c68acd90a6b6d77.png',
+  AUTH0_PROXY_SERVER_URL: "",
 };

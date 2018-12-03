@@ -82,6 +82,10 @@ make_task_def(){
 				{
 					"name": "TOKEN_CACHE_TIME",
 					"value": "%s"
+				},
+				{
+					"name": "AUTH0_PROXY_SERVER_URL",
+					"value": "%s"
 				}
 			],
 			"logConfiguration": {
@@ -103,6 +107,7 @@ make_task_def(){
 	TOKEN_CACHE_TIME=$(eval "echo \$${ENV}_TOKEN_CACHE_TIME")
 	AUTH0_CLIENT_ID=$(eval "echo \$${ENV}_AUTH0_CLIENT_ID")
 	AUTH0_CLIENT_SECRET=$(eval "echo \$${ENV}_AUTH0_CLIENT_SECRET")
+	AUTH0_PROXY_SERVER_URL=$(eval "echo \$${ENV}_AUTH0_PROXY_SERVER_URL")
 
 	if [ "$ENV" = "PROD" ]; then
 		NODE_ENV=production
@@ -110,7 +115,7 @@ make_task_def(){
 		NODE_ENV=development
 	fi
 
-	task_def=$(printf "$task_template" $ACCOUNT_ID $AWS_REGION $AWS_REPOSITORY $CIRCLE_SHA1 $NODE_ENV $LOG_LEVEL $CAPTURE_LOGS $LOGENTRIES_TOKEN $RABBITMQ_URL $TC_SLACK_WEBHOOK_URL "$AUTH0_URL" "$AUTH0_AUDIENCE" $AUTH0_CLIENT_ID "$AUTH0_CLIENT_SECRET" $TOKEN_CACHE_TIME $AWS_ECS_CLUSTER $AWS_REGION $NODE_ENV)
+	task_def=$(printf "$task_template" $ACCOUNT_ID $AWS_REGION $AWS_REPOSITORY $CIRCLE_SHA1 $NODE_ENV $LOG_LEVEL $CAPTURE_LOGS $LOGENTRIES_TOKEN $RABBITMQ_URL $TC_SLACK_WEBHOOK_URL "$AUTH0_URL" "$AUTH0_AUDIENCE" $AUTH0_CLIENT_ID "$AUTH0_CLIENT_SECRET" $TOKEN_CACHE_TIME "$AUTH0_PROXY_SERVER_URL" $AWS_ECS_CLUSTER $AWS_REGION $NODE_ENV)
 }
 
 push_ecr_image(){
