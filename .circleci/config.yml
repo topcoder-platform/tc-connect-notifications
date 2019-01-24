@@ -27,7 +27,7 @@ jobs:
           command: |
             echo 'deb http://www.rabbitmq.com/debian/ testing main' | sudo tee /etc/apt/sources.list.d/rabbitmq.list
             wget -O- https://www.rabbitmq.com/rabbitmq-release-signing-key.asc | sudo apt-key add -
-            sudo apt-get update
+            sudo apt-get update --fix-missing
             sudo apt-get install rabbitmq-server
             sudo service rabbitmq-server start
             sudo cp local/rabbitmq_delayed_message_exchange-0.0.1.ez /usr/lib/rabbitmq/lib/rabbitmq_server-*/plugins
