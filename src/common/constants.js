@@ -165,8 +165,8 @@ module.exports = {
     discourse: {
       project: {
         created: {
-          title: 'Your project has been created, and we\'re ready for your specification',
-          content: data => `Hello, Coder here! Your project '${data.projectName}' has been drafted. If you have your requirements documented, just verify it against our checklist and then upload it on the <a href="${data.projectUrl}scope/" rel="nofollow">Scope</a> section. Once you've finalized your scope, select the "Submit for Review" button. Topcoder will then review your drafted project and will assign a manager to get your delivery in-progress! Get stuck or need help? Email us at <a href="mailto:support@topcoder.com?subject=Question%20Regarding%20My%20New%20Topcoder%20Connect%20Project" rel="nofollow">support@topcoder.com</a>.`,
+          title: 'Share requirements and submit your draft project for review.',
+          content: data => `Your project '${data.projectName}' has been drafted. If you have requirements documented, share them for review under the Files or Links section. Once you’re ready, click the "Submit for Review" button. Topcoder will then review your drafted project and will get your project started! Get stuck or need help? Email us at <a href="mailto:support@topcoder.com?subject=Question%20Regarding%20My%20New%20Topcoder%20Connect%20Project" rel="nofollow">support@topcoder.com</a>.`,
         },
         submittedForReview: {
           title: 'Your project has been submitted for review',
