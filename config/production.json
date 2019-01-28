@@ -11,5 +11,9 @@
   "SLACK_CHANNEL_COPILOTS": "#connect-copilots",
   "SLACK_CHANNEL_NPS": "#customer-experience",
 
-  "API_BASE_URL": "https://api.topcoder.com"
+  "API_URL_PROJECTS": "http://api.topcoder.com/v4/projects",
+  "API_URL_MEMBERS": "http://api.topcoder.com/v3/members",
+  "API_URL_USERS": "http://api.topcoder.com/v3/users",
+  "API_URL_AUTHORIZATIONS": "http://api.topcoder.com/v3/authorizations",
+  "API_URL_TOPICS": "http://api.topcoder.com/v5/topics"
 }
