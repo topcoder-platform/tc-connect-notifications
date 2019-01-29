@@ -31,8 +31,12 @@ module.exports = {
   // Token is generated from https://logentries.com/
   LOGENTRIES_TOKEN: '',
 
-  // The base url to the project/user API server
-  API_BASE_URL: 'http://localhost:3001',
+  // The different services used by this project
+  API_URL_PROJECTS: 'http://localhost:3001/v4/projects',
+  API_URL_MEMBERS: 'http://localhost:3001/v3/members',
+  API_URL_USERS: 'http://localhost:3001/v3/users',
+  API_URL_AUTHORIZATIONS: 'http://localhost:3001/v3/authorizations',
+  API_URL_TOPICS: 'http://localhost:3001/v5/topics',
 
   // Disable delay exchange and use direct instead ( delete existing delay exchnge after changing)
   DISABLE_DELAY_EXCHANGE: false,

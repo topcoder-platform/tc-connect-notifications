@@ -216,33 +216,33 @@ describe('app', () => {
     // Stub the calls to API server
     stub = sinon.stub(request, 'get');
     const stubArgs = {
-      url: `${config.API_BASE_URL}/v4/projects/1`,
+      url: `${config.API_URL_PROJECTS}/1`,
     };
     stub.withArgs(sinon.match.has('url', stubArgs.url))
       .yields(null, { statusCode: 200 }, sampleProjects.project1);
 
-    stubArgs.url = `${config.API_BASE_URL}/v4/projects/1000`;
+    stubArgs.url = `${config.API_URL_PROJECTS}/1000`;
     stub.withArgs(sinon.match.has('url', stubArgs.url))
       .yields(null, { statusCode: 404 });
 
-    stubArgs.url = `${config.API_BASE_URL}/v3/members/_search/?query=userId:1`;
+    stubArgs.url = `${config.API_URL_MEMBERS}/_search/?query=userId:1`;
     stub.withArgs(sinon.match.has('url', stubArgs.url))
       .yields(null, { statusCode: 200 }, sampleUsers.user1);
 
-    stubArgs.url = `${config.API_BASE_URL}/v3/users/1000`;
+    stubArgs.url = `${config.API_URL_USERS}/1000`;
     stub.withArgs(sinon.match.has('url', stubArgs.url))
       .yields(null, { statusCode: 404 });
 
-    stubArgs.url = `${config.API_BASE_URL}/v3/members/_search/?query=userId:40051331`;
+    stubArgs.url = `${config.API_URL_MEMBERS}/_search/?query=userId:40051331`;
     stub.withArgs(sinon.match.has('url', stubArgs.url))
       .yields(null, { statusCode: 200 }, sampleUsers.user1);
 
-    stubArgs.url = `${config.API_BASE_URL}/v3/members/_search/?query=userId:50051333`;
+    stubArgs.url = `${config.API_URL_MEMBERS}/_search/?query=userId:50051333`;
     stub.withArgs(sinon.match.has('url', stubArgs.url))
       .yields(null, { statusCode: 200 }, sampleUsers.user1);
 
     postStub = sinon.stub(request, 'post');
-    postStub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v3/authorizations/`))
+    postStub.withArgs(sinon.match.has('url', `${config.API_URL_AUTHORIZATIONS}/`))
       .yields(null, { statusCode: 200 }, sampleAuth);
 
     postStub.withArgs(sinon.match.has('url', config.TC_SLACK_WEBHOOK_URL))
@@ -319,7 +319,7 @@ describe('app', () => {
       const callbackCount = 1;
       request.get.restore();
       stub = sinon.stub(request, 'get');
-      stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v3/members/_search/?query=userId:8547900`))
+      stub.withArgs(sinon.match.has('url', `${config.API_URL_MEMBERS}/_search/?query=userId:8547900`))
         .yields(null, { statusCode: 200 }, sampleUsers.user1);
 
       sendTestEvent(sampleEvents.updatedInReview, 'project.updated');

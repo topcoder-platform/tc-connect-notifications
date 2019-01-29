@@ -86,6 +86,26 @@ make_task_def(){
 				{
 					"name": "AUTH0_PROXY_SERVER_URL",
 					"value": "%s"
+				},
+				{
+					"name": "API_URL_PROJECTS",
+					"value": "%s"
+				},
+				{
+					"name": "API_URL_MEMBERS",
+					"value": "%s"
+				},
+				{
+					"name": "API_URL_USERS",
+					"value": "%s"
+				},
+				{
+					"name": "API_URL_AUTHORIZATIONS",
+					"value": "%s"
+				},
+				{
+					"name": "API_URL_TOPICS",
+					"value": "%s"
 				}
 			],
 			"logConfiguration": {
@@ -108,6 +128,11 @@ make_task_def(){
 	AUTH0_CLIENT_ID=$(eval "echo \$${ENV}_AUTH0_CLIENT_ID")
 	AUTH0_CLIENT_SECRET=$(eval "echo \$${ENV}_AUTH0_CLIENT_SECRET")
 	AUTH0_PROXY_SERVER_URL=$(eval "echo \$${ENV}_AUTH0_PROXY_SERVER_URL")
+	API_URL_PROJECTS=$(eval "echo \$${ENV}_API_URL_PROJECTS")
+	API_URL_MEMBERS=$(eval "echo \$${ENV}_API_URL_MEMBERS")
+	API_URL_USERS=$(eval "echo \$${ENV}_API_URL_USERS")
+	API_URL_AUTHORIZATIONS=$(eval "echo \$${ENV}_API_URL_AUTHORIZATIONS")
+	API_URL_TOPICS=$(eval "echo \$${ENV}_API_URL_TOPICS")
 
 	if [ "$ENV" = "PROD" ]; then
 		NODE_ENV=production
@@ -115,7 +140,7 @@ make_task_def(){
 		NODE_ENV=development
 	fi
 
-	task_def=$(printf "$task_template" $ACCOUNT_ID $AWS_REGION $AWS_REPOSITORY $CIRCLE_SHA1 $NODE_ENV $LOG_LEVEL $CAPTURE_LOGS $LOGENTRIES_TOKEN $RABBITMQ_URL $TC_SLACK_WEBHOOK_URL "$AUTH0_URL" "$AUTH0_AUDIENCE" $AUTH0_CLIENT_ID "$AUTH0_CLIENT_SECRET" $TOKEN_CACHE_TIME "$AUTH0_PROXY_SERVER_URL" $AWS_ECS_CLUSTER $AWS_REGION $NODE_ENV)
+	task_def=$(printf "$task_template" $ACCOUNT_ID $AWS_REGION $AWS_REPOSITORY $CIRCLE_SHA1 $NODE_ENV $LOG_LEVEL $CAPTURE_LOGS $LOGENTRIES_TOKEN $RABBITMQ_URL $TC_SLACK_WEBHOOK_URL "$AUTH0_URL" "$AUTH0_AUDIENCE" $AUTH0_CLIENT_ID "$AUTH0_CLIENT_SECRET" $TOKEN_CACHE_TIME "$AUTH0_PROXY_SERVER_URL" "$API_URL_PROJECTS" "$API_URL_MEMBERS" "$API_URL_USERS" "$API_URL_AUTHORIZATIONS" "$API_URL_TOPICS" $AWS_ECS_CLUSTER $AWS_REGION $NODE_ENV)
 }
 
 push_ecr_image(){

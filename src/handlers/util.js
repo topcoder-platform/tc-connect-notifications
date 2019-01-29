@@ -60,7 +60,7 @@ const createProjectDiscourseNotification = Promise.coroutine(
         return Promise.reject(new Error('Error retrieving system token'));
       }
       const options = {
-        url: `${config.get('API_BASE_URL')}/v5/topics/create`,
+        url: `${config.get('API_URL_TOPICS')}/create`,
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -138,7 +138,7 @@ function* getProjectById(id) {
     return Promise.reject(new Error('Error retrieving system token'));
   }
   return yield requestPromise({
-    url: `${config.get('API_BASE_URL')}/v4/projects/${id}`,
+    url: `${config.get('API_URL_PROJECTS')}/${id}`,
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -179,7 +179,7 @@ function* getUserById(id) { // eslint-disable-line require-yield
     }
     return reject(new Error('user not found'));
   };
-  return requestPromise({ url: `${config.get('API_BASE_URL')}/v3/members/_search/?query=userId:${id}` }, cb);
+  return requestPromise({ url: `${config.get('API_URL_MEMBERS')}/_search/?query=userId:${id}` }, cb);
 }
 
 

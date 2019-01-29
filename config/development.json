@@ -8,5 +8,9 @@
     "DELAYED_NOTIFICATIONS_EXCHANGE_NAME": "dev.connect-notifications-reminders"
   },
 
-  "API_BASE_URL": "https://api.topcoder-dev.com"
+  "API_URL_PROJECTS": "http://api.topcoder-dev.com/v4/projects",
+  "API_URL_MEMBERS": "http://api.topcoder-dev.com/v3/members",
+  "API_URL_USERS": "http://api.topcoder-dev.com/v3/users",
+  "API_URL_AUTHORIZATIONS": "http://api.topcoder-dev.com/v3/authorizations",
+  "API_URL_TOPICS": "http://api.topcoder-dev.com/v5/topics"
 }
