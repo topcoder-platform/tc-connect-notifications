@@ -216,33 +216,33 @@ describe('app', () => {
     // Stub the calls to API server
     stub = sinon.stub(request, 'get');
     const stubArgs = {
-      url: `${config.API_BASE_URL}/v4/projects/1`,
+      url: `${config.API_URL_PROJECTS}/1`,
     };
     stub.withArgs(sinon.match.has('url', stubArgs.url))
       .yields(null, { statusCode: 200 }, sampleProjects.project1);
 
-    stubArgs.url = `${config.API_BASE_URL}/v4/projects/1000`;
+    stubArgs.url = `${config.API_URL_PROJECTS}/1000`;
     stub.withArgs(sinon.match.has('url', stubArgs.url))
       .yields(null, { statusCode: 404 });
 
-    stubArgs.url = `${config.API_BASE_URL}/v3/members/_search/?query=userId:1`;
+    stubArgs.url = `${config.API_URL_MEMBERS}/_search/?query=userId:1`;
     stub.withArgs(sinon.match.has('url', stubArgs.url))
       .yields(null, { statusCode: 200 }, sampleUsers.user1);
 
-    stubArgs.url = `${config.API_BASE_URL}/v3/users/1000`;
+    stubArgs.url = `${config.API_URL_USERS}/1000`;
     stub.withArgs(sinon.match.has('url', stubArgs.url))
       .yields(null, { statusCode: 404 });
 
-    stubArgs.url = `${config.API_BASE_URL}/v3/members/_search/?query=userId:40051331`;
+    stubArgs.url = `${config.API_URL_MEMBERS}/_search/?query=userId:40051331`;
     stub.withArgs(sinon.match.has('url', stubArgs.url))
       .yields(null, { statusCode: 200 }, sampleUsers.user1);
 
-    stubArgs.url = `${config.API_BASE_URL}/v3/members/_search/?query=userId:50051333`;
+    stubArgs.url = `${config.API_URL_MEMBERS}/_search/?query=userId:50051333`;
     stub.withArgs(sinon.match.has('url', stubArgs.url))
       .yields(null, { statusCode: 200 }, sampleUsers.user1);
 
     postStub = sinon.stub(request, 'post');
-    postStub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v3/authorizations/`))
+    postStub.withArgs(sinon.match.has('url', `${config.API_URL_AUTHORIZATIONS}/`))
       .yields(null, { statusCode: 200 }, sampleAuth);
 
     postStub.withArgs(sinon.match.has('url', config.TC_SLACK_WEBHOOK_URL))
@@ -303,8 +303,8 @@ describe('app', () => {
     it('should create `Project.Created` notification', (done) => {
       sendTestEvent(sampleEvents.draftCreated, 'project.draft-created');
       setTimeout(() => {
-        const expectedTitle = 'Your project has been created, and we\'re ready for your specification';
-        const expectedBody = 'Hello, Coder here! Your project \'test\' has been drafted. If you have your requirements documented, just verify it against our checklist and then upload it on the <a href="https://connect.topcoder-dev.com/projects/1/scope/" rel="nofollow">Scope</a> section. Once you\'ve finalized your scope, select the "Submit for Review" button. Topcoder will then review your drafted project and will assign a manager to get your delivery in-progress! Get stuck or need help? Email us at <a href="mailto:support@topcoder.com?subject=Question%20Regarding%20My%20New%20Topcoder%20Connect%20Project" rel="nofollow">support@topcoder.com</a>.';
+        const expectedTitle = 'Share requirements and submit your draft project for review.';
+        const expectedBody = 'Your project \'test\' has been drafted. If you have requirements documented, share them for review under the Files or Links section. Once you’re ready, click the "Submit for Review" button. Topcoder will then review your drafted project and will get your project started! Get stuck or need help? Email us at <a href="mailto:support@topcoder.com?subject=Question%20Regarding%20My%20New%20Topcoder%20Connect%20Project" rel="nofollow">support@topcoder.com</a>.';
         const params = spy.lastCall.args;
         assert.equal(params[2], expectedTitle);
         assert.equal(params[3], expectedBody);
@@ -319,7 +319,7 @@ describe('app', () => {
       const callbackCount = 1;
       request.get.restore();
       stub = sinon.stub(request, 'get');
-      stub.withArgs(sinon.match.has('url', `${config.API_BASE_URL}/v3/members/_search/?query=userId:8547900`))
+      stub.withArgs(sinon.match.has('url', `${config.API_URL_MEMBERS}/_search/?query=userId:8547900`))
         .yields(null, { statusCode: 200 }, sampleUsers.user1);
 
       sendTestEvent(sampleEvents.updatedInReview, 'project.updated');

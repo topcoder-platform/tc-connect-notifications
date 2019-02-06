@@ -8,6 +8,11 @@ defaults: &defaults
     LOG_LEVEL: debug
     AUTH_DOMAIN: topcoder-dev.com
     AUTH_SECRET: secret
+    API_URL_PROJECTS: http://localhost:3001/v4/projects
+    API_URL_MEMBERS: http://localhost:3001/v3/members
+    API_URL_USERS: http://localhost:3001/v3/users
+    API_URL_AUTHORIZATIONS: http://localhost:3001/v3/authorizations
+    API_URL_TOPICS: http://localhost:3001/v5/topics
 
 jobs:
   test:
@@ -27,7 +32,7 @@ jobs:
           command: |
             echo 'deb http://www.rabbitmq.com/debian/ testing main' | sudo tee /etc/apt/sources.list.d/rabbitmq.list
             wget -O- https://www.rabbitmq.com/rabbitmq-release-signing-key.asc | sudo apt-key add -
-            sudo apt-get update
+            sudo apt-get update --fix-missing
             sudo apt-get install rabbitmq-server
             sudo service rabbitmq-server start
             sudo cp local/rabbitmq_delayed_message_exchange-0.0.1.ez /usr/lib/rabbitmq/lib/rabbitmq_server-*/plugins
