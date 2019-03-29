@@ -1,18 +1,18 @@
 version: 2
 defaults: &defaults
-  docker:
-    - image: circleci/node:6.14-stretch-browsers
-    # environment variables for all commands executed in the primary container
-  environment:
-    NODE_ENV: test
-    LOG_LEVEL: debug
-    AUTH_DOMAIN: topcoder-dev.com
-    AUTH_SECRET: secret
-    API_URL_PROJECTS: http://localhost:3001/v4/projects
-    API_URL_MEMBERS: http://localhost:3001/v3/members
-    API_URL_USERS: http://localhost:3001/v3/users
-    API_URL_AUTHORIZATIONS: http://localhost:3001/v3/authorizations
-    API_URL_TOPICS: http://localhost:3001/v5/topics
+    docker:
+      - image: circleci/node:6.14-stretch-browsers
+      # environment variables for all commands executed in the primary container
+    environment:
+      NODE_ENV: test
+      LOG_LEVEL: debug
+      AUTH_DOMAIN: topcoder-dev.com
+      AUTH_SECRET: secret
+      API_URL_PROJECTS: http://localhost:3001/v4/projects
+      API_URL_MEMBERS: http://localhost:3001/v3/members
+      API_URL_USERS: http://localhost:3001/v3/users
+      API_URL_AUTHORIZATIONS: http://localhost:3001/v3/authorizations
+      API_URL_TOPICS: http://localhost:3001/v5/topics
 
 install_dependency: &install_dependency
           name: Installation of build and deployment dependencies.
