@@ -19,7 +19,11 @@ install_dependency: &install_dependency
           command: |
             sudo apt-get update && sudo apt-get install -y python-pip
             sudo pip install awscli
-            sudo apt install bash curl
+            sudo apt-get install curl
+            curl --version
+            sudo apt-get install bash
+            sudo apt install bash 
+            
 
 install_deploysuite: &install_deploysuite
           name: Installation of install_deploysuite.
@@ -91,8 +95,7 @@ jobs:
             ./buildenv.sh -e DEV -b dev-tc-connect-notifications-deployvar
             source buildenvvar
             echo " Stopping here"
-            #./master_deploy.sh -d ECS -e DEV -t latest -s dev-global-appvar,dev-tc-connect-notifications-appvar -i tc-connect-notifications 
-
+           
 
   deploy_prod:
     <<: *defaults
