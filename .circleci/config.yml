@@ -69,6 +69,7 @@ jobs:
   deploy_dev:
     <<: *defaults
     steps:
+      - checkout
       - setup_remote_docker
       - run: *install_docker_compose
       - run: *install_dependency
