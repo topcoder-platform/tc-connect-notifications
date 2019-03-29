@@ -10,7 +10,7 @@ docker create --name app $TAG
 if [ -d node_modules ]
 then
   mv package-lock.json old-package-lock.json
-  docker cp app:/opt/app/package-lock.json package-lock.json
+  docker cp app:/usr/src/app/package-lock.json package-lock.json
   set +eo pipefail
   UPDATE_CACHE=$(cmp package-lock.json old-package-lock.json)
   set -eo pipefail
@@ -20,6 +20,6 @@ fi
 
 if [ "$UPDATE_CACHE" == 1 ]
 then
-  docker cp app:/opt/app/node_modules .
+  docker cp app:/usr/src/app/node_modules .
 fi
           
