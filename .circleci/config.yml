@@ -17,13 +17,9 @@ defaults: &defaults
 install_dependency: &install_dependency
           name: Installation of build and deployment dependencies.
           command: |
-            apk update
-            apk add --no-cache bash curl
-            apk upgrade
-            apk add --no-cache jq py-pip sudo
-            sudo pip install awscli --upgrade
-            
-           # sudo pip install docker-compose
+            sudo apt-get update && sudo apt-get install -y python-pip
+            sudo pip install awscli
+            sudo apt install bash curl
 
 install_deploysuite: &install_deploysuite
           name: Installation of install_deploysuite.
@@ -88,13 +84,13 @@ jobs:
       - run: *run_build
       - deploy: 
           name: Running Masterscript - deploy tc-connect-notifications
-          command: echo "stopping here"
-         # command: |    
-         #   echo " Stopping here"
-            #./awsconfiguration.sh DEV
-            #source awsenvconf
-            #./buildenv.sh -e DEV -b dev-tc-connect-notifications-deployvar
-            #source buildenvvar
+          command: |    
+            echo " Stopping here"
+            ./awsconfiguration.sh DEV
+            source awsenvconf
+            ./buildenv.sh -e DEV -b dev-tc-connect-notifications-deployvar
+            source buildenvvar
+            echo " Stopping here"
             #./master_deploy.sh -d ECS -e DEV -t latest -s dev-global-appvar,dev-tc-connect-notifications-appvar -i tc-connect-notifications 
 
 
