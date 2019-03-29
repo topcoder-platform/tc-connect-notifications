@@ -22,6 +22,7 @@ install_dependency: &install_dependency
             apk upgrade
             apk add --no-cache jq py-pip sudo
             sudo pip install awscli --upgrade
+            
            # sudo pip install docker-compose
 
 install_deploysuite: &install_deploysuite
@@ -66,6 +67,7 @@ jobs:
             echo 'deb http://www.rabbitmq.com/debian/ testing main' | sudo tee /etc/apt/sources.list.d/rabbitmq.list
             wget -O- https://www.rabbitmq.com/rabbitmq-release-signing-key.asc | sudo apt-key add -
             sudo apt-get update --fix-missing
+            sudo apt-get -y install apt-transport-https
             sudo apt-get install rabbitmq-server
             sudo service rabbitmq-server start
             sudo cp local/rabbitmq_delayed_message_exchange-0.0.1.ez /usr/lib/rabbitmq/lib/rabbitmq_server-*/plugins
