@@ -1,8 +1,18 @@
 version: 2
 defaults: &defaults
-    docker:
-      - image: circleci/node:6.14-stretch-browsers
-    
+  docker:
+    - image: circleci/node:6.14-stretch-browsers
+    # environment variables for all commands executed in the primary container
+  environment:
+    NODE_ENV: test
+    LOG_LEVEL: debug
+    AUTH_DOMAIN: topcoder-dev.com
+    AUTH_SECRET: secret
+    API_URL_PROJECTS: http://localhost:3001/v4/projects
+    API_URL_MEMBERS: http://localhost:3001/v3/members
+    API_URL_USERS: http://localhost:3001/v3/users
+    API_URL_AUTHORIZATIONS: http://localhost:3001/v3/authorizations
+    API_URL_TOPICS: http://localhost:3001/v5/topics
 
 install_dependency: &install_dependency
           name: Installation of build and deployment dependencies.
@@ -12,7 +22,8 @@ install_dependency: &install_dependency
             apk upgrade
             apk add --no-cache jq py-pip sudo
             sudo pip install awscli --upgrade
-          
+           # sudo pip install docker-compose
+
 install_deploysuite: &install_deploysuite
           name: Installation of install_deploysuite.
           command: |
@@ -20,7 +31,7 @@ install_deploysuite: &install_deploysuite
             cp ./../buildscript/master_deploy.sh .
             cp ./../buildscript/buildenv.sh .
             cp ./../buildscript/awsconfiguration.sh .
-            
+
 install_docker_compose: &install_docker_compose
           name: Install Docker Compose
           command: |
@@ -42,7 +53,7 @@ run_build: &run_build
           command: docker build -t tc-connect-notifications:latest .
 
 jobs:
-  "test":
+  test:
     <<: *defaults
     steps:
       - checkout
@@ -54,7 +65,6 @@ jobs:
           command: |
             echo 'deb http://www.rabbitmq.com/debian/ testing main' | sudo tee /etc/apt/sources.list.d/rabbitmq.list
             wget -O- https://www.rabbitmq.com/rabbitmq-release-signing-key.asc | sudo apt-key add -
-            sudo apt-get install apt-transport-https
             sudo apt-get update --fix-missing
             sudo apt-get install rabbitmq-server
             sudo service rabbitmq-server start
@@ -65,32 +75,59 @@ jobs:
       - store_artifacts:
           path: coverage
 
-  "deploy_dev":
+  deploy_dev:
     <<: *defaults
     steps:
       - checkout
       - setup_remote_docker
+      - run: *install_docker_compose
       - run: *install_dependency
       - run: *install_deploysuite
+      - run: *run_build
+      - deploy: 
+          name: Running Masterscript - deploy tc-connect-notifications
+          command: echo "stopping here"
+         # command: |    
+         #   echo " Stopping here"
+            #./awsconfiguration.sh DEV
+            #source awsenvconf
+            #./buildenv.sh -e DEV -b dev-tc-connect-notifications-deployvar
+            #source buildenvvar
+            #./master_deploy.sh -d ECS -e DEV -t latest -s dev-global-appvar,dev-tc-connect-notifications-appvar -i tc-connect-notifications 
+
+
+  deploy_prod:
+    <<: *defaults
+    steps:
+      - checkout
+      - setup_remote_docker
       - run: *install_docker_compose
+      - run: *install_dependency
+      - run: *install_deploysuite
       - run: *run_build
       - deploy: 
           name: Running Masterscript - deploy tc-connect-notifications
           command: |    
-            echo "hello world"
+            ./awsconfiguration.sh PROD
+            source awsenvconf
+            ./buildenv.sh -e PROD -b dev-tc-connect-notifications-deployvar
+            source buildenvvar
+            ./master_deploy.sh -d ECS -e PROD -t latest -s prod-global-appvar,prod-tc-connect-notifications-appvar -i tc-connect-notifications
 
 workflows:
   version: 2
   test-and-deploy:
     jobs:
-      # Development builds are executed on "develop" branch only.
-      - "deploy_dev":
-          context : org-global
-          filters:
-            branches:
-              only: ['dev','dev-mssts1.3']
-      - "deploy_prod":
-          context : org-global
+      - test
+      - deploy_prod:
+          requires:
+            - test
           filters:
             branches:
               only: master
+      - deploy_dev:
+          requires:
+            - test
+          filters:
+            branches:
+              only: [dev, 'feature/auth0-proxy-server', 'dev-mssts1.3']
