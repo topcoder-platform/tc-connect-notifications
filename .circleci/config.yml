@@ -71,9 +71,9 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - run: *install_docker_compose
       - run: *install_dependency
       - run: *install_deploysuite
+      - run: *install_docker_compose
       - run: *run_build
       - deploy: 
           name: Running Masterscript - deploy tc-connect-notifications
