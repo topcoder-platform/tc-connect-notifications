@@ -22,7 +22,6 @@ install_deploysuite: &install_deploysuite
             cp ./../buildscript/awsconfiguration.sh .
             
 install_docker_compose: &install_docker_compose
-      - run:
           name: Install Docker Compose
           command: |
             curl -L https://github.com/docker/compose/releases/download/1.10.0/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
