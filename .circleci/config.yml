@@ -65,6 +65,7 @@ jobs:
           command: |
             echo 'deb http://www.rabbitmq.com/debian/ testing main' | sudo tee /etc/apt/sources.list.d/rabbitmq.list
             wget -O- https://www.rabbitmq.com/rabbitmq-release-signing-key.asc | sudo apt-key add -
+            sudo apt-get install apt-transport-https
             sudo apt-get update --fix-missing
             sudo apt-get install rabbitmq-server
             sudo service rabbitmq-server start
