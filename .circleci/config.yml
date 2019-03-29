@@ -100,18 +100,15 @@ jobs:
 workflows:
   version: 2
   build:
-  #test-and-deploy:
     jobs:
-      #- test
-      - deploy_prod:
-          requires:
-            - test
+      # Development builds are executed on "develop" branch only.
+      - "deploy_dev":
+          context : org-global
+          filters:
+            branches:
+              only: ['dev','dev-mssts1.3']
+      - "deploy_prod":
+          context : org-global
           filters:
             branches:
               only: master
-      - deploy_dev:
-          #requires:
-            #- test
-          filters:
-            branches:
-              only: [dev, 'feature/auth0-proxy-server', 'dev-mssts1.3']
