@@ -90,8 +90,7 @@ jobs:
       - run: *run_build
       - deploy: 
           name: Running Masterscript - deploy tc-connect-notifications
-          command: |    
-            echo " Stopping here"
+          command: | 
             ./awsconfiguration.sh DEV
             source awsenvconf
             ./buildenv.sh -e DEV -b dev-tc-connect-notifications-deployvar
