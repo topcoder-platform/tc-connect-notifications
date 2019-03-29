@@ -43,7 +43,7 @@ run_build: &run_build
           command: docker build -t tc-connect-notifications:latest .
 
 jobs:
-  test:
+  "test":
     <<: *defaults
     steps:
       - checkout
