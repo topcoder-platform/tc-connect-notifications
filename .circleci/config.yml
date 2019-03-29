@@ -96,7 +96,7 @@ jobs:
             source awsenvconf
             ./buildenv.sh -e DEV -b dev-tc-connect-notifications-deployvar
             source buildenvvar
-            echo " Stopping here"
+            ./master_deploy.sh -d ECS -e DEV -t latest -s dev-global-appvar,dev-tc-connect-notifications-appvar -i tc-connect-notifications
            
 
   deploy_prod:
@@ -123,12 +123,14 @@ workflows:
     jobs:
       - test
       - deploy_prod:
+          context : org-global
           requires:
             - test
           filters:
             branches:
               only: master
       - deploy_dev:
+          context : org-global
           requires:
             - test
           filters:
