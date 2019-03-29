@@ -51,7 +51,9 @@ save_cache_settings_for_test: &save_cache_settings_for_test
 
 run_build: &run_build
           name: Build of Docker image
-          command: ./build.sh
+          command: |
+             chmod +x build.sh
+             ./build.sh
 
 jobs:
   test:
