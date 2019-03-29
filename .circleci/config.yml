@@ -51,7 +51,7 @@ save_cache_settings_for_test: &save_cache_settings_for_test
 
 run_build: &run_build
           name: Build of Docker image
-          command: docker build -t tc-connect-notifications:latest .
+          command: ./build.sh
 
 jobs:
   test:
