@@ -66,6 +66,20 @@ jobs:
       - store_artifacts:
           path: coverage
 
+  "deploy_dev":
+    <<: *defaults
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: *install_docker_compose
+      - run: *install_dependency
+      - run: *install_deploysuite
+      - run: *run_build
+      - deploy: 
+          name: Running Masterscript - deploy tc-connect-notifications
+          command: |    
+            echo "hello world"
+
 workflows:
   version: 2
   test-and-deploy:
