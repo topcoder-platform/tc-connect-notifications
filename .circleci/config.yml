@@ -23,7 +23,6 @@ install_dependency: &install_dependency
             apk add --no-cache jq py-pip sudo
             sudo pip install awscli --upgrade
           
-
 install_deploysuite: &install_deploysuite
           name: Installation of install_deploysuite.
           command: |
@@ -48,14 +47,6 @@ save_cache_settings_for_test: &save_cache_settings_for_test
   key: node-modules-{{ checksum "package.json" }}
   paths:
     - node_modules
-
-tc-connect-notifications-restore_cache: &tc-connect-notifications-restore_cache
-  key: docker-c-connect-notifications-{{ checksum "package-lock.json" }}
-
-tc-connect-notifications-save_cache: &tc-connect-notifications-save_cache
-  key: docker-c-connect-notifications-{{ checksum "package-lock.json" }}
-  paths:
-    - node_modules    
 
 run_build: &run_build
           name: Build of Docker image
@@ -92,18 +83,7 @@ jobs:
       - run: *install_docker_compose
       - run: *install_dependency
       - run: *install_deploysuite
-      - restore_cache: *tc-connect-notifications-restore_cache
       - run: *run_build
-      - save_cache: *tc-connect-notifications-save_cache
-      - deploy: 
-          name: Running Masterscript - deploy tc-connect-notifications
-          command: |    
-            ./awsconfiguration.sh DEV
-            source awsenvconf
-            ./buildenv.sh -e DEV -b dev-tc-connect-notifications-deployvar
-            source buildenvvar
-            ./master_deploy.sh -d ECS -e DEV -t latest -s dev-global-appvar,dev-tc-connect-notifications-appvar -i tc-connect-notifications 
-
 
   deploy_prod:
     <<: *defaults
@@ -113,9 +93,7 @@ jobs:
       - run: *install_docker_compose
       - run: *install_dependency
       - run: *install_deploysuite
-      - restore_cache: *tc-connect-notifications-restore_cache
       - run: *run_build
-      - save_cache: *tc-connect-notifications-save_cache
       - deploy: 
           name: Running Masterscript - deploy tc-connect-notifications
           command: |    
