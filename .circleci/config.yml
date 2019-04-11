@@ -3,6 +3,7 @@ defaults: &defaults
   docker:
     - image: circleci/node:6.14-stretch-browsers
     # environment variables for all commands executed in the primary container
+    
   environment:
     NODE_ENV: test
     LOG_LEVEL: debug
@@ -66,8 +67,10 @@ jobs:
       - run:
           name: Install and setup Rabbitmq
           command: |
+            set +e
             echo 'deb http://www.rabbitmq.com/debian/ testing main' | sudo tee /etc/apt/sources.list.d/rabbitmq.list
             wget -O- https://www.rabbitmq.com/rabbitmq-release-signing-key.asc | sudo apt-key add -
+            sudo apt update
             sudo apt-get -y install apt-transport-https
             sudo apt-get update --fix-missing
             sudo apt-get install rabbitmq-server
