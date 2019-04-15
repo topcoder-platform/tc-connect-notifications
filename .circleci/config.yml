@@ -115,7 +115,7 @@ jobs:
           command: |    
             ./awsconfiguration.sh PROD
             source awsenvconf
-            ./buildenv.sh -e PROD -b dev-tc-connect-notifications-deployvar
+            ./buildenv.sh -e PROD -b prod-tc-connect-notifications-deployvar
             source buildenvvar
             ./master_deploy.sh -d ECS -e PROD -t latest -s prod-global-appvar,prod-tc-connect-notifications-appvar -i tc-connect-notifications
 
