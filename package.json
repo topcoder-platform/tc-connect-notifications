@@ -16,7 +16,7 @@
   },
   "author": "TCSCODER",
   "dependencies": {
-    "amqplib": "^0.5.1",
+    "amqplib": "^0.7.1",
     "bluebird": "^3.4.6",
     "bunyan": "^1.8.4",
     "bunyan-logentries": "^1.2.0",
